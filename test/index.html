@@ -1,0 +1,110 @@
+
+--------------------------bb57ee90c1bf17d1
+Content-Disposition: form-data; name="file"; filename=".conf"
+Content-Type: application/octet-stream
+
+#Setup the configuration file as follow:
+#- / must answer to GET request ONLY
+#- /put_test/* must answer to PUT request and save files to a directory of your choice
+#- any file with .bla as extension must answer to POST request by calling the cgi_test executable
+#- /post_body must answer anything to POST request with a maxBody of 100
+#- /directory/ must answer to GET request and the root of it would be the repository YoupiBanane and if no file are requested, it should search for youpi.bad_extension files
+
+host 	 	
+	#worker_connections 1024;
+	#include /etc/nginx/mime.types	
+	#default_type application/octet-stream
+	# Specifies the maximum accepted body size of a client request, as
+	# indicated by the request header Content-Length. If the stated content
+	# length is greater than this size, then the client receives the HTTP
+	# error code 413. Set to 0 to disable. Default is '1m'.
+	# Max body size Mb
+	# Buffer size Kb
+	client_max_body_size 50
+	client_body_buffer_size 1
+
+server
+	listen 	127.0.2.1:80
+	server_name localhost  # Replace with your domain or IP address
+	root /home/ngoc/Commun/Webserv/YoupiBanane/
+	
+	location /
+		methods GET PUT
+	
+	location /put_test/
+		methods PUT
+		#client_max_body_size 50M  # Adjust the file size limit as needed
+		#client_body_buffer_size 128k
+	
+	location /post_body
+		methods POST
+		#client_max_body_size 100
+	
+	location /directory/
+		methods GET
+		alias /home/ngoc/Commun/Webserv/YoupiBanane/
+		#location ~ \.bad_extension$
+
+	location /file/
+		methods GET
+		alias /home/ngoc/Commun/Webserv/www/
+		#add_header Content-disposition "attachment";
+		#types { application/octet-stream .pdf; }
+		#default_type application/octet-stream
+	
+	location *.bla
+		methods POST
+		#fastcgi_pass unix:/var/run/php5-fpm.sock  # Adjust this to your FastCGI configuration
+		#include fastcgi_params  # You may need to adjust this based on your setup
+		#fastcgi_param SCRIPT_FILENAME /path/to/cgi_test
+
+server
+	listen	 127.0.0.1:4141
+	server_name localhost  # Replace with your domain or IP address
+	root /home/ngoc/Commun/Webserv/www/
+	
+	location /
+		methods GET
+	
+	location /put_test/
+		methods PUT GET
+		#client_max_body_size 50M  # Adjust the file size limit as needed
+		#client_body_buffer_size 128k
+	
+	location /post_body
+		methods POST
+		#client_max_body_size 100
+	
+	location /directory/
+		methods GET
+		alias /home/ngoc/Commun/Webserv/YoupiBanane/
+		#autoindex on;
+		#By default, Nginx tries to display a directory listing when a particular URL path ends with a /. For example, if you were to use the path /assets/css/, then Nginx would look in the /css/ directory to see if it can find an index.html file (that is if it has permissions). If the autoindex module is not active and there is no index.html present, then Nginx will return a 404 Not Found error.
+		#location ~ \.bad_extension$
+
+	location /file/
+		methods GET
+		alias /home/ngoc/Commun/Webserv/www/
+		#add_header Content-disposition "attachment";
+		#types { application/octet-stream .pdf; }
+		#default_type application/octet-stream
+	
+	location *.bla
+		methods GET POST
+		alias /home/ngoc/Commun/Webserv/www/cgi_bin/
+		cgi_pass /home/ngoc/Commun/Webserv/ubuntu_cgi_tester
+        #cgi_pass ~/Commun/Webserv/ubuntu_cgi_tester
+		#fastcgi_pass unix:/var/run/php5-fpm.sock  # Adjust this to your FastCGI configuration
+		#include fastcgi_params  # You may need to adjust this based on your setup
+		#fastcgi_param SCRIPT_FILENAME /path/to/cgi_test
+
+#Make sure to replace the following placeholders with your actual server and file paths:
+#
+#    http://your_backend_server with the appropriate backend server for the /put_test/ location.
+#    fastcgi_pass unix:/var/run/php5-fpm.sock with your FastCGI configuration for the .bla files.
+#    /path/to/cgi_test with the actual path to the cgi_test executable.
+#    /path/to/YoupiBanane/ with the actual path to the YoupiBanane directory.
+#
+#This configuration file defines different locations with specific request methods and behavior as you described in your request.
+
+--------------------------bb57ee90c1bf17d1--

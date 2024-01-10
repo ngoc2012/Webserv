@@ -1,0 +1,280 @@
+/*-- -------------------------- -->
+<---          Landing           -->
+<--- -------------------------- -*/
+/* Mobile */
+@media only screen and (min-width: 0em) {
+  #landing {
+    position: relative;
+    z-index: inherit;
+    margin-top: 3.125em;
+    padding-top: 6.25em;
+    padding-bottom: 60%;
+  }
+  #landing picture {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: -1;
+  }
+  #landing picture img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: auto;
+    width: 100%;
+  }
+  #landing h1 {
+    font-size: min(11.4vw, 5.3125em);
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 4px 4px 0px var(--primaryDark);
+    margin-bottom: 0.28235294em;
+    line-height: 1.03529412;
+    max-width: 8.23529412em;
+  }
+  #landing h1 .highlight {
+    color: var(--primaryDark);
+    letter-spacing: -2.13px;
+    text-shadow: 0.04705882em 0.04705882em 0px #ffffff;
+    margin-bottom: 0.11764706em;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+  }
+  #landing h1 .highlight:before {
+    content: '';
+    position: absolute;
+    display: block;
+    height: 0.2em;
+    border-radius: 0.10588235em;
+    width: 100%;
+    background: var(--primary);
+    opacity: 1;
+    bottom: 0.09411765em;
+    z-index: -1;
+    left: 0.11764706em;
+  }
+  #landing h2 {
+    font-size: 1.6em;
+    color: #fff;
+    max-width: 20.83333333em;
+    font-weight: 400;
+    margin-bottom: 0.75em;
+    text-shadow: 1px 1px 0px var(--primaryDark);
+  }
+  #landing .button-solid {
+    color: #fff;
+  }
+  #landing .button-solid:hover:before {
+    background-color: var(--primaryDark);
+  }
+  #landing .button-solid:before {
+    background-color: #000;
+  }
+}
+@media only screen and (min-width: 417px) {
+  #landing {
+    padding-bottom: 70%;
+  }
+}
+@media only screen and (min-width: 800px) {
+  #landing {
+    padding-bottom: 15%;
+  }
+}
+/* Small Desktop */
+@media only screen and (min-width: 64em) {
+  #landing {
+    margin: 0;
+    padding-top: 11.5em;
+    position: relative;
+    z-index: 1;
+  }
+  #landing .container {
+    max-width: 87.5em;
+  }
+}
+@media only screen and (min-width: 1400px) {
+  #landing {
+    padding-bottom: 35%;
+  }
+}
+@media only screen and (min-width: 1600px) {
+  #landing {
+    height: 25vw;
+    padding-bottom: 15%;
+  }
+}
+@media only screen and (min-width: 1750px) {
+  #landing {
+    height: 27vw;
+    padding-bottom: 15%;
+  }
+}
+/* 2000px wide */
+@media only screen and (min-width: 2000px) {
+  #landing {
+    padding-top: 17.5625em;
+    padding-bottom: 0;
+    height: 37.625em;
+    min-height: auto;
+  }
+  #landing picture {
+    top: 0;
+  }
+  #landing picture img {
+    position: relative;
+  }
+  #landing h1 {
+    margin-top: 0;
+    font-size: 4.6875em;
+  }
+}
+/*-- -------------------------- -->
+<---           About            -->
+<--- -------------------------- -*/
+/* Mobile */
+@media only screen and (min-width: 0em) {
+  #about {
+    position: relative;
+    z-index: 100;
+  }
+  #about .content {
+    padding-left: 1.5em;
+    position: relative;
+    padding-bottom: 4.6875em;
+  }
+  #about .content:before {
+    content: '';
+    position: absolute;
+    display: block;
+    height: 80%;
+    width: 0.3125em;
+    background: var(--primary);
+    opacity: 1;
+    top: 0;
+    left: 0;
+  }
+  #about h2 {
+    font-size: min(6.4vw, 2em);
+    line-height: 1.15625;
+    color: #707070;
+    margin-bottom: 1.32432432em;
+    max-width: 13.64864865em;
+  }
+  #about h2 .green {
+    color: var(--primary);
+    display: block;
+  }
+  #about p {
+    margin-bottom: 1.38888889em;
+    max-width: 20.44444444em;
+  }
+  #about picture {
+    width: 100%;
+    display: block;
+    position: relative;
+    margin-bottom: -9.375em;
+  }
+  #about picture img {
+    width: 100%;
+    height: auto;
+  }
+}
+/* Tablet */
+@media only screen and (min-width: 600px) {
+  #about {
+    padding-top: 4.6875em;
+  }
+  #about picture {
+    margin-bottom: -15.625em;
+  }
+}
+/* Small Desktop */
+@media only screen and (min-width: 750px) {
+  #about {
+    padding-top: 16%;
+    padding-bottom: 0;
+  }
+  #about .container {
+    max-width: 75em;
+  }
+  #about picture {
+    width: 70%;
+    margin-left: auto;
+    margin-right: -6.25em;
+    margin-top: -12.5em;
+  }
+}
+@media only screen and (min-width: 800px) {
+  #about .content:before {
+    height: 65%;
+  }
+  #about h2 {
+    max-width: 17.96875em;
+  }
+}
+/* Large Desktop */
+@media only screen and (min-width: 1024px) {
+  #about {
+    position: relative;
+    padding-top: 20%;
+  }
+  #about .content {
+    padding-bottom: 5.5em;
+  }
+  #about picture {
+    width: 56.25em;
+    position: absolute;
+    margin: auto;
+    margin-left: -10.625em;
+    left: 50%;
+    bottom: -20.625em;
+  }
+}
+/* Large Desktop */
+@media only screen and (min-width: 1200px) {
+  #about {
+    padding-top: 30%;
+  }
+  #about picture {
+    margin-left: 5.9375em;
+    bottom: -6.25em;
+    transform: scale(1.4);
+  }
+}
+/* Large Desktop */
+@media only screen and (min-width: 1400px) {
+  #about {
+    padding-top: 10%;
+  }
+  #about picture {
+    width: 61.8125em;
+  }
+}
+/* Large Desktop */
+@media only screen and (min-width: 1600px) {
+  #about {
+    padding-top: 5%;
+  }
+  #about picture {
+    bottom: -13.125em;
+    transform: scale(1.3);
+    margin-left: 0;
+  }
+}
+/* Large Desktop */
+@media only screen and (min-width: 2000px) {
+  #about picture {
+    transform: scale(1.15);
+    bottom: -15em;
+  }
+}
+/* Dark mode */
+@media only screen and (min-width: 0em) {
+  body.dark-mode #about h2 {
+    color: #fff;
+  }
+}
