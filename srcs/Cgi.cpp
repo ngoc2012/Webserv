@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/05 17:19:30 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/11 17:08:26 by nbechon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,3 +170,4 @@ bool    Cgi::get_envs()
 int         Cgi::get_pid(void) const {return (_pid);}
 
 void        Cgi::set_request(Request* r) {_request = r;}
+void        Cgi::set_file(std::string f) {_file = f;}

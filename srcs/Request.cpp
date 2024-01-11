@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/10 13:11:03 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/11 17:10:16 by nbechon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -308,7 +308,7 @@ bool	Request::check_location()
 
     _full_file_name = _location->get_full_file_name(_url,
             _server->get_root(), _method);
-
+    _cgi->set_file(_full_file_name);
     //std::cout << "check_location " << _socket << " " << _full_file_name << std::endl;
 
 	struct stat info;
