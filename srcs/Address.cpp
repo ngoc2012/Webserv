@@ -18,7 +18,7 @@
 
 #include "Address.hpp"
 
-Address::Address() { }
+Address::Address() {}
 Address::Address(const Address& src) { *this = src; }
 Address&	Address::operator=( Address const & src )
 {
@@ -40,7 +40,9 @@ Address::Address(Host* host, std::string ip, short unsigned int p):
     _host(host),
     _ip_address(ip),
     _port(p)
-{}
+{
+	_listen_socket = -1;
+}
 
 void    Address::push(Server* s) { _servers.push_back(s); }
 
