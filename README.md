@@ -41,6 +41,11 @@ curl -X PUT -H "Content-Type: application/octet-stream" -H "Transfer-Encoding: c
 curl -i -X GET -F "file=@.conf" 127.0.4.1:80
 ```
 
+### GET:
+```console
+curl -X POST http://127.0.0.1:4141/cgi/youpi.bla
+```
+
 ## README.md
 
 [Example](https://github.com/github-linguist/linguist)

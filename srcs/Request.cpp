@@ -122,7 +122,7 @@ bool	Request::receive_header(void)
             body_position = str_buffer.find("\r\n\r\n");
         }
     }
-    //std::cout << "Request header: " << _str_header.size() << std::endl << _str_header << std::endl;
+    std::cout << "Request header: " << _str_header.size() << std::endl << _str_header << std::endl;
     if (body_position == NPOS)
     {
         std::cerr << "Error: No end header found.\n" << std::endl;
@@ -170,7 +170,7 @@ bool	Request::parse_header(void)
     if (_chunked)
         return (true);
     _content_length = _header.parse_content_length();
-    //std::cout << "Content-Length: " << _content_length << std::endl;
+    std::cout << "Content-Length: " << _content_length << std::endl;
     if (_method == GET)
     {
         if (_content_length == NPOS)
@@ -178,8 +178,10 @@ bool	Request::parse_header(void)
         return (true);
     }
     _content_type = _header.parse_content_type();
-    //std::cout << "Content-Type: " << _content_type << std::endl;
+    std::cout << "Content-Type: " << _content_type << std::endl;
     if (_method == PUT && _content_length != NPOS)
+        return (true);
+    if (_method == POST)
         return (true);
     if (_content_type == "" || _content_length == NPOS)
     {
@@ -216,7 +218,7 @@ int     Request::read_body()
         _body_left = 0;
     }
     else if (!write_chunked(ret + _body_left))
-            return (end_read());
+        return (end_read());
     //std::cout << "_body_size: " << _body_size << std::endl;
     //std::cout << "ret: " << ret << std::endl;
     //std::cout << "_content_length: " << _content_length << std::endl;
@@ -321,6 +323,7 @@ bool	Request::check_location()
 
 void	Request::process_fd_in()
 {
+    std::cout << "process_fd_in" << std::endl;
     int i = 0;
     switch (_method)
     {
@@ -335,12 +338,15 @@ void	Request::process_fd_in()
         case POST:
             _tmp_file = "/tmp/0";
             struct stat buffer;
-            while (stat(_tmp_file.c_str(), &buffer) != 0)
+            while (stat(_tmp_file.c_str(), &buffer) == 0)
                 _tmp_file = "/tmp/" + ft::itos(++i);
+            std::cout << _tmp_file << std::endl;
             _fd_in = open(_tmp_file.c_str(),
                     O_CREAT | O_WRONLY | O_TRUNC, 0664);
             if (_fd_in == -1)
                 _status_code = 500;
+            if (!_content_length || _content_length == NPOS)
+                end_read();
             break;
         case DELETE:
             if (std::remove(_full_file_name.c_str()))
@@ -355,7 +361,7 @@ int     Request::end_read(void)
 {
     std::cout << "end_read " << _socket << " " << _body_size << " " << _full_file_name << std::endl;
 
-    if (_fd_in > 0)
+    if (_method != POST && _fd_in > 0)
         close(_fd_in);
     _read_queue = false;
     _host->new_response_sk(_socket);
