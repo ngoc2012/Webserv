@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/12 15:19:10 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/12 15:21:39 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,7 @@ bool	Request::parse_header(void)
     }
     if (!check_location())
         return (false);
-    if (_method == POST)
+    if (_cgi && _method == POST)
         _cgi = new Cgi(this);
     _chunked = _header.parse_transfer_encoding();
     //std::cout << "_chunked: " << _chunked << std::endl;
