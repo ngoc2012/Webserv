@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/11 17:08:26 by nbechon          ###   ########.fr       */
+/*   Updated: 2024/01/12 16:50:50 by nbechon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,11 +95,21 @@ void    Cgi::execute()
             return ;
         }
         char    buffer[BUFFER_SIZE];
-        size_t  bytesRead;
+        ssize_t bytesRead;
         while ((bytesRead = read(fd_in, buffer, BUFFER_SIZE)) > 0)
-            write(pipe_in[1], buffer, bytesRead);
-        _request->get_response()->set_fd_out(pipe_out[0]);
+        {
+            ssize_t bytesWritten = write(pipe_in[1], buffer, bytesRead);
+            if (bytesWritten < 0)
+            {
+                std::cerr << "Error: write" << std::endl;
+                perror("write");
+            // Gestion de l'erreur ici, selon vos besoins.
+            // Vous pouvez également envisager de quitter la boucle ou la fonction.
+                break;
+        }
     }
+    _request->get_response()->set_fd_out(pipe_out[0]);
+}
     
 }
 

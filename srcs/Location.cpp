@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/02 22:06:36 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/12 16:43:12 by nbechon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,6 +149,11 @@ std::string	Location::get_method_str(e_method e) {
     }
     return ("");
 }
+
+// bool    Location::verifieExtension(const std::string& nomFichier) {
+//     std::string extension = nomFichier.substr(nomFichier.length() - 5);
+//     return (extension == "*.bla");
+// }
 
 void        Location::push_back_index(std::string s) { _index.push_back(s); }
 
