@@ -68,6 +68,7 @@ class	Request
 		bool		    receive_header(void);
 		bool		    parse_header(void);
         bool	        check_location(void);
+		bool	        check_session(void);
 
 		void		    process_fd_in(void);
         int 	        read_body();

@@ -138,5 +138,27 @@ bool    RequestHeader::parse_transfer_encoding()
     return (false);
 }
 
+//https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cookie
+//Cookie: name=value; name2=value2; name3=value3
+//Cookie: PHPSESSID=298zf09hf012fh2; csrftoken=u32t4o3tb3gg43; _gat=1
+std::map<std::string, std::string>    RequestHeader::parse_cookies()
+{
+    std::map<std::string, std::string>  cookies;
+    (void) cookies;
+    size_t  last_pos = _str->find("Cookie:", _pos);
+    if (last_pos == NPOS)
+        return (cookies);
+    last_pos += 8;
+    size_t  pos = _str->find("\r\n", last_pos);
+    if (pos == NPOS)
+    {
+        std::cerr << "Error: No newline for Cookie." << std::endl;
+        return (cookies);
+    }
+    std::string     str_cookies = _str->substr(last_pos, pos - last_pos);
+
+    return (cookies);
+}
+
 void	RequestHeader::set_host(Host* h) {_host = h;}
 void    RequestHeader::set_str(std::string* s) {_str = s;}

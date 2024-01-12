@@ -25,6 +25,8 @@
 #include <iostream>
 #include <vector>
 
+#include "Sessions.hpp"
+
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
@@ -42,7 +44,8 @@ class	Server
 		int			                _socket;
         std::vector<std::string>	_server_names;
 		std::string	        	    _root;
-		std::vector<Location*>	    _locations;	
+		std::vector<Location*>	    _locations;
+		Sessions					_sessions;
 
 		Server(const Server&);
 		Server			&operator=(const Server& op);

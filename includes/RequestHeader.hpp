@@ -33,6 +33,7 @@ class	RequestHeader
         std::string     parse_content_type();
         size_t          parse_content_length();
         bool            parse_transfer_encoding();
+		std::map<std::string, std::string>		    parse_cookies();
 
         void	set_host(Host*);
         void    set_str(std::string*);

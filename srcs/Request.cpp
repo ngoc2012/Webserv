@@ -308,7 +308,8 @@ bool	Request::check_location()
 
     _full_file_name = _location->get_full_file_name(_url,
             _server->get_root(), _method);
-    _cgi->set_file(_full_file_name);
+    if (_method == POST)
+        _cgi->set_file(_full_file_name);
     //std::cout << "check_location " << _socket << " " << _full_file_name << std::endl;
 
 	struct stat info;
@@ -318,6 +319,11 @@ bool	Request::check_location()
 		_status_code = 404; // Not found
         return (false);             
     }
+    return (true);
+}
+
+bool	Request::check_session()
+{
     return (true);
 }
 
