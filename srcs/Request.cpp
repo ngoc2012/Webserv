@@ -163,7 +163,7 @@ bool	Request::parse_header(void)
     }
     if (!check_location())
         return (false);
-    if (_cgi && _method == POST)
+    if (_method == POST)
         _cgi = new Cgi(this);
     _chunked = _header.parse_transfer_encoding();
     //std::cout << "_chunked: " << _chunked << std::endl;
