@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/11 17:10:16 by nbechon          ###   ########.fr       */
+/*   Updated: 2024/01/12 15:19:10 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,11 +189,11 @@ bool	Request::parse_header(void)
         return (false);
     }
     if (_content_length > _body_max)
-	{
+    {
         _status_code = 400;	// Bad Request
         std::cerr << "Error: Content length bigger than " << _body_max << std::endl;
         return (false);
-	}
+    }
     return (true);
 }
 
