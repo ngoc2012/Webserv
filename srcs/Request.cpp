@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/12 15:21:39 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/12 15:26:44 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -308,15 +308,15 @@ bool	Request::check_location()
 
     _full_file_name = _location->get_full_file_name(_url,
             _server->get_root(), _method);
-    if (_method == POST)
+    if (_cgi && _method == POST)
         _cgi->set_file(_full_file_name);
     //std::cout << "check_location " << _socket << " " << _full_file_name << std::endl;
 
-	struct stat info;
-	if (_method != PUT
+    struct stat info;
+    if (_method != PUT
             && stat(_full_file_name.c_str(), &info) != 0)
     {
-		_status_code = 404; // Not found
+        _status_code = 404; // Not found
         return (false);             
     }
     return (true);
