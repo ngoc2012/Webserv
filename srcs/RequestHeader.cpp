@@ -157,6 +157,24 @@ std::map<std::string, std::string>    RequestHeader::parse_cookies()
     }
     std::string     str_cookies = _str->substr(last_pos, pos - last_pos);
 
+    std::vector<std::string> cookie_pairs = ft::split_string(str_cookies, ";");
+
+    for (std::vector<std::string>::iterator it = cookie_pairs.begin();
+         it != cookie_pairs.end(); ++it)
+    {
+        // fonction trim_string pour éliminer les espaces
+        std::string trimmed_cookie = ft::trim_string(*it);
+
+        // séparer le nom et la valeur
+        size_t equal_pos = trimmed_cookie.find('=');
+        if (equal_pos != std::string::npos)
+        {
+            // Extraire le nom et la valeur
+            std::string name = trimmed_cookie.substr(0, equal_pos);
+            std::string value = trimmed_cookie.substr(equal_pos + 1);
+            cookies[name] = value;
+        }
+    }
     return (cookies);
 }
 

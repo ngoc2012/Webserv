@@ -37,6 +37,7 @@ size_t                      atoi_base(const char *str, const char *base);
 std::string                 itoa_base(int nbr, const char *base);
 std::string                 str_replace(std::string src, std::string find, std::string rep);
 std::string                 to_upper(std::string s);
+std::string                 trim_string(const std::string& str);
 
 }
 
