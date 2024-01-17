@@ -303,8 +303,10 @@ bool	Request::check_location()
     _location = Location::find_location(_url,
             _server->get_locations(), _method, _status_code);
 
-    if (!_location || _status_code != 200)
+    if (!_location)
         return (false);
+    // if (!_location || _status_code != 200)
+    //     return (false);
 
     _full_file_name = _location->get_full_file_name(_url,
             _server->get_root(), _method);
@@ -346,14 +348,32 @@ void	Request::process_fd_in()
             struct stat buffer;
             while (stat(_tmp_file.c_str(), &buffer) == 0)
                 _tmp_file = "/tmp/" + ft::itos(++i);
-            std::cout << _tmp_file << std::endl;
-            _fd_in = open(_tmp_file.c_str(),
-                    O_CREAT | O_WRONLY | O_TRUNC, 0664);
+
+            _fd_in = open(_tmp_file.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0664);
             if (_fd_in == -1)
+            {
                 _status_code = 500;
-            if (!_content_length || _content_length == NPOS)
                 end_read();
-            break;
+            }
+            else
+            {
+                if (!_content_length || _content_length == NPOS)
+                {
+                    end_read();
+                }
+            else
+            {
+                // Écrire le contenu de _buffer[] dans le fichier associé à _fd_in
+                ssize_t bytes_written = write(_fd_in, _buffer, _content_length);
+                if (bytes_written == -1)
+                {
+                    std::cerr << "Error: Unable to write to file " << _tmp_file << std::endl;
+                    _status_code = 500;
+                    end_read();
+                }
+            }
+        }
+        break;
         case DELETE:
             if (std::remove(_full_file_name.c_str()))
                 std::cerr << "Error: Can not delete file " << _tmp_file << std::endl;
