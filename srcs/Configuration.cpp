@@ -279,26 +279,26 @@ bool	Configuration::location_parser(std::string cmd, Location* loc, std::vector<
 	}
 	else if (words[0] == "return")
 	{
-    	// if (words.size() == 3)
-    	// {
-       	// 	// int status_code = std::stoi(words[1]);
-       	// 	// std::string new_url = words[2];
+    	if (words.size() == 3)
+    	{
+       		int status_code = atoi(words[1].c_str());
+       		std::string new_url = words[2];
 
-        // 	if (status_code == 301 || status_code == 302)
-        // 	{
-        //     	// loc->set_redirection(status_code, new_url);
-        // 	}
-        // 	else
-        // 	{
-        //     	std::cerr << "Error: Invalid status code for redirection: " << words[1] << std::endl;
-        //     	return true;
-        // 	}
-    	// }
-    	// else
-    	// {
-        // 	std::cerr << "Error: Invalid 'return' syntax for redirection" << std::endl;
-        // 	return true;
-    	// }
+        	if (status_code == 301 || status_code == 302)
+        	{
+            	// loc->set_redirection(status_code, new_url);
+        	}
+        	else
+        	{
+            	std::cerr << "Error: Invalid status code for redirection: " << words[1] << std::endl;
+            	return true;
+        	}
+    	}
+    	else
+    	{
+        	std::cerr << "Error: Invalid 'return' syntax for redirection" << std::endl;
+        	return true;
+    	}
 	}
 	else
 		return (true);
