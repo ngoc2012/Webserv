@@ -281,8 +281,8 @@ bool	Configuration::location_parser(std::string cmd, Location* loc, std::vector<
 	{
     	if (words.size() == 3)
     	{
-       		int status_code = std::stoi(words[1]);
-       		std::string new_url = words[2];
+       		// int status_code = std::stoi(words[1]);
+       		// std::string new_url = words[2];
 
         	if (status_code == 301 || status_code == 302)
         	{
