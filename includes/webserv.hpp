@@ -24,7 +24,7 @@
 
 # define NPOS std::string::npos
 
-enum	e_method {GET, POST, PUT, DELETE, NONE};
+enum	e_method {GET, POST, PUT, DELETE, OPTIONS, NONE};
 
 namespace ft {
 

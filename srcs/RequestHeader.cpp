@@ -48,6 +48,8 @@ bool	RequestHeader::parse_method_url(std::string& url, e_method& m)
         m = PUT;
     else if (words[0] == "DELETE")
         m = DELETE;
+    else if (words[0] == "OPTIONS")
+        m = OPTIONS;
     else
     {
         std::cerr << "Error: Method unknown : " << words[0] << std::endl;

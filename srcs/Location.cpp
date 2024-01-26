@@ -138,6 +138,8 @@ std::string	Location::get_methods_str(void)
 std::string	Location::get_method_str(e_method e) {
     switch (e)
     {
+        case OPTIONS:
+            return ("OPTIONS");
         case GET:
             return ("GET");
         case POST:

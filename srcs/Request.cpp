@@ -345,6 +345,7 @@ void	Request::process_fd_in()
     switch (_method)
     {
         case GET:
+        case OPTIONS:
             break;
         case PUT:
             _fd_in = open(_full_file_name.c_str(),
