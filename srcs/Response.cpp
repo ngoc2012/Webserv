@@ -83,13 +83,16 @@ void     Response::write_header()
     else if (_request->get_method() == DELETE)
         mess_body("Delete", "File deleted");
     std::string     sid = _request->get_session_id();
+    std::cout << "sid: " << sid << std::endl;
     if (sid != "")
     {
         Sessions*       sessions = _server->get_sessions();
+        std::cout << _server << " " << sessions << std::endl;
         if (!sessions->verify(sid))
         {
             std::string token = sessions->create_token();
             sessions->add(token, std::time(0) + 30);
+            std::cout << "Token: " << token << std::endl;
             header.set_session_id(token);
         }
     }

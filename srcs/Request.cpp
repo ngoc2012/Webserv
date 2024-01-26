@@ -162,6 +162,7 @@ bool	Request::parse_header(void)
             if (_host_name == *it)
                 _server = *sv;
     }
+    _response.set_server(_server);
     if (!check_location())
         return (false);
     if (_location->get_cgi_pass() != "")
@@ -176,6 +177,7 @@ bool	Request::parse_header(void)
         return (true);
     _content_length = _header.parse_content_length();
     std::cout << "Content-Length: " << _content_length << std::endl;
+    _session_id = "456";
     if (_method == GET)
     {
         if (_content_length == NPOS)
@@ -204,6 +206,7 @@ bool	Request::parse_header(void)
         _session_id = _cookies["session_id"];
     if (_cookies.find("sid") != _cookies.end())
         _session_id = _cookies["sid"];
+ 
     std::cout << "Session id: " << _session_id << std::endl;
     return (true);
 }

@@ -35,7 +35,7 @@ bool Sessions::verify(std::string token)
 	std::map<std::string, time_t>::iterator it;
 	std::map<int, time_t>::iterator it_inside;
 	time_t actual;
-
+	
 	it = _sessions_data.find(token);
 	if (it == _sessions_data.end())
 		return (false);
