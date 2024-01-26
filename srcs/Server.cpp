@@ -67,4 +67,4 @@ void			Server::set_port(short unsigned int p) {_port = p;}
 void			Server::set_root(std::string r) {_root = r;}
 void			Server::set_host(Host* h) {_host = h;}
 void			Server::set_server_name(std::string s) {_server_names.push_back(s);}
-const Sessions*		Server::get_sessions(void) const {return (&_sessions);}
+Sessions*		Server::get_sessions(void) {return (&_sessions);}

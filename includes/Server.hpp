@@ -64,7 +64,7 @@ class	Server
         std::vector<std::string>    get_server_names(void) const;
 		std::vector<Location*>	    get_locations(void) const;	
 		std::string		            get_address(void) const;
-        const Sessions*				get_sessions(void) const;
+        Sessions*					get_sessions(void);
 
 		void			set_socket(int);
 		void			set_ip_address(std::string);
