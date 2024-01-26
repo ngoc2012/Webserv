@@ -177,7 +177,12 @@ bool	Request::parse_header(void)
         return (true);
     _content_length = _header.parse_content_length();
     std::cout << "Content-Length: " << _content_length << std::endl;
-    _session_id = "456";
+    _cookies = _header.parse_cookies();
+    if (_cookies.find("session_id") != _cookies.end())
+        _session_id = _cookies["session_id"];
+    if (_cookies.find("sid") != _cookies.end())
+        _session_id = _cookies["sid"];
+    std::cout << "Session id: " << _session_id << std::endl;
     if (_method == GET)
     {
         if (_content_length == NPOS)
@@ -201,13 +206,7 @@ bool	Request::parse_header(void)
         std::cerr << "Error: Content length bigger than " << _body_max << std::endl;
         return (false);
     }
-    _cookies = _header.parse_cookies();
-    if (_cookies.find("sesion_id") != _cookies.end())
-        _session_id = _cookies["session_id"];
-    if (_cookies.find("sid") != _cookies.end())
-        _session_id = _cookies["sid"];
- 
-    std::cout << "Session id: " << _session_id << std::endl;
+    
     return (true);
 }
 
