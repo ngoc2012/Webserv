@@ -71,6 +71,8 @@
         "random": "cpp",
         "type_traits": "cpp",
         "utility": "cpp",
-        "numbers": "cpp"
+        "numbers": "cpp",
+        "ranges": "cpp",
+        "span": "cpp"
     }
 }
