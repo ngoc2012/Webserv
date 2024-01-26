@@ -16,6 +16,7 @@
 Location::Location()
 {
     _autoindex = false;
+    _cgi_pass = "";
 }
 Location::Location(const Location& src) { *this = src; }
 Location&	Location::operator=( Location const & src )
@@ -26,6 +27,7 @@ Location&	Location::operator=( Location const & src )
 Location::Location(std::string u): _url(u)
 {
     _autoindex = false;
+    _cgi_pass = "";
 }
 Location::~Location() {}
 

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+python3 $PWD/www/cgi_bin/cgi.py "$@"

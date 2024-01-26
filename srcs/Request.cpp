@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/12 15:26:44 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/26 10:09:29 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,8 +163,12 @@ bool	Request::parse_header(void)
     }
     if (!check_location())
         return (false);
-    if (_method == POST)
+    if (_location->get_cgi_pass() != "")
+    {
         _cgi = new Cgi(this);
+        _cgi->set_pass(_location->get_cgi_pass());
+        _cgi->set_file(_full_file_name);
+    }
     _chunked = _header.parse_transfer_encoding();
     //std::cout << "_chunked: " << _chunked << std::endl;
     if (_chunked)
@@ -310,8 +314,6 @@ bool	Request::check_location()
 
     _full_file_name = _location->get_full_file_name(_url,
             _server->get_root(), _method);
-    if (_cgi && _method == POST)
-        _cgi->set_file(_full_file_name);
     //std::cout << "check_location " << _socket << " " << _full_file_name << std::endl;
 
     struct stat info;
@@ -387,12 +389,12 @@ int     Request::end_read(void)
 {
     std::cout << "end_read " << _socket << " " << _body_size << " " << _full_file_name << std::endl;
 
-    if (_method != POST && _fd_in > 0)
+    if (!_cgi && _fd_in > 0)
         close(_fd_in);
     _read_queue = false;
     _host->new_response_sk(_socket);
     _response.set_status_code(_status_code);
-    if (_status_code == 200 && _method == POST)
+    if (_status_code == 200 && _cgi)
         _cgi->execute();
     _response.set_write_queue(true);
     return (0);

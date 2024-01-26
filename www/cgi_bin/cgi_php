@@ -1,0 +1,3 @@
+#!/bin/bash
+
+php $PWD/www/cgi_bin/cgi.php "$@"
