@@ -33,6 +33,7 @@ Header::Header(Response* r, std::string ext) :
     _host = _response->get_host();
     _mimes = _host->get_mimes();
     _status_message = _host->get_status_message();
+	_session_id = "";
 	init();
 }
 Header::~Header() { }
