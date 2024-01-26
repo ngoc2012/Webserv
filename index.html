@@ -12,16 +12,21 @@
         <script>
             function send_get_request()
             {
-                const headerss = new Headers({
+                const headers = new Headers({
                   'Content-Type': 'application/json',
                   'Cookie': 'session_id=1',
+                  'Access-Control-Allow-Origin' : '*',
+                  'Access-Control-Allow-Headers' : '*',
+                  'Access-Control-Allow-Methods' : '*',
+                  'Access-Control-Allow-Credentials' : 'true',
                 });
 
                 fetch("http://127.0.0.1:4141", {
                     method: 'GET',
-                    headers: headerss,
-                    credentials: 'same-origin',
-                    mode: 'no-cors',
+                    headers: headers,
+                    credentials: 'include',
+                    contentType: 'text/plain',
+                    crossDomain: true,
                 })
                 .then(response => {
                     //const setCookieHeader = response.headers.get('Set-Cookie');
