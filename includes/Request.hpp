@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/26 10:09:05 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/26 11:52:45 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,8 @@ class	Request
         size_t 		    _chunked_writed;
 		size_t		    _body_size;
         size_t 		    _body_left;
+		std::map<std::string, std::string>  _cookies;
+		std::string	    _session_id;
 
 		int		        _fd_in;
 		std::string	    _full_file_name;
@@ -101,6 +103,7 @@ class	Request
         std::string	    get_full_file_name(void) const;
         Location*	    get_location(void) const;	
         int		        get_fd_in(void) const;
+        std::string	    get_session_id(void) const;
 
         void		    set_fd_in(int);
 };

@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/26 10:09:29 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/26 11:53:26 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ Request::Request(int sk, Host* h, Address* a) : _socket(sk), _host(h), _address(
 	_body_size = 0;
     _header.set_host(h);
     _header.set_str(&_str_header);
+    _session_id = "";
 
 	_fd_in = -1;
 	_full_file_name = "";
@@ -198,6 +199,12 @@ bool	Request::parse_header(void)
         std::cerr << "Error: Content length bigger than " << _body_max << std::endl;
         return (false);
     }
+    _cookies = _header.parse_cookies();
+    if (_cookies.find("sesion_id") != _cookies.end())
+        _session_id = _cookies["session_id"];
+    if (_cookies.find("sid") != _cookies.end())
+        _session_id = _cookies["sid"];
+    std::cout << "Session id: " << _session_id << std::endl;
     return (true);
 }
 
@@ -400,19 +407,20 @@ int     Request::end_read(void)
     return (0);
 }
 
-Host*		Request::get_host(void) const {return (_host);}
-Server*		Request::get_server(void) const {return (_server);}
-e_method	Request::get_method(void) const {return (_method);}
-std::string	Request::get_url(void) const {return (_url);}
-Response*	Request::get_response(void) {return (&_response);}
-Cgi*        Request::get_cgi(void) const {return (_cgi);}
-int		    Request::get_status_code(void) const {return (_status_code);}
-std::string	Request::get_content_type(void) const {return (_content_type);}
-size_t		Request::get_content_length(void) const {return (_content_length);}
-size_t		Request::get_body_size(void) const {return (_body_size);}
-std::string	Request::get_str_header(void) const {return (_str_header);}
-std::string	Request::get_full_file_name(void) const {return (_full_file_name);}
-Location*	Request::get_location(void) const {return (_location);}
-int		    Request::get_fd_in(void) const {return (_fd_in);}
+Host*		    Request::get_host(void) const {return (_host);}
+Server*		    Request::get_server(void) const {return (_server);}
+e_method	    Request::get_method(void) const {return (_method);}
+std::string	    Request::get_url(void) const {return (_url);}
+Response*	    Request::get_response(void) {return (&_response);}
+Cgi*            Request::get_cgi(void) const {return (_cgi);}
+int		        Request::get_status_code(void) const {return (_status_code);}
+std::string	    Request::get_content_type(void) const {return (_content_type);}
+size_t		    Request::get_content_length(void) const {return (_content_length);}
+size_t		    Request::get_body_size(void) const {return (_body_size);}
+std::string	    Request::get_str_header(void) const {return (_str_header);}
+std::string	    Request::get_full_file_name(void) const {return (_full_file_name);}
+Location*	    Request::get_location(void) const {return (_location);}
+int		        Request::get_fd_in(void) const {return (_fd_in);}
+std::string	    Request::get_session_id(void) const {return (_session_id);}
 
-void		Request::set_fd_in(int f) {_fd_in = f;}
+void		    Request::set_fd_in(int f) {_fd_in = f;}

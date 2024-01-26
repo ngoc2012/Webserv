@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/10 10:10:37 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/26 11:57:14 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,3 +67,4 @@ void			Server::set_port(short unsigned int p) {_port = p;}
 void			Server::set_root(std::string r) {_root = r;}
 void			Server::set_host(Host* h) {_host = h;}
 void			Server::set_server_name(std::string s) {_server_names.push_back(s);}
+const Sessions*		Server::get_sessions(void) const {return (&_sessions);}

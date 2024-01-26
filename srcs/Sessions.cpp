@@ -20,30 +20,27 @@ Sessions::~Sessions(void)
 {
 }
 
-int Sessions::create_token(void)
+std::string Sessions::create_token(void)
 {
-	return (_sessions_data.size() + 1);
+	return (ft::itos(_sessions_data.size() + 1));
 }
 
-void Sessions::add(std::string username, int token, time_t date)
+void Sessions::add(std::string token, time_t date)
 {
-	_sessions_data[username].insert(std::make_pair(token, date));
+	_sessions_data[token] = date;
 }
 
-bool Sessions::verify(std::string username, int token)
+bool Sessions::verify(std::string token)
 {
-	std::map<std::string, std::map<int, time_t> >::iterator it;
+	std::map<std::string, time_t>::iterator it;
 	std::map<int, time_t>::iterator it_inside;
 	time_t actual;
 
-	it = _sessions_data.find(username);
+	it = _sessions_data.find(token);
 	if (it == _sessions_data.end())
 		return (false);
-	it_inside = it->second.find(token);
-	if (it_inside == it->second.end())
-		return (false);
 	actual = time(0);
-	if (it_inside->second < actual)
+	if (_sessions_data[token] < actual)
 		return (false);
 	return (true);
 }

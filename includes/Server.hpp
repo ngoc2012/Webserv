@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/04 21:59:44 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/26 11:56:48 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ class	Server
         std::vector<std::string>    get_server_names(void) const;
 		std::vector<Location*>	    get_locations(void) const;	
 		std::string		            get_address(void) const;
+        const Sessions*				get_sessions(void) const;
 
 		void			set_socket(int);
 		void			set_ip_address(std::string);

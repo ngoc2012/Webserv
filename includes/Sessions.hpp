@@ -18,20 +18,22 @@
 #include <map>
 #include <iostream>
 
+#include "webserv.hpp"
+
 class Sessions
 {
 	private:
 		Sessions(const Sessions& sessions);
 		Sessions& operator=(const Sessions& sessions);
-		std::map<std::string, std::map<int, time_t> >	_sessions_data;
-		int 											check_date(int day, int month, int year);
+		std::map<std::string, time_t>	_sessions_data;
+		int 			check_date(int day, int month, int year);
 
 	public:
 		Sessions(void);
 		~Sessions(void);
-		int		create_token(void);
-		void	add(std::string username, int token, time_t date);
-		bool	verify(std::string username, int token);
+		std::string		create_token(void);
+		void	add(std::string token, time_t date);
+		bool	verify(std::string token);
 		time_t	get_time_t(int sec, int min, int hour, int day, int month, int year);
 };
 

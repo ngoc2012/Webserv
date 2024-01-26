@@ -10,6 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <time.h>
+
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -80,6 +82,17 @@ void     Response::write_header()
     }
     else if (_request->get_method() == DELETE)
         mess_body("Delete", "File deleted");
+    std::string     sid = _request->get_session_id();
+    if (sid != "")
+    {
+        const Sessions*   sessions = _server->get_sessions();
+        if (!sessions->verify(sid))
+        {
+            std::string token = sessions->create_token();
+            sessions->add(token, std::time(0) + 30);
+            header.set_session_id(token);
+        }
+    }
     _header = header.generate();
     //std::cout << "Response Header:\n" << _header << std::endl;
     if (send(_socket, _header.c_str(), _header.length(), 0) < 0)

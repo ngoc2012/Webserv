@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/10 09:54:12 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/26 12:24:50 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,3 +105,4 @@ std::string	Header::file_last_modified_time(std::string file_name)
 
 void		Header::set_status_code(int s) {_status_code = s;}
 void		Header::set_allow(std::string a) {_allow = a;}
+void	    Header::set_session_id(std::string s) {_session_id = s;}
