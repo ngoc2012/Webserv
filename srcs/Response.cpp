@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/10 10:17:27 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/26 14:39:44 by nbechon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,9 +177,9 @@ int     Response::write_body()
 
 int     Response::end_connection(void)
 {
-    if (_request->get_method() == POST
-        && _request->get_cgi()->get_pid() != -1)
-        waitpid(_request->get_cgi()->get_pid(), NULL, 0);
+    //if (_request->get_method() == POST
+    //    && _request->get_cgi()->get_pid() != -1)
+    //    waitpid(_request->get_cgi()->get_pid(), NULL, 0);
     std::cout << "end_connection " << _socket << " " << _full_file_name << std::endl;
     if (_fd_out > 0)
         close(_fd_out);

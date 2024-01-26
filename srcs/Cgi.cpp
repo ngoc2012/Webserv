@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/26 10:56:56 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/26 16:38:56 by nbechon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,19 +59,20 @@ void    Cgi::execute()
 
     std::cout << "Cgi execute" << std::endl;
     
-    //int pipe_in[2];
+    // int pipe_in[2];
     int pipe_out[2];
+    
     if (pipe(pipe_out) == -1) {
         std::cerr << "Error: pipe" << std::endl;
         perror("pipe");
         return ;
     }
-    //
-    //if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1) {
-    //    std::cerr << "Error: pipe" << std::endl;
-    //    perror("pipe");
-    //    return ;
-    //}
+    
+    // if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1) {
+    //     std::cerr << "Error: pipe" << std::endl;
+    //     perror("pipe");
+    //     return ;
+    // }
 
     _pid = fork();
 
@@ -82,11 +83,11 @@ void    Cgi::execute()
     }
     else if (!_pid)
     {
-        //close(pipe_in[1]);
+        // close(pipe_in[1]);
         close(pipe_out[0]);
-        //dup2(pipe_in[0], STDIN_FILENO);
+        // dup2(pipe_in[0], STDIN_FILENO);
         dup2(pipe_out[1], STDOUT_FILENO);
-        //close(pipe_in[0]);
+        // close(pipe_in[0]);
         close(pipe_out[1]);
         std::cout << _pass.c_str() << std::endl;
         std::cout << _file.c_str() << std::endl;
@@ -103,7 +104,7 @@ void    Cgi::execute()
         char    buffer[BUFFER_SIZE + 1];
         ssize_t bytesRead;
 
-        //close(pipe_in[0]);
+        // close(pipe_in[0]);
         close(pipe_out[1]);
         int     fd_in = _request->get_fd_in();
         if (fd_in != -1)
