@@ -12,11 +12,11 @@
 
 #include <string>
 
-unsigned int	get_base(char *base)
+static unsigned int	get_base(const char *base)
 {
 	unsigned int	i;
 	unsigned int	j;
-	char			*c;
+	const char			*c;
 
 	c = base;
 	i = 0;
@@ -39,7 +39,7 @@ unsigned int	get_base(char *base)
 	return (i);
 }
 
-void	get_str(unsigned int nbr, char *base, unsigned int b, std::string& s)
+static void	get_str(unsigned int nbr, const char *base, unsigned int b, std::string& s)
 {
     char    o[2];
 
@@ -53,7 +53,7 @@ void	get_str(unsigned int nbr, char *base, unsigned int b, std::string& s)
 
 namespace ft {
 
-std::string	itoa_base(int nbr, char *base)
+std::string	itoa_base(int nbr, const char *base)
 {
 	unsigned int	n;
 	int				b;

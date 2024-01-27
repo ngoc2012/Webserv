@@ -12,7 +12,7 @@
 
 #include <cstddef>
 
-int	in_str(const char *c, const char *base)
+static int	in_str(const char *c, const char *base)
 {
 	int	i;
 
@@ -27,7 +27,7 @@ int	in_str(const char *c, const char *base)
 	return (-1);
 }
 
-size_t	get_base(const char *base)
+static size_t	get_base(const char *base)
 {
 	size_t		i;
 	size_t		j;

@@ -22,6 +22,7 @@
 #include "Header.hpp"
 #include "Cgi.hpp"
 #include "Listing.hpp"
+#include "webserv.hpp"
 
 #include "Response.hpp"
 
@@ -163,13 +164,33 @@ int     Response::write_body()
     }
     if (_fd_out == -1)
         return (end_connection());
-    char	buffer[RESPONSE_BUFFER * 1028];
+    //std::cerr << "_fd_out:" << _fd_out << std::endl;
+    char	buffer[RESPONSE_BUFFER * 1028 + 20];
     int ret = read(_fd_out, buffer, RESPONSE_BUFFER * 1028);
-
+    //std::cout << _request->get_cgi() << std::endl;
     if (ret <= 0)
+    {
+        if (_request->get_cgi())
+        {
+            //std::cout << "0\r\n" << std::endl;
+            send(_socket, "0\r\n", 3, 0);
+        }
         return (end_connection());
-
+    }
+    buffer[ret] = 0;
+    //std::cout << ret << ":" << buffer;
     _body_size += ret;
+
+    if (_request->get_cgi())
+    {
+        std::string     s = ft::itoa_base(ret, "0123456789abcdef") + "\r\n";
+        memmove(buffer + s.size(), buffer, ret);
+        memcpy(buffer, s.c_str(), s.size());
+        memcpy(buffer + s.size() + ret, "\r\n", 2);
+        ret += s.size() + 2;
+        buffer[ret] = 0;
+        //std::cout << "here:" << buffer << std::endl;
+    }
     if (send(_socket, buffer, ret, 0) < 0)
         return (end_connection());
     return (0);
@@ -177,9 +198,9 @@ int     Response::write_body()
 
 int     Response::end_connection(void)
 {
-    //if (_request->get_method() == POST
-    //    && _request->get_cgi()->get_pid() != -1)
-    //    waitpid(_request->get_cgi()->get_pid(), NULL, 0);
+    int     status;
+    if (_request->get_cgi()->get_pid() != -1)
+        waitpid(_request->get_cgi()->get_pid(), &status, 0);
     std::cout << "end_connection " << _socket << " " << _full_file_name << std::endl;
     if (_fd_out > 0)
         close(_fd_out);

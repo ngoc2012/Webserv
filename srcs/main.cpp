@@ -23,24 +23,11 @@ void	main_signal_handler(int sig)
 	if (sig == SIGINT)
 	{
 		write(STDOUT_FILENO, "", 0);
-		//g_host->end();
 		if (g_host)
 			delete g_host;
 		exit(0);
 	}
-	if (sig == SIGPIPE)
-	{
-		/*
-		std::map<int, Response*>	sk_response = g_host->get_sk_response();
-		std::map<int, Request*>	sk_request = g_host->get_sk_request();
-		for (std::map<int, Response*>::iterator	it = sk_response.begin();
-			it != sk_response.end(); ++it)
-			g_host->delete_response(it->first);
-		for (std::map<int, Request*>::iterator	it = sk_request.begin();
-			it != sk_request.end(); ++it)
-			g_host->close_client_sk(it->first);
-			*/
-	}
+	if (sig == SIGPIPE)	{}
 }
 
 int	main()

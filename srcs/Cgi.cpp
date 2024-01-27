@@ -57,7 +57,7 @@ int    Cgi::execute()
         return 500;
     }
 
-    std::cout << "Cgi execute" << std::endl;
+    //std::cout << "Cgi execute" << std::endl;
     
     int pipe_in[2];
     int pipe_out[2];
@@ -92,6 +92,7 @@ int    Cgi::execute()
         argv[2] = 0;
         //execve(argv[0], argv, _envs);
         execve(argv[0], argv, 0);
+        //execlp("cat", "cat", nullptr);
         
         std::cerr << "Execution error" << std::endl;
         return -1;
@@ -110,11 +111,10 @@ int    Cgi::execute()
                 std::cerr << "Error: using lseek" << std::endl;
                 return 500;
             }
-            //std::cout << "fd_in" << fd_in << std::endl;
             while ((bytesRead = read(fd_in, buffer, BUFFER_SIZE)) > 0)
             {
                 buffer[bytesRead] = 0;
-                std::cout << buffer;
+                //std::cout << buffer;
                 if (write(pipe_in[1], buffer, bytesRead) == -1)
                     return 500;
             }
@@ -129,12 +129,9 @@ int    Cgi::execute()
         }
         close(pipe_out[0]);
         */
-        //_request->get_response()->set_fd_out(pipe_out[0]);
+        _request->get_response()->set_fd_out(pipe_out[0]);
         return 200;
     }
-    int     status;
-        waitpid(_pid, &status, 0);
-        std::cerr << "fork output end " << status << std::endl;
 }
 
 bool    Cgi::get_envs()
