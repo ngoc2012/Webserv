@@ -46,7 +46,7 @@ Cgi::~Cgi()
         delete[] _envs;
 }
 
-void    Cgi::execute()
+int    Cgi::execute()
 {
     Response*       response;
 
@@ -54,99 +54,87 @@ void    Cgi::execute()
     if (!get_envs())
     {
         response->set_status_code(500);
-        return ;
+        return 500;
     }
 
     std::cout << "Cgi execute" << std::endl;
     
-    // int pipe_in[2];
+    int pipe_in[2];
     int pipe_out[2];
     
-    if (pipe(pipe_out) == -1) {
+    if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1) {
         std::cerr << "Error: pipe" << std::endl;
         perror("pipe");
-        return ;
+        return 500;
     }
-    
-    // if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1) {
-    //     std::cerr << "Error: pipe" << std::endl;
-    //     perror("pipe");
-    //     return ;
-    // }
 
     _pid = fork();
 
     if (_pid == -1)
     {
         std::cerr << "Error: fork" << std::endl;
-        return ;
+        return 500;
     }
     else if (!_pid)
     {
-        // close(pipe_in[1]);
+        close(pipe_in[1]);
+        dup2(pipe_in[0], STDIN_FILENO);
+        close(pipe_in[0]);
         close(pipe_out[0]);
-        // dup2(pipe_in[0], STDIN_FILENO);
         dup2(pipe_out[1], STDOUT_FILENO);
-        // close(pipe_in[0]);
         close(pipe_out[1]);
-        std::cout << _pass.c_str() << std::endl;
-        std::cout << _file.c_str() << std::endl;
+        //std::cout << _pass.c_str() << std::endl;
+        //std::cout << _file.c_str() << std::endl;
+        
         char*   argv[3];
         argv[0] = (char*) _pass.c_str();
         argv[1] = (char*) _file.c_str();
         argv[2] = 0;
-        execve(argv[0], argv, _envs);
-        std::cout << "Execution error" << std::endl;
-        exit(1);
+        //execve(argv[0], argv, _envs);
+        execve(argv[0], argv, 0);
+        
+        std::cerr << "Execution error" << std::endl;
+        return -1;
     }
     else
     {
         char    buffer[BUFFER_SIZE + 1];
         ssize_t bytesRead;
 
-        // close(pipe_in[0]);
+        close(pipe_in[0]);
         close(pipe_out[1]);
         int     fd_in = _request->get_fd_in();
         if (fd_in != -1)
         {
             if (lseek(fd_in, 0, SEEK_SET) == -1) {
                 std::cerr << "Error: using lseek" << std::endl;
-                return ;
+                return 500;
             }
-            std::cerr << "fd_in" << std::endl;
+            //std::cout << "fd_in" << fd_in << std::endl;
             while ((bytesRead = read(fd_in, buffer, BUFFER_SIZE)) > 0)
             {
                 buffer[bytesRead] = 0;
                 std::cout << buffer;
-                //ssize_t bytesWritten = write(pipe_in[1], buffer, bytesRead);
-                //if (bytesWritten < 0)
-                //{
-                //    std::cerr << "Error: write" << std::endl;
-                //    perror("write");
-                //    break;
-                //}
+                if (write(pipe_in[1], buffer, bytesRead) == -1)
+                    return 500;
             }
         }
+        close(pipe_in[1]);
+        /*
         std::cerr << "fork output" << std::endl;
         while ((bytesRead = read(pipe_out[0], buffer, BUFFER_SIZE)) > 0)
         {
             buffer[bytesRead] = 0;
             std::cout << buffer;
-            //ssize_t bytesWritten = write(pipe_in[1], buffer, bytesRead);
-            //if (bytesWritten < 0)
-            //{
-            //    std::cerr << "Error: write" << std::endl;
-            //    perror("write");
-            //    break;
-            //}
         }
         close(pipe_out[0]);
-
-        int     status;
+        */
+        //_request->get_response()->set_fd_out(pipe_out[0]);
+        return 200;
+    }
+    int     status;
         waitpid(_pid, &status, 0);
         std::cerr << "fork output end " << status << std::endl;
-        //_request->get_response()->set_fd_out(pipe_out[0]);
-    }
 }
 
 bool    Cgi::get_envs()

@@ -10,6 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <unistd.h>
+
 #include "Host.hpp"
 #include "Address.hpp"
 #include "Server.hpp"
@@ -17,6 +19,8 @@
 #include "Request.hpp"
 #include "Header.hpp"
 #include "Cgi.hpp"
+
+#define BUFFER_SIZE 65792
 
 Request::Request()
 {
@@ -71,6 +75,8 @@ Request::~Request()
         delete (_cgi);
     if (_socket > 0)
         close(_socket);
+    if (_fd_in > 0)
+        close(_fd_in);
     if (_tmp_file != "" && std::remove(_tmp_file.c_str()))
         std::cerr << "Error: Can not delete file " << _tmp_file << std::endl;
 }
@@ -96,6 +102,24 @@ int     Request::read_header()
     process_fd_in();
     if (_status_code != 200)
         return (end_read());
+    if (!_content_length || _content_length == NPOS)
+        end_read();
+    std::cout << _body_size << " " << _body_left << " " << _content_length << std::endl;
+    if (_method == POST && _content_length == _body_left)
+    {
+        // Écrire le contenu de _buffer[] dans le fichier associé à _fd_in
+        _buffer[_content_length] = 0;
+        std::cout << _fd_in << "here:" << _buffer << std::endl;
+        ssize_t bytes_written = write(_fd_in, _buffer, _content_length);
+        if (bytes_written == -1)
+        {
+            std::cerr << "Error: Unable to write to file " << _tmp_file << std::endl;
+            _status_code = 500;
+            end_read();
+        }
+        end_read();
+    }
+        
     return (0);
 }
 
@@ -357,30 +381,12 @@ void	Request::process_fd_in()
             struct stat buffer;
             while (stat(_tmp_file.c_str(), &buffer) == 0)
                 _tmp_file = "/tmp/" + ft::itos(++i);
-            _fd_in = open(_tmp_file.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0664);
+            _fd_in = open(_tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0664);
             if (_fd_in == -1)
             {
                 _status_code = 500;
                 end_read();
             }
-            //else
-            //{
-            //    if (!_content_length || _content_length == NPOS)
-            //    {
-            //        end_read();
-            //    }
-            //    else
-            //    {
-            //    // Écrire le contenu de _buffer[] dans le fichier associé à _fd_in
-            //        ssize_t bytes_written = write(_fd_in, _buffer, _content_length);
-            //        if (bytes_written == -1)
-            //        {
-            //            std::cerr << "Error: Unable to write to file " << _tmp_file << std::endl;
-            //            _status_code = 500;
-            //            end_read();
-            //        }
-            //}
-            //}
             break;
         case DELETE:
             if (std::remove(_full_file_name.c_str()))
@@ -402,7 +408,12 @@ int     Request::end_read(void)
     _host->new_response_sk(_socket);
     _response.set_status_code(_status_code);
     if (_status_code == 200 && _cgi)
-        _cgi->execute();
+        _status_code = _cgi->execute();
+    if (_status_code == -1)
+    {
+        delete _host;
+        exit(1);
+    }
     _response.set_write_queue(true);
     return (0);
 }

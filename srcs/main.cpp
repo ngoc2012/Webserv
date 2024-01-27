@@ -24,6 +24,9 @@ void	main_signal_handler(int sig)
 	{
 		write(STDOUT_FILENO, "", 0);
 		//g_host->end();
+		if (g_host)
+			delete g_host;
+		exit(0);
 	}
 	if (sig == SIGPIPE)
 	{
@@ -49,10 +52,10 @@ int	main()
     sigaction(SIGINT, &act, NULL);
     sigaction(SIGPIPE, &act, NULL);
 
-    Host	host;
-    if (!Configuration::parser(&host, ".conf"))
+    Host*	host = new Host();
+    if (!Configuration::parser(host, ".conf"))
         return (1);
-    g_host = &host;
-    host.start();
+    g_host = host;
+    host->start();
     return (0);
 }

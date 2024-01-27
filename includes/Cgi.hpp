@@ -35,7 +35,7 @@ class	Cgi
 		Cgi(Request*);
 		virtual ~Cgi();
 
-        void            execute();
+        int             execute();
 
         int             get_pid(void) const;
 
