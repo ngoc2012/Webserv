@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/28 08:24:51 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/28 08:35:21 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,18 +61,11 @@ Location*	Location::find_location(std::string url, std::vector<Location*> locati
 
 bool	Location::compare_url(std::string url, std::string l_url)
 {
-	std::cout << url << "==" << l_url << std::endl;
-	// Folder
-	if (l_url[l_url.size() - 1] == '/')
-	{
-		if (url == l_url || url == l_url.substr(0, l_url.size() - 1)
-			|| (url.size() > l_url.size()
-                && url.substr(0, l_url.size()) == l_url))
-			return (true);
-	}
-	// File
-	else if (url == l_url)
+	//std::cout << url << "==" << l_url << std::endl;
+	if (url == l_url)
 		return (true);
+    if (_url.size() < url.size() && _url == url.substr(0, _url.size()))
+        return (true);
     if (l_url.find('*') != NPOS
             && ft::match_wildcard(url.c_str(), l_url.c_str()))
 		return (true);
@@ -95,15 +88,11 @@ std::string	Location::get_full_file_name(std::string url, std::string root, e_me
     std::string file_name;
 
     if (_alias == "")
-        file_name = root + url.substr(1);
+        file_name = root;
     else
-    {
-        file_name = _alias + "/";
-        int     pos = 0;
-        while (url[pos] == _url[pos])
-            pos++;
-        file_name += url.substr(pos);
-    }
+        file_name = _alias;
+    if (_url.size() < url.size())
+        file_name += url.substr(_url.size());
     if (_autoindex || e == PUT || e == POST)
         return (file_name);
     struct stat	info;

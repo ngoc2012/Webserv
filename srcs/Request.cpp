@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/28 08:12:13 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/28 08:38:43 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,12 +104,11 @@ int     Request::read_header()
         return (end_read());
     if (!_content_length || _content_length == NPOS)
         end_read();
-    std::cout << _body_size << " " << _body_left << " " << _content_length << std::endl;
+    //std::cout << _body_size << " " << _body_left << " " << _content_length << std::endl;
     if (_method == POST && _content_length == _body_left)
     {
         // Écrire le contenu de _buffer[] dans le fichier associé à _fd_in
         _buffer[_content_length] = 0;
-        std::cout << _fd_in << "here:" << _buffer << std::endl;
         ssize_t bytes_written = write(_fd_in, _buffer, _content_length);
         if (bytes_written == -1)
         {
@@ -147,7 +146,9 @@ bool	Request::receive_header(void)
             body_position = str_buffer.find("\r\n\r\n");
         }
     }
-    std::cout << "Request header: " << _str_header.size() << std::endl << _str_header << std::endl;
+    //std::cout << "Request header: " << _str_header.size() << std::endl << _str_header << std::endl;
+    if (!_str_header.size())
+        std::cerr << "Error: No header found." << std::endl;
     if (body_position == NPOS)
     {
         std::cerr << "Error: No end header found.\n" << std::endl;
@@ -168,6 +169,8 @@ bool	Request::parse_header(void)
         _status_code = 400;	// Bad Request
         return (false);
     }
+    std::cout << _location->get_method_str(_method) << " ";
+    std::cout << _url << std::endl;
     _host_name = _header.parse_host_name();
     if (_host_name == "")
     {
@@ -204,7 +207,7 @@ bool	Request::parse_header(void)
     if (_chunked)
         return (true);
     _content_length = _header.parse_content_length();
-    std::cout << "Content-Length: " << _content_length << std::endl;
+    //std::cout << "Content-Length: " << _content_length << std::endl;
     if (_method == GET)
     {
         if (_content_length == NPOS)
@@ -212,7 +215,7 @@ bool	Request::parse_header(void)
         return (true);
     }
     _content_type = _header.parse_content_type();
-    std::cout << "Content-Type: " << _content_type << std::endl;
+    //std::cout << "Content-Type: " << _content_type << std::endl;
     if (_method == PUT && _content_length != NPOS)
         return (true);
     if (_method == POST)
@@ -248,7 +251,7 @@ int     Request::read_body()
         _status_code = 400;
         return (end_read());
     }
-	std::cout << "read_body: " << ret << std::endl;
+	//std::cout << "read_body: " << ret << std::endl;
     if (!_chunked)
     {
         _body_size += ret + _body_left;
@@ -342,15 +345,18 @@ bool	Request::check_location()
     //std::cout << "============================" << std::endl;
     _location = Location::find_location(_url,
             _server->get_locations(), _method, _status_code);
-
+    //std::cout << _location << std::endl;
     if (!_location)
         return (false);
+    if (_location->get_redirection())
+        return (true);
+
     // if (!_location || _status_code != 200)
     //     return (false);
 
     _full_file_name = _location->get_full_file_name(_url,
             _server->get_root(), _method);
-    //std::cout << "check_location " << _socket << " " << _full_file_name << std::endl;
+    std::cout << _full_file_name << std::endl;
 
     struct stat info;
     if (_method != PUT
@@ -405,7 +411,7 @@ void	Request::process_fd_in()
 
 int     Request::end_read(void)
 {
-    std::cout << "end_read " << _socket << " " << _body_size << " " << _full_file_name << std::endl;
+    //std::cout << "end_read " << _socket << " " << _body_size << " " << _full_file_name << std::endl;
 
     if (!_cgi && _fd_in > 0)
         close(_fd_in);

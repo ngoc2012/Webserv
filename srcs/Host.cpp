@@ -148,7 +148,7 @@ void	Host::new_response_sk(int new_sk)
 
 void	Host::close_client_sk(int i)
 {
-    std::cout << "close_client_sk " << i << std::endl;
+    //std::cout << "close_client_sk " << i << std::endl;
 	FD_CLR(i, &_master_write_set);
 	delete (_sk_request[i]);
 	_sk_request.erase(i);

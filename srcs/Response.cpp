@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/28 08:23:29 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/28 08:40:04 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,31 +118,11 @@ void     Response::mess_body(std::string title, std::string body)
     _body += "    </head>\n";
     _body += "    <body>\n";
     _body += "    <p>" + body + "</p>\n";
-    //_body += "    <p>The requested URL /example-page was not found on this server.</p>\n";
     _body += "    </body>\n";
     _body += "    </html>\n";
-    //_body = (*_host->get_status_message())[_status_code];
     _content_length = _body.size();
-    //std::cout << "error_body " << _body << std::endl;
 }
-/*
-void     Response::redir_body(std::string title, std::string body)
-{
-    _body += "<!DOCTYPE html>\n";
-    _body += "    <html>\n";
-    _body += "    <head>\n";
-    _body += "    <title>" + title + "</title>\n";
-    _body += "    </head>\n";
-    _body += "    <body>\n";
-    _body += "    <h1>" + body + "</h1>\n";
-    //_body += "    <p>The requested URL /example-page was not found on this server.</p>\n";
-    _body += "    </body>\n";
-    _body += "    </html>\n";
-    //_body = (*_host->get_status_message())[_status_code];
-    _content_length = _body.size();
-    //std::cout << "error_body " << _body << std::endl;
-}
-*/
+
 void     Response::get_file_size()
 {
     struct stat fileStat;
@@ -225,10 +205,12 @@ int     Response::end_connection(void)
     int     status;
     if (_request->get_cgi() && _request->get_cgi()->get_pid() != -1)
         waitpid(_request->get_cgi()->get_pid(), &status, 0);
-    std::cout << "end_connection " << _socket << " " << _full_file_name << std::endl;
+    //std::cout << "end_connection " << _socket << " " << _full_file_name << std::endl;
     if (_fd_out > 0)
         close(_fd_out);
     _write_queue = false;
+    std::cout << _status_code << " ";
+    std::cout << _request->get_url() << std::endl;
     _host->close_client_sk(_socket);
     return (0);
 }

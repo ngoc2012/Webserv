@@ -103,7 +103,7 @@ void	Address::accept_client_sk(void)
 			break;
 		}
 		fcntl(new_sk, F_SETFL, O_NONBLOCK);
-		std::cout << "accept_client_sk " << new_sk << std::endl;
+		//std::cout << "accept_client_sk " << new_sk << std::endl;
 		_host->new_request_sk(new_sk, this);
 	} while (new_sk != -1);
 }
