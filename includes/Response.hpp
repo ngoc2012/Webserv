@@ -45,6 +45,7 @@ class	Response
         void	        write_header(void);
         void	        get_file_size(void);
         void	        mess_body(std::string, std::string);
+		//void	        redir_body(std::string, std::string);
 
 		void		    process_fd_out(void);
         int 	        write_body(void);

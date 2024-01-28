@@ -60,8 +60,8 @@ std::string	Header::generate(void)
             str += "Content-Type: " + (*_mimes)[_extension] + "\r\n";
     }
     else
-        str += "Content-Type: text/html\r\n";
-    if (_response->get_request()->get_cgi())
+    	str += "Content-Type: text/html\r\n";
+    if (_status_code == 200 &&_response->get_request()->get_cgi())
         str += "Transfer-Encoding: chunked\r\n";
     else
         str += "Content-Length: " + ft::itos(_response->get_content_length()) + "\r\n";
@@ -73,18 +73,7 @@ std::string	Header::generate(void)
 void	Header::init(void)
 {
 }
-/*
-std::string     Header::date() {
-    struct timeval tv;
-    char buf[32];
-    gettimeofday(&tv, NULL);
 
-    struct tm	*tm;
-    tm = gmtime(&tv.tv_sec);
-    int ret = strftime(buf, 32, "%a, %d %b %Y %T GMT", tm);
-    return std::string(buf, ret);
-}
-*/
 std::string	Header::get_current_time(void)
 {
 	std::time_t currentTime = std::time(0);

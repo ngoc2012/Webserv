@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/12 16:43:12 by nbechon          ###   ########.fr       */
+/*   Updated: 2024/01/28 08:24:51 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ Location::Location()
 {
     _autoindex = false;
     _cgi_pass = "";
+	_redirection = 0;
 }
 Location::Location(const Location& src) { *this = src; }
 Location&	Location::operator=( Location const & src )
@@ -28,6 +29,7 @@ Location::Location(std::string u): _url(u)
 {
     _autoindex = false;
     _cgi_pass = "";
+	_redirection = 0;
 }
 Location::~Location() {}
 
@@ -59,7 +61,7 @@ Location*	Location::find_location(std::string url, std::vector<Location*> locati
 
 bool	Location::compare_url(std::string url, std::string l_url)
 {
-	//std::cout << url << "==" << l_url << std::endl;
+	std::cout << url << "==" << l_url << std::endl;
 	// Folder
 	if (l_url[l_url.size() - 1] == '/')
 	{
@@ -164,9 +166,13 @@ std::string			        Location::get_alias(void) const {return (_alias);}
 std::string			        Location::get_url(void) const {return (_url);}
 std::string			        Location::get_cgi_pass(void) const {return (_cgi_pass);}
 bool                        Location::get_autoindex(void) const {return (_autoindex);}
+int							Location::get_redirection(void) const {return (_redirection);}
+std::string			        Location::get_link(void) const {return (_link);}
 
 void				Location::insert_methods(e_method e) {_methods.push_back(e);}
 void				Location::set_alias(std::string s) {_alias = s;}
 void				Location::set_url(std::string u) {_url = u;}
 void			    Location::set_cgi_pass(std::string c) {_cgi_pass = c;}
 void                Location::set_autoindex(bool a) {_autoindex = a;}
+void				Location::set_redirection(int r) {_redirection = r;}
+void                Location::set_link(std::string l) {_link = l;}

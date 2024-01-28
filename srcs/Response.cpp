@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/26 14:39:44 by nbechon          ###   ########.fr       */
+/*   Updated: 2024/01/28 08:23:29 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,8 +78,15 @@ void     Response::write_header()
     }
     if (_status_code != 200)
     {
-        std::string mess = (*_host->get_status_message())[_status_code];
-        mess_body(ft::itos(_status_code) + " " + mess, mess);
+        if (_status_code == 301 || _status_code == 302)
+        {
+            mess_body(ft::itos(_status_code) + " Redirection",
+                   "This page has moved. If you are not redirected, <a href=\""
+                   + _request->get_location()->get_link() + "\">click here</a>.");
+        } else {
+            std::string mess = (*_host->get_status_message())[_status_code];
+            mess_body(ft::itos(_status_code) + " " + mess, mess);
+        }
     }
     else if (_request->get_method() == DELETE)
         mess_body("Delete", "File deleted");
@@ -110,6 +117,23 @@ void     Response::mess_body(std::string title, std::string body)
     _body += "    <title>" + title + "</title>\n";
     _body += "    </head>\n";
     _body += "    <body>\n";
+    _body += "    <p>" + body + "</p>\n";
+    //_body += "    <p>The requested URL /example-page was not found on this server.</p>\n";
+    _body += "    </body>\n";
+    _body += "    </html>\n";
+    //_body = (*_host->get_status_message())[_status_code];
+    _content_length = _body.size();
+    //std::cout << "error_body " << _body << std::endl;
+}
+/*
+void     Response::redir_body(std::string title, std::string body)
+{
+    _body += "<!DOCTYPE html>\n";
+    _body += "    <html>\n";
+    _body += "    <head>\n";
+    _body += "    <title>" + title + "</title>\n";
+    _body += "    </head>\n";
+    _body += "    <body>\n";
     _body += "    <h1>" + body + "</h1>\n";
     //_body += "    <p>The requested URL /example-page was not found on this server.</p>\n";
     _body += "    </body>\n";
@@ -118,7 +142,7 @@ void     Response::mess_body(std::string title, std::string body)
     _content_length = _body.size();
     //std::cout << "error_body " << _body << std::endl;
 }
-
+*/
 void     Response::get_file_size()
 {
     struct stat fileStat;
@@ -199,7 +223,7 @@ int     Response::write_body()
 int     Response::end_connection(void)
 {
     int     status;
-    if (_request->get_cgi()->get_pid() != -1)
+    if (_request->get_cgi() && _request->get_cgi()->get_pid() != -1)
         waitpid(_request->get_cgi()->get_pid(), &status, 0);
     std::cout << "end_connection " << _socket << " " << _full_file_name << std::endl;
     if (_fd_out > 0)

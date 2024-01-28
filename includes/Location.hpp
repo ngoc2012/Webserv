@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/02 16:36:21 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/27 22:20:58 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ class	Location
 		std::string			        _cgi_pass;
 		bool                        _autoindex;
 		std::vector<std::string>	_index;
+		int							_redirection;
+		std::string			        _link;
 
 
 		Location();
@@ -49,12 +51,16 @@ class	Location
 		std::string			        get_url(void) const;
         std::string			        get_cgi_pass(void) const;
         bool                        get_autoindex(void) const;
+        int							get_redirection(void) const;
+        std::string			        get_link(void) const;
 
 		void				        insert_methods(e_method);
 		void				        set_alias(std::string);
 		void				        set_url(std::string);
         void			            set_cgi_pass(std::string);
         void                        set_autoindex(bool);
+        void						set_redirection(int);
+        void                        set_link(std::string);
 };
 
 #endif
