@@ -68,9 +68,10 @@ std::string	Header::generate(void)
 	}
     str += "Date: " + get_current_time() + "\r\n";
 	//std::cout << str << std::endl;
-	str += "Access-Control-Allow-Origin: *\r\n";
-	str += "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n";
-	str += "Access-Control-Allow-Headers: Content-Type, Cookie\r\n";
+	str += "Access-Control-Allow-Origin: http://127.0.0.1:4141/\r\n";
+	//str += "Access-Control-Allow-Origin: *\r\n";
+	str += "Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS\r\n";
+	str += "Access-Control-Allow-Headers: Content-Type, Cookie, Authorization\r\n";
 	str += "Access-Control-Allow-Credentials: true\r\n\r\n";
 	return (str);
 }
