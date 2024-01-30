@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Header.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/30 15:40:54 by lbastian         ###   ########.fr       */
+/*   Updated: 2024/01/30 16:48:59 by nbechon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,11 +71,13 @@ std::string	Header::generate(void)
 		str += "Set-Cookies: " + _session_id + "\r\n";
     str += "Date: " + get_current_time() + "\r\n";
 	//std::cout << str << std::endl;
+	/*
 	str += "Access-Control-Allow-Origin: http://127.0.0.1:4141/\r\n";
 	//str += "Access-Control-Allow-Origin: *\r\n";
 	str += "Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS\r\n";
 	str += "Access-Control-Allow-Headers: Content-Type, Cookie, Authorization\r\n";
 	str += "Access-Control-Allow-Credentials: true\r\n\r\n";
+	*/
 	return (str);
 }
 

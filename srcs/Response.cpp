@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/30 15:34:55 by lbastian         ###   ########.fr       */
+/*   Updated: 2024/01/30 16:45:54 by nbechon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,9 +103,13 @@ void     Response::write_header()
 		else
 			sessions->add(sid, std::time(0) + 30);
     }
+    if (_request->get_method() == HEAD)
+        _content_length = 0;
     _header = header.generate();
     //std::cout << "Response Header:\n" << _header << std::endl;
     if (send(_socket, _header.c_str(), _header.length(), 0) < 0)
+        end_connection();
+    if (_request->get_method() == HEAD)
         end_connection();
     //else
     //    std::cout << "Header sent" << std::endl;

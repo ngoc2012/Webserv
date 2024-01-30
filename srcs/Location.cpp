@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/30 15:29:12 by lbastian         ###   ########.fr       */
+/*   Updated: 2024/01/30 16:26:28 by nbechon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,8 +91,11 @@ std::string	Location::get_full_file_name(std::string url, std::string root, e_me
         file_name = root;
     else
         file_name = _alias;
+    //std::cout << "file_name:" << file_name << std::endl;
+    //std::cout << "_url:" << _url << std::endl;
     if (_url.size() < url.size())
-        file_name += url.substr(_url.size());
+        file_name += url.substr(1);
+    //std::cout << "file_name:" << file_name << std::endl;
     if (_autoindex || e == PUT || e == POST)
         return (file_name);
     struct stat	info;
@@ -131,6 +134,8 @@ std::string	Location::get_method_str(e_method e) {
     {
 		case OPTIONS:
 			return ("OPTIONS");
+        case HEAD:
+			return ("HEAD");
         case GET:
             return ("GET");
         case POST:

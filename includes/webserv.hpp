@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 22:38:19 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/30 15:25:22 by lbastian         ###   ########.fr       */
+/*   Updated: 2024/01/30 16:15:09 by nbechon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 
 # define NPOS std::string::npos
 
-enum	e_method {GET, POST, PUT, DELETE, OPTIONS, NONE};
+enum	e_method {GET, POST, PUT, DELETE, HEAD, OPTIONS, NONE};
 
 namespace ft {
 
