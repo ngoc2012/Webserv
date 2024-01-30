@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/05 21:21:18 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/04 15:46:05 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/30 15:19:15 by nbechon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,11 @@ void	main_signal_handler(int sig)
 	if (sig == SIGPIPE)	{}
 }
 
-int	main()
+int	main(int argc, char *argv[])
 {
+    if (argc > 2)
+        return (printf("Error: too many arguments.\n"), 0);
+    (void)argv;
     struct sigaction	act;
     act.sa_flags = SA_RESTART;
     act.sa_handler = main_signal_handler;
