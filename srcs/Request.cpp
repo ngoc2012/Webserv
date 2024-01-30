@@ -146,7 +146,7 @@ bool	Request::receive_header(void)
             body_position = str_buffer.find("\r\n\r\n");
         }
     }
-    //std::cout << "Request header: " << _str_header.size() << std::endl << _str_header << std::endl;
+    std::cout << "Request header: " << _str_header.size() << std::endl << _str_header << std::endl;
     if (!_str_header.size())
         std::cerr << "Error: No header found." << std::endl;
     if (body_position == NPOS)

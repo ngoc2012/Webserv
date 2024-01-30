@@ -6,7 +6,7 @@
 /*   By: lbastian <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/11 17:08:35 by lbastian          #+#    #+#             */
-/*   Updated: 2024/01/15 14:13:26 by lbastian         ###   ########.fr       */
+/*   Updated: 2024/01/30 16:27:12 by lbastian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 
 #include <map>
 #include <iostream>
+#include <sstream>
 
 #include "webserv.hpp"
 

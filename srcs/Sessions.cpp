@@ -6,7 +6,7 @@
 /*   By: lbastian <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/11 17:07:16 by lbastian          #+#    #+#             */
-/*   Updated: 2024/01/30 15:36:43 by lbastian         ###   ########.fr       */
+/*   Updated: 2024/01/30 16:28:07 by lbastian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,21 +22,23 @@ Sessions::~Sessions(void)
 
 std::string Sessions::create_token(void)
 {
-	//	return (ft::itos(_sessions_data.size() + 1));
-	time_t actual;
 	std::string str;
 	std::map<std::string, time_t>::iterator it;
+	time_t currentTime;
 
 	while (1)
 	{
-		actual = time(0);
-		struct tm * curtime = localtime ( &actual );
-		str = asctime(curtime);
+		currentTime = time(NULL);
+    	std::stringstream timeStream;
+    	timeStream << currentTime;
+		str = timeStream.str() + ft::itos(_sessions_data.size() + 1);
+
 		it = _sessions_data.find(str);
 		if (it == _sessions_data.end())
 			break;
 	}
 	return (str);
+
 }
 
 void Sessions::add(std::string token, time_t date)
