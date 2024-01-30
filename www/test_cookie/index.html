@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Blip Bloup</title>
+    </head>
+    <body>
+        <h1>Blip Bloup</h1>
+        <button type="button" onclick="send_get_request()" >Send GET request</button>
+        <ul></ul>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script>
+            function send_get_request()
+            {
+                const headers = new Headers({
+                  'Content-Type': 'application/json',
+                  'Cookie': 'session_id=1'
+                });
+
+                fetch("http://127.0.0.1:4141", {
+                    method: 'GET',
+                    headers: headers,
+                    credentials: 'include',
+                    contentType: 'text/plain',
+                    crossDomain: true,
+                })
+                .then(response => {
+                    const setCookieHeader = response.headers.get('Set-Cookie');
+                    //const setCookieHeader = "session_id=1; path=/"
+                    //console.log(response);
+                    console.log(setCookieHeader);
+
+                    if (setCookieHeader)
+                    {
+                        cookies = parseCookies(setCookieHeader);
+                        console.log(cookies);
+                        alert("Cookie found - token: " + cookies.session_id);
+                    }
+                    else
+                        alert("No cookies");
+
+                })
+                .catch(error => alert("Request GET fail: " + error));
+            }
+
+            function parseCookies(setCookieHeader) {
+              return setCookieHeader
+                .split(';')
+                .map(cookie => cookie.trim().split('='))
+                .reduce((acc, [key, value]) => {
+                  acc[key] = value;
+                  return acc;
+                }, {});
+            }
+
+
+
+
+            /*
+            function send_post_request()
+            {
+                $.ajax({
+                    type: "POST",
+                    url: "http://127.0.0.1:4141",
+                    async: true,
+                    success: function(data)
+                    {
+                        alert(data);
+                    }
+                });
+            }
+            */
+                           /*
+                $.ajax({
+                type: "GET",
+                url: "http://127.0.0.1:4141",
+                async: true,
+                }).done(function () {
+                    alert("Request GET success");
+                })
+                .fail(function () {
+                    alert("Request GET fail");
+                });
+                */
+        </script>
+    </body>
+</html>

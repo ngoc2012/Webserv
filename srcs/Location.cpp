@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/28 08:35:21 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/30 15:29:12 by lbastian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,6 +129,8 @@ std::string	Location::get_methods_str(void)
 std::string	Location::get_method_str(e_method e) {
     switch (e)
     {
+		case OPTIONS:
+			return ("OPTIONS");
         case GET:
             return ("GET");
         case POST:

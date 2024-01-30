@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/28 08:38:43 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/30 15:33:12 by lbastian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,6 +189,7 @@ bool	Request::parse_header(void)
             if (_host_name == *it)
                 _server = *sv;
     }
+	_response.set_server(_server);
     if (!check_location())
         return (false);
     if (_location->get_redirection())
@@ -208,6 +209,12 @@ bool	Request::parse_header(void)
         return (true);
     _content_length = _header.parse_content_length();
     //std::cout << "Content-Length: " << _content_length << std::endl;
+    _cookies = _header.parse_cookies();
+    if (_cookies.find("session_id") != _cookies.end())
+        _session_id = _cookies["session_id"];
+    if (_cookies.find("sid") != _cookies.end())
+        _session_id = _cookies["sid"];
+    std::cout << "Session id: " << _session_id << std::endl;
     if (_method == GET)
     {
         if (_content_length == NPOS)
@@ -231,12 +238,6 @@ bool	Request::parse_header(void)
         std::cerr << "Error: Content length bigger than " << _body_max << std::endl;
         return (false);
     }
-    _cookies = _header.parse_cookies();
-    if (_cookies.find("sesion_id") != _cookies.end())
-        _session_id = _cookies["session_id"];
-    if (_cookies.find("sid") != _cookies.end())
-        _session_id = _cookies["sid"];
-    std::cout << "Session id: " << _session_id << std::endl;
     return (true);
 }
 
@@ -379,6 +380,7 @@ void	Request::process_fd_in()
     int i = 0;
     switch (_method)
     {
+		case OPTIONS:
         case GET:
             break;
         case PUT:

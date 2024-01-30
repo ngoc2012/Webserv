@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/26 12:24:50 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/30 15:40:54 by lbastian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,9 +64,18 @@ std::string	Header::generate(void)
     if (_status_code == 200 &&_response->get_request()->get_cgi())
         str += "Transfer-Encoding: chunked\r\n";
     else
+	{
         str += "Content-Length: " + ft::itos(_response->get_content_length()) + "\r\n";
-    str += "Date: " + get_current_time() + "\r\n\r\n";
+	}
+	if (_session_id != "")
+		str += "Set-Cookies: " + _session_id + "\r\n";
+    str += "Date: " + get_current_time() + "\r\n";
 	//std::cout << str << std::endl;
+	str += "Access-Control-Allow-Origin: http://127.0.0.1:4141/\r\n";
+	//str += "Access-Control-Allow-Origin: *\r\n";
+	str += "Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS\r\n";
+	str += "Access-Control-Allow-Headers: Content-Type, Cookie, Authorization\r\n";
+	str += "Access-Control-Allow-Credentials: true\r\n\r\n";
 	return (str);
 }
 

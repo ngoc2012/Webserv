@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/10 10:03:28 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/30 15:33:56 by lbastian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,8 @@ bool	RequestHeader::parse_method_url(std::string& url, e_method& m)
         m = PUT;
     else if (words[0] == "DELETE")
         m = DELETE;
+	else if (words[0] == "OPTIONS")
+		m = OPTIONS;
     else
     {
         std::cerr << "Error: Method unknown : " << words[0] << std::endl;

@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/28 08:40:04 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/01/30 15:34:55 by lbastian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,8 @@ void     Response::write_header()
             sessions->add(token, std::time(0) + 30);
             header.set_session_id(token);
         }
+		else
+			sessions->add(sid, std::time(0) + 30);
     }
     _header = header.generate();
     //std::cout << "Response Header:\n" << _header << std::endl;
