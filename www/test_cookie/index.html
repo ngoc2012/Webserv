@@ -25,8 +25,8 @@
                     crossDomain: true,
                 })
                 .then(response => {
-                    //const setCookieHeader = response.headers.get('Set-Cookie');
-                    const setCookieHeader = "session_id=1; path=/"
+                    const setCookieHeader = response.headers.get('Set-Cookie');
+                    //const setCookieHeader = "session_id=1; path=/"
                     //console.log(response);
                     console.log(setCookieHeader);
 
