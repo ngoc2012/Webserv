@@ -36,10 +36,12 @@ Merging a branch in GitHub involves combining changes from one branch into anoth
    Before merging, make sure your local branch is up-to-date with the latest changes from the target branch (usually `main` or `master`).
 
    ```bash
-   git checkout main
-   git pull origin main
    git checkout your-feature-branch
-   git merge main
+   git pull
+   git checkout main
+   git pull
+   git merge your-feature-branch
+   git pull origin main
    ```
 
 2. **Resolve any conflicts (if necessary):**
