@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/30 15:33:12 by lbastian         ###   ########.fr       */
+/*   Updated: 2024/01/30 17:02:48 by nbechon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,7 +169,7 @@ bool	Request::parse_header(void)
         _status_code = 400;	// Bad Request
         return (false);
     }
-    std::cout << _location->get_method_str(_method) << " ";
+    std::cout << "dfzdf" << _location->get_method_str(_method) << " ";
     std::cout << _url << std::endl;
     _host_name = _header.parse_host_name();
     if (_host_name == "")
@@ -177,6 +177,7 @@ bool	Request::parse_header(void)
         _status_code = 400;	// Bad Request
         return (false);
     }
+    std::cout << _host_name << std::endl;
     std::vector<Server*>        servers = _address->get_servers();
     std::vector<std::string>    server_names;
     _server = servers[0];
@@ -215,7 +216,7 @@ bool	Request::parse_header(void)
     if (_cookies.find("sid") != _cookies.end())
         _session_id = _cookies["sid"];
     std::cout << "Session id: " << _session_id << std::endl;
-    if (_method == GET)
+    if (_method == GET || _method == HEAD)
     {
         if (_content_length == NPOS)
             return (false);
@@ -381,6 +382,7 @@ void	Request::process_fd_in()
     switch (_method)
     {
 		case OPTIONS:
+        case HEAD:
         case GET:
             break;
         case PUT:

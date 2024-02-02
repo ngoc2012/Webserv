@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestHeader.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
+/*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/30 15:33:56 by lbastian         ###   ########.fr       */
+/*   Updated: 2024/01/30 16:22:03 by nbechon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ bool	RequestHeader::parse_method_url(std::string& url, e_method& m)
         m = DELETE;
 	else if (words[0] == "OPTIONS")
 		m = OPTIONS;
+    else if (words[0] == "HEAD")
+		m = HEAD;
     else
     {
         std::cerr << "Error: Method unknown : " << words[0] << std::endl;
