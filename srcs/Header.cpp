@@ -50,9 +50,11 @@ std::string	Header::generate(void)
 	else
 		str += (*_status_message)[_status_code];
 	str += "\r\n";
+	if (_status_code == 405)
+		str += "Allow: " + _allow + "\r\n";
     if (_status_code == 200)
     {
-        str += "Allow: " + _allow + "\r\n";
+        
         str += std::string("Content-Language: en") + "\r\n";
         if (_mimes->find(_extension) == _mimes->end())
             str += "Content-Type: text/html\r\n";
@@ -70,14 +72,7 @@ std::string	Header::generate(void)
 	if (_session_id != "")
 		str += "Set-Cookies: " + _session_id + "\r\n";
     str += "Date: " + get_current_time() + "\r\n";
-	//std::cout << str << std::endl;
-	/*
-	str += "Access-Control-Allow-Origin: http://127.0.0.1:4141/\r\n";
-	//str += "Access-Control-Allow-Origin: *\r\n";
-	str += "Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS\r\n";
-	str += "Access-Control-Allow-Headers: Content-Type, Cookie, Authorization\r\n";
-	str += "Access-Control-Allow-Credentials: true\r\n\r\n";
-	*/
+	str += "server: webserv\r\n\r\n";
 	return (str);
 }
 

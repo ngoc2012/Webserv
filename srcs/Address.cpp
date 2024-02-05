@@ -61,7 +61,7 @@ int     Address::listen_socket(void)
         std::cout << "Error: listen_socket: setsockopt() failed " << _ip_address << ":" << _port << std::endl;
 		return (-1);
 	}
-	fcntl(_listen_socket, F_SETFL, O_NONBLOCK);	// ioctl not allowed
+	fcntl(_listen_socket, F_SETFL, O_NONBLOCK);
 	return (bind_addr());
 }
 
@@ -91,7 +91,7 @@ int	    Address::bind_addr()
 //Accept all the new connections, create a new socket and add to the master set
 void	Address::accept_client_sk(void)
 {
-	//std::cout << "Listening socket is readable " << _listen_socket << std::endl;
+	std::cout << "Listening socket is readable " << _listen_socket << std::endl;
 	int	new_sk;
 	do
 	{
@@ -103,11 +103,9 @@ void	Address::accept_client_sk(void)
 			break;
 		}
 		fcntl(new_sk, F_SETFL, O_NONBLOCK);
-		//std::cout << "accept_client_sk " << new_sk << std::endl;
+		std::cout << "accept_client_sk " << new_sk << std::endl;
 		_host->new_request_sk(new_sk, this);
 	} while (new_sk != -1);
 }
 
 std::vector<Server*>    Address::get_servers(void) {return (_servers);}
-//std::string		    Address::get_ip_address(void) const {return (_ip_address);}
-//short unsigned int	Address::get_port(void) const {return (_port);}

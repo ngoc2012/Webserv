@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/10 10:09:17 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/04 07:32:40 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "Request.hpp"
 #include "Configuration.hpp"
 
+
 Host::Host(const Host& src) { *this = src; }
 
 Host::Host() {
@@ -24,6 +25,10 @@ Host::Host() {
     _client_max_body_size = 1;
     _client_body_buffer_size = 128;
     _parser_error = false;
+    _workers = 0;
+    _terminate_flag = false;
+    _terminate_mutex = PTHREAD_MUTEX_INITIALIZER;
+    pthread_cond_init(&_terminate_cond, NULL);
 
     _max_sk = -1;
     mimes();
@@ -38,14 +43,16 @@ Host&	Host::operator=( Host const & src )
 
 Host::~Host()
 {
-	std::cout << "Host Destructor" << std::endl;
-	for (std::map<int, Request*>::iterator it = _sk_request.begin();
-		it != _sk_request.end(); ++it)
-		delete (it->second);
-	for (std::map<std::string, Address*>::iterator it = _str_address.begin();
-		it != _str_address.end(); ++it)
-		delete (it->second);
-	std::cout << "End server" << std::endl;
+    std::cout << "Host Destructor" << std::endl;
+    for (std::map<int, Request*>::iterator it = _sk_request.begin();
+            it != _sk_request.end(); ++it)
+        delete (it->second);
+    for (std::map<std::string, Address*>::iterator it = _str_address.begin();
+            it != _str_address.end(); ++it)
+        delete (it->second);
+    if (_workers)
+        delete [] _workers;
+    std::cout << "End server" << std::endl;
 }
 
 void	Host::start(void)
@@ -56,8 +63,10 @@ void	Host::start(void)
 	FD_ZERO(&_master_write_set);
 	FD_ZERO(&_listen_set);
 	start_server();
+    start_workers();
 	if (!_sk_address.size())
 		return ;
+    //std::cout << "workers: " << _n_workers << std::endl;
 	do
 	{
 		memcpy(&_read_set, &_master_read_set, sizeof(_master_read_set));
@@ -90,9 +99,44 @@ void	Host::start_server(void)
     }
 }
 
+void Host::waitForTermination() {
+    pthread_mutex_lock(&_terminate_mutex);
+    while (!_terminate_flag) {
+        pthread_cond_wait(&_terminate_cond, &_terminate_mutex);
+    }
+    pthread_mutex_unlock(&_terminate_mutex);
+}
+
+void*   Host::handleConnections() {
+    std::cout << "worker" << std::endl;
+    pthread_mutex_lock(&_terminate_mutex);
+    while (!_terminate_flag) {
+        pthread_mutex_unlock(&_terminate_mutex);
+        
+        sleep(1000);
+        //break;
+        pthread_mutex_lock(&_terminate_mutex);
+    }
+    pthread_mutex_unlock(&_terminate_mutex);
+    std::cout << "worker end" << std::endl;
+    pthread_exit(NULL);
+    return NULL;
+}
+
+void*   Host::handleConnectionsHelper(void* instance) {
+    static_cast<Host*>(instance)->handleConnections();
+    return NULL;
+}
+
+void    Host::start_workers() {
+    _workers = new Worker[_n_workers];
+    for (int i = 0; i < _n_workers; i++)
+        pthread_create(_workers[i].get_th(), NULL, &Host::handleConnectionsHelper, this);
+}
+
 bool	Host::select_available_sk(void)
 {
-	//std::cout << "Waiting on select() ..." << std::endl;
+	std::cout << "Waiting on select() ..." << std::endl;
 	int sk = select(_max_sk + 1, &_read_set, &_write_set, NULL, NULL);// No timeout
 	//std::cout << "_sk_ready = " << _sk_ready << std::endl;
 	if (sk < 0)
@@ -110,7 +154,7 @@ void	Host::check_sk_ready(void)
     {
         if (FD_ISSET(i, &_read_set))
         {
-            //std::cout << "Read set sk = " << i << std::endl;
+            std::cout << "Read set sk = " << i << std::endl;
             _sk_ready--;
             if (FD_ISSET(i, &_listen_set))
                 _sk_address[i]->accept_client_sk();
@@ -120,7 +164,7 @@ void	Host::check_sk_ready(void)
         if (FD_ISSET(i, &_write_set))
         {
             _sk_ready--;
-            //std::cout << "Write set sk = " << i << std::endl;
+            std::cout << "Write set sk = " << i << std::endl;
             _sk_request[i]->get_response()->write();
         }
     }
@@ -417,9 +461,22 @@ size_t			                    Host::get_client_body_buffer_size(void) const {retu
 std::map<std::string, std::string>*	Host::get_mimes(void) {return (&_mimes);}
 std::set<std::string>*	            Host::get_set_mimes(void) {return (&_set_mimes);}
 std::map<int, std::string>*  		Host::get_status_message(void) {return (&_status_message);}
+Worker*				                Host::get_workers(void) const {return (_workers);}
+int 				                Host::get_n_workers(void) const {return (_n_workers);}
+bool								Host::get_terminate_flag(void) const {return (_terminate_flag);}
+pthread_mutex_t*					Host::get_terminate_mutex(void) {return (&_terminate_mutex);}
 
 void			Host::set_client_max_body_size(size_t n) {_client_max_body_size = n;}
 void			Host::set_client_body_buffer_size(size_t n) {_client_body_buffer_size = n;}
 void			Host::set_parser_error(bool e) {_parser_error = e;}
 //void		    Host::set_servers(std::vector<Server*> s) {_servers = s;}
 void		    Host::set_str_address(std::map<std::string, Address*> a) {_str_address = a;}
+void	        Host::set_n_workers(int w) {_n_workers = w;}
+void	        Host::set_terminate_flag(bool f)
+{
+    pthread_mutex_lock(&_terminate_mutex);
+    _terminate_flag = f;
+    pthread_cond_signal(&_terminate_cond);
+    pthread_mutex_unlock(&_terminate_mutex);
+}
+void	        Host::set_terminate_mutex(pthread_mutex_t m) {_terminate_mutex = m;}

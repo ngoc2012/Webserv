@@ -65,7 +65,7 @@ int     Response::write()
 
 void     Response::write_header()
 {
-    //std::cout << "write_header" << std::endl;
+    std::cout << "write_header" << std::endl;
 
     _full_file_name = _request->get_full_file_name();
     //std::cout << "write_header " << _full_file_name << std::endl;
@@ -118,14 +118,14 @@ void     Response::write_header()
 void     Response::mess_body(std::string title, std::string body)
 {
     _body += "<!DOCTYPE html>\n";
-    _body += "    <html>\n";
-    _body += "    <head>\n";
-    _body += "    <title>" + title + "</title>\n";
-    _body += "    </head>\n";
-    _body += "    <body>\n";
-    _body += "    <p>" + body + "</p>\n";
-    _body += "    </body>\n";
-    _body += "    </html>\n";
+    _body += "<html>\n";
+    _body += "  <head>\n";
+    _body += "      <title>" + title + "</title>\n";
+    _body += "  </head>\n";
+    _body += "  <body>\n";
+    _body += "      <p>" + body + "</p>\n";
+    _body += "  </body>\n";
+    _body += "</html>\n";
     _content_length = _body.size();
 }
 
@@ -134,7 +134,6 @@ void     Response::get_file_size()
     struct stat fileStat;
     if (stat(_full_file_name.c_str(), &fileStat) != 0)
     {
-
         std::cerr << "Error: File or folder not found." << std::endl;
         _status_code = 500;
         return ;
@@ -148,6 +147,7 @@ void     Response::get_file_size()
     _fd_out = open(_full_file_name.c_str(), O_RDONLY);
     if (_fd_out == -1)
     {
+        std::cerr << "Error: fd out open error." << std::endl;
         _status_code = 500;
         return ;
     }
@@ -163,7 +163,7 @@ int     Response::write_body()
         if (len > RESPONSE_BUFFER * 1028)
             len = RESPONSE_BUFFER * 1028;
 
-        //std::cout << "write_body " << _pos << " " << len << " " << _body << std::endl;
+        std::cout << "write_body " << _pos << " " << len << " " << _body << std::endl;
         if (send(_socket, &_body.c_str()[_pos], len, 0) < 0)
             return (end_connection());
 
@@ -211,11 +211,11 @@ int     Response::end_connection(void)
     int     status;
     if (_request->get_cgi() && _request->get_cgi()->get_pid() != -1)
         waitpid(_request->get_cgi()->get_pid(), &status, 0);
-    //std::cout << "end_connection " << _socket << " " << _full_file_name << std::endl;
+    std::cout << "end_connection " << _socket << " " << _full_file_name << std::endl;
     if (_fd_out > 0)
         close(_fd_out);
     _write_queue = false;
-    std::cout << _status_code << " ";
+    std::cout << _status_code << " dfgdsfg";
     std::cout << _request->get_url() << std::endl;
     _host->close_client_sk(_socket);
     return (0);

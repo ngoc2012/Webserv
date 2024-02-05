@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/28 08:13:35 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/03 10:15:22 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,6 +182,13 @@ bool	Configuration::host_parser(std::string cmd, Host* host, std::vector<std::st
 		if (!ft::is_digit(words[1]) || n < 0 || n > 1024)
 			return (true);
 		host->set_client_body_buffer_size(n);
+	}
+	else if (words[0] == "workers")
+	{
+		n = std::atoi(words[1].c_str());
+		if (!ft::is_digit(words[1]) || n < 0 || n > 1024)
+			return (true);
+		host->set_n_workers(n);
 	}
 	else
 		return (true);

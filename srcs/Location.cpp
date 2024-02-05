@@ -91,11 +91,8 @@ std::string	Location::get_full_file_name(std::string url, std::string root, e_me
         file_name = root;
     else
         file_name = _alias;
-    //std::cout << "file_name:" << file_name << std::endl;
-    //std::cout << "_url:" << _url << std::endl;
     if (_url.size() < url.size())
         file_name += url.substr(1);
-    //std::cout << "file_name:" << file_name << std::endl;
     if (_autoindex || e == PUT || e == POST)
         return (file_name);
     struct stat	info;
@@ -103,7 +100,6 @@ std::string	Location::get_full_file_name(std::string url, std::string root, e_me
         return (file_name);
     if (!S_ISDIR(info.st_mode))
         return (file_name);
-    file_name += "/";
     if (!_index.size())
     {
         file_name += "index.html";

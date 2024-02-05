@@ -53,6 +53,7 @@ int    Cgi::execute()
     response = _request->get_response();
     if (!get_envs())
     {
+        std::cerr << "Error: envs" << std::endl;
         response->set_status_code(500);
         return 500;
     }
@@ -116,7 +117,10 @@ int    Cgi::execute()
                 buffer[bytesRead] = 0;
                 //std::cout << buffer;
                 if (write(pipe_in[1], buffer, bytesRead) == -1)
+                {
+                    std::cerr << "Error: write pipe in" << std::endl;
                     return 500;
+                }
             }
         }
         close(pipe_in[1]);

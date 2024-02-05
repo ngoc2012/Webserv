@@ -146,7 +146,8 @@ bool	Request::receive_header(void)
             body_position = str_buffer.find("\r\n\r\n");
         }
     }
-    std::cout << "Request header: " << _str_header.size() << std::endl << _str_header << std::endl;
+    std::cout << "Request header: " << _str_header.size() << std::endl;
+    std::cout << _str_header << std::endl;
     if (!_str_header.size())
         std::cerr << "Error: No header found." << std::endl;
     if (body_position == NPOS)
@@ -169,8 +170,8 @@ bool	Request::parse_header(void)
         _status_code = 400;	// Bad Request
         return (false);
     }
-    std::cout << "dfzdf" << _location->get_method_str(_method) << " ";
-    std::cout << _url << std::endl;
+    std::cout << _location->get_method_str(_method) << " ";
+    std::cout << _url << " ";
     _host_name = _header.parse_host_name();
     if (_host_name == "")
     {
@@ -297,6 +298,7 @@ bool    Request::write_chunked(size_t len)
         }
         if (write(_fd_in, _buffer, body_position) == -1)
         {
+            std::cerr << "Error: Write fd in error 1." << std::endl;
             _status_code = 500;
             return (false);
         }
@@ -328,6 +330,7 @@ bool    Request::write_chunked(size_t len)
         }
         if (write(_fd_in, &_buffer[body_position], _chunked_writed) == -1)
         {
+            std::cerr << "Error: Write fd in error 2." << std::endl;
             _status_code = 500;
             return (false);
         }
@@ -348,7 +351,7 @@ bool	Request::check_location()
     _location = Location::find_location(_url,
             _server->get_locations(), _method, _status_code);
     //std::cout << _location << std::endl;
-    if (!_location)
+    if (!_location || _status_code != 200)
         return (false);
     if (_location->get_redirection())
         return (true);
@@ -389,7 +392,10 @@ void	Request::process_fd_in()
             _fd_in = open(_full_file_name.c_str(),
                     O_CREAT | O_WRONLY | O_TRUNC, 0664);
             if (_fd_in == -1)
+            {
+                std::cerr << "Error: PUT method, fd in open error." << std::endl;
                 _status_code = 500;
+            }
             break;
         case POST:
             _tmp_file = "/tmp/0";
@@ -399,6 +405,7 @@ void	Request::process_fd_in()
             _fd_in = open(_tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0664);
             if (_fd_in == -1)
             {
+                std::cerr << "Error: POST method, fd in open error." << std::endl;
                 _status_code = 500;
                 end_read();
             }
