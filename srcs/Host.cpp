@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/04 07:32:40 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/05 11:21:44 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,9 @@ Host::Host() {
     _workers = 0;
     _terminate_flag = false;
     _terminate_mutex = PTHREAD_MUTEX_INITIALIZER;
+    _timeout = TIMEOUT;
     pthread_cond_init(&_terminate_cond, NULL);
+    pthread_mutex_init(&_set_mutex, NULL);
 
     _max_sk = -1;
     mimes();
@@ -67,10 +69,13 @@ void	Host::start(void)
 	if (!_sk_address.size())
 		return ;
     //std::cout << "workers: " << _n_workers << std::endl;
+    std::cout << "timeout: " << _timeout << std::endl;
 	do
 	{
+        //pthread_mutex_lock(&_set_mutex);
 		memcpy(&_read_set, &_master_read_set, sizeof(_master_read_set));
 		memcpy(&_write_set, &_master_write_set, sizeof(_master_write_set));
+        //pthread_mutex_unlock(&_set_mutex);
 		if (select_available_sk() == false)
 			break;
 		check_sk_ready();
@@ -86,8 +91,10 @@ void	Host::start_server(void)
         listen_sk = (ad->second)->listen_socket();
 		if (listen_sk > 0)
 		{
+            //pthread_mutex_lock(&_set_mutex);
 			add_sk_2_master_read_set(listen_sk, ad->second);
 			FD_SET(listen_sk, &_listen_set);
+            //pthread_mutex_unlock(&_set_mutex);
 			++ad;
 		}
 		else
@@ -137,7 +144,9 @@ void    Host::start_workers() {
 bool	Host::select_available_sk(void)
 {
 	std::cout << "Waiting on select() ..." << std::endl;
+    //pthread_mutex_lock(&_set_mutex);
 	int sk = select(_max_sk + 1, &_read_set, &_write_set, NULL, NULL);// No timeout
+    //pthread_mutex_unlock(&_set_mutex);
 	//std::cout << "_sk_ready = " << _sk_ready << std::endl;
 	if (sk < 0)
 	{
@@ -150,6 +159,7 @@ bool	Host::select_available_sk(void)
 
 void	Host::check_sk_ready(void)
 {
+    //pthread_mutex_lock(&_set_mutex);
     for (int i = 0; i <= _max_sk && _sk_ready > 0; ++i)
     {
         if (FD_ISSET(i, &_read_set))
@@ -168,6 +178,7 @@ void	Host::check_sk_ready(void)
             _sk_request[i]->get_response()->write();
         }
     }
+    //pthread_mutex_unlock(&_set_mutex);
 }
 
 void  	Host::add_sk_2_master_read_set(int new_sk, Address* a)
@@ -186,12 +197,15 @@ void	Host::new_request_sk(int new_sk, Address* a)
 
 void	Host::new_response_sk(int new_sk)
 {
+    //pthread_mutex_lock(&_set_mutex);
 	FD_CLR(new_sk, &_master_read_set);
 	FD_SET(new_sk, &_master_write_set);
+    //pthread_mutex_unlock(&_set_mutex);
 }
 
 void	Host::close_client_sk(int i)
 {
+    //pthread_mutex_lock(&_set_mutex);
     //std::cout << "close_client_sk " << i << std::endl;
 	FD_CLR(i, &_master_write_set);
 	delete (_sk_request[i]);
@@ -200,6 +214,7 @@ void	Host::close_client_sk(int i)
 	if (i == _max_sk)
 		while (!FD_ISSET(_max_sk, &_master_read_set))
 			_max_sk -= 1;
+    //pthread_mutex_unlock(&_set_mutex);
 }
 
 void    Host::status_message(void)
@@ -465,6 +480,7 @@ Worker*				                Host::get_workers(void) const {return (_workers);}
 int 				                Host::get_n_workers(void) const {return (_n_workers);}
 bool								Host::get_terminate_flag(void) const {return (_terminate_flag);}
 pthread_mutex_t*					Host::get_terminate_mutex(void) {return (&_terminate_mutex);}
+int				                    Host::get_timeout(void) const {return (_timeout);}
 
 void			Host::set_client_max_body_size(size_t n) {_client_max_body_size = n;}
 void			Host::set_client_body_buffer_size(size_t n) {_client_body_buffer_size = n;}
@@ -472,6 +488,8 @@ void			Host::set_parser_error(bool e) {_parser_error = e;}
 //void		    Host::set_servers(std::vector<Server*> s) {_servers = s;}
 void		    Host::set_str_address(std::map<std::string, Address*> a) {_str_address = a;}
 void	        Host::set_n_workers(int w) {_n_workers = w;}
+void	        Host::set_terminate_mutex(pthread_mutex_t m) {_terminate_mutex = m;}
+void	        Host::set_timeout(int t) {_timeout = t;}
 void	        Host::set_terminate_flag(bool f)
 {
     pthread_mutex_lock(&_terminate_mutex);
@@ -479,4 +497,3 @@ void	        Host::set_terminate_flag(bool f)
     pthread_cond_signal(&_terminate_cond);
     pthread_mutex_unlock(&_terminate_mutex);
 }
-void	        Host::set_terminate_mutex(pthread_mutex_t m) {_terminate_mutex = m;}

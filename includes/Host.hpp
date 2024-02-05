@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/04 07:31:09 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/05 11:20:36 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@ class	Server;
 class	Request;
 class	Response;
 class	Configuration;
-//class	Worker;
 
 //https://www.ibm.com/docs/en/ztpf/2020?topic=overview-blocking-nonblocking
 class	Host
@@ -37,8 +36,9 @@ class	Host
 
 		bool				                    _parser_error;
 
-		int				                        _n_workers;		    // Number of workers
-		Worker*				                    _workers;		    // Workers
+		int				                        _timeout;
+		int				                        _n_workers;
+		Worker*				                    _workers;
 		volatile bool							_terminate_flag;
 		pthread_mutex_t							_terminate_mutex;
 		pthread_cond_t							_terminate_cond;
@@ -50,6 +50,8 @@ class	Host
 		fd_set              		            _read_set;		    // Set of active read fd
 		fd_set              		            _write_set;		    // Set of active write fd
 		fd_set              		            _listen_set;
+		pthread_mutex_t							_set_mutex;
+		
 		std::map<std::string, Address*>		    _str_address;
 		std::map<int, Worker*>		            _sk_worker;
 		std::map<int, Address*>		            _sk_address;
@@ -95,6 +97,7 @@ class	Host
 		int					                get_n_workers(void) const;
         bool								get_terminate_flag(void) const;
         pthread_mutex_t*					get_terminate_mutex(void);
+        int				                    get_timeout(void) const;
 
 		void	set_client_max_body_size(size_t);
 		void	set_client_body_buffer_size(size_t);
@@ -104,6 +107,7 @@ class	Host
         void	set_n_workers(int);
         void	set_terminate_flag(bool);
         void	set_terminate_mutex(pthread_mutex_t);
+        void	set_timeout(int);
 };
 
 #endif

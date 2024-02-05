@@ -14,8 +14,6 @@
 
 #ifndef RESPONSE_HPP
 # define RESPONSE_HPP
- 
-# define RESPONSE_BUFFER 64
 
 class	Host;
 class	Server;

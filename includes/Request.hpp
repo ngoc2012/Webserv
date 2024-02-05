@@ -17,9 +17,6 @@
 
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
- 
-# define MEGABYTE 1048576
-# define KILOBYTE 1024
 
 class	Host;
 class	Address;
@@ -47,6 +44,7 @@ class	Request
 		e_method	    _method;
 		std::string	    _content_type;
 		size_t		    _content_length;
+		bool		    _close;
 		bool		    _chunked;
         size_t 		    _chunked_size;
         size_t 		    _chunked_writed;

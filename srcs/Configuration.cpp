@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/03 10:15:22 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/05 11:27:14 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,23 +172,42 @@ bool	Configuration::host_parser(std::string cmd, Host* host, std::vector<std::st
 	if (words[0] == "client_max_body_size")
 	{
 		n = std::atoi(words[1].c_str());
-		if (!ft::is_digit(words[1]) || n < 0 || n > 10000)
+		if (!ft::is_digit(words[1]) || n < 0 || n > 1000)
+        {
+			std::cerr << "Error: body size not valid (0..1000)." << std::endl;
 			return (true);
+        }
 		host->set_client_max_body_size(n);
 	}
 	else if (words[0] == "client_body_buffer_size")
 	{
 		n = std::atoi(words[1].c_str());
-		if (!ft::is_digit(words[1]) || n < 0 || n > 1024)
+		if (!ft::is_digit(words[1]) || n < 0 || n > 1000)
+        {
+			std::cerr << "Error: buffer size not valid (0..1000)." << std::endl;
 			return (true);
+        }
 		host->set_client_body_buffer_size(n);
 	}
 	else if (words[0] == "workers")
 	{
 		n = std::atoi(words[1].c_str());
 		if (!ft::is_digit(words[1]) || n < 0 || n > 1024)
+        {
+			std::cerr << "Error: number of workers not valid (0..1024)." << std::endl;
 			return (true);
+        }
 		host->set_n_workers(n);
+	}
+	else if (words[0] == "timeout")
+	{
+		n = std::atoi(words[1].c_str());
+		if (!ft::is_digit(words[1]) || n < 0 || n > 100)
+        {
+			std::cerr << "Error: timeout value not valid (0..100)." << std::endl;
+			return (true);
+        }
+		host->set_timeout(n);
 	}
 	else
 		return (true);
@@ -213,7 +232,7 @@ bool	Configuration::server_parser(std::string cmd, Server* server, std::vector<s
 		struct stat	info;
 		if (!(stat(words[1].c_str(), &info) == 0 && S_ISDIR(info.st_mode)))
 		{
-			std::cerr << "Error: folder not found" << std::endl;
+			std::cerr << "Error: folder not found." << std::endl;
 			return (true);
 		}
 		server->set_root(words[1]);

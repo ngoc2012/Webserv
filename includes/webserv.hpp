@@ -22,6 +22,11 @@
 #ifndef WEBSERV_HPP
 # define WEBSERV_HPP
 
+# define MEGABYTE 1048576
+# define KILOBYTE 1024
+# define RESPONSE_BUFFER 64
+# define TIMEOUT 5
+
 # define NPOS std::string::npos
 
 enum	e_method {GET, POST, PUT, DELETE, HEAD, OPTIONS, NONE};
