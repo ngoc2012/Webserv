@@ -45,6 +45,7 @@ class	Request
 		std::string	    _content_type;
 		size_t		    _content_length;
 		bool		    _close;
+		bool		    _closed;
 		bool		    _chunked;
         size_t 		    _chunked_size;
         size_t 		    _chunked_writed;

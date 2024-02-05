@@ -69,7 +69,7 @@ void	Host::start(void)
 	if (!_sk_address.size())
 		return ;
     //std::cout << "workers: " << _n_workers << std::endl;
-    std::cout << "timeout: " << _timeout << std::endl;
+    //std::cout << "timeout: " << _timeout << std::endl;
 	do
 	{
         //pthread_mutex_lock(&_set_mutex);
@@ -143,9 +143,14 @@ void    Host::start_workers() {
 
 bool	Host::select_available_sk(void)
 {
+    timeval timeout;
+
+    timeout.tv_sec = _timeout;
+    timeout.tv_usec = 0;
+
 	std::cout << "Waiting on select() ..." << std::endl;
     //pthread_mutex_lock(&_set_mutex);
-	int sk = select(_max_sk + 1, &_read_set, &_write_set, NULL, NULL);// No timeout
+	int sk = select(_max_sk + 1, &_read_set, &_write_set, NULL, &timeout);// No timeout
     //pthread_mutex_unlock(&_set_mutex);
 	//std::cout << "_sk_ready = " << _sk_ready << std::endl;
 	if (sk < 0)
@@ -160,7 +165,7 @@ bool	Host::select_available_sk(void)
 void	Host::check_sk_ready(void)
 {
     //pthread_mutex_lock(&_set_mutex);
-    for (int i = 0; i <= _max_sk && _sk_ready > 0; ++i)
+    for (int i = 2; i <= _max_sk && _sk_ready > 0; ++i)
     {
         if (FD_ISSET(i, &_read_set))
         {
@@ -177,6 +182,15 @@ void	Host::check_sk_ready(void)
             std::cout << "Write set sk = " << i << std::endl;
             _sk_request[i]->get_response()->write();
         }
+        /*
+        if (i > 2 && !FD_ISSET(i, &_read_set) && !FD_ISSET(i, &_write_set))
+        {
+            std::cerr << "Error: Close the socket " << i  << " due to timeout." << std::endl;
+            FD_CLR(i, &_master_read_set);
+            FD_CLR(i, &_master_write_set);
+            close_client_sk(i);
+        }
+        */
     }
     //pthread_mutex_unlock(&_set_mutex);
 }
