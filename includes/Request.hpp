@@ -66,7 +66,7 @@ class	Request
 		int		        _status_code;
 
 		int 		    read_header(void);
-		bool		    receive_header(void);
+		int			    receive_header(void);
 		bool		    parse_header(void);
         bool	        check_location(void);
 		bool	        check_session(void);

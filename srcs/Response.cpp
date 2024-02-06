@@ -163,7 +163,7 @@ int     Response::write_body()
         if (len > RESPONSE_BUFFER * 1028)
             len = RESPONSE_BUFFER * 1028;
 
-        std::cout << "write_body " << _pos << " " << len << " " << _body << std::endl;
+        //std::cout << "write_body " << _pos << " " << len << " " << _body << std::endl;
         int     ret = send(_socket, &_body.c_str()[_pos], len, 0);
         if (ret < 0)
             return (end_response());
@@ -222,7 +222,10 @@ int     Response::end_response(void)
     //std::cout << _status_code << " dfgdsfg";
     //std::cout << _request->get_url() << std::endl;
     //usleep(5);
-    _host->close_client_sk(_socket);
+    //_host->close_client_sk(_socket);
+    init();
+    _request->init();
+    _host->renew_request_sk(_socket);
     return (0);
 }
 

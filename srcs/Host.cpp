@@ -179,9 +179,14 @@ void	Host::check_sk_ready(void)
                 _sk_timeout[i] = clock();
                 _sk_address[i]->accept_client_sk();
             }
+            else if (!_sk_request[i]->read())
+            {
+                //std::cout << "============read: " << _sk_request[i]->read() << std::endl;
+                FD_CLR(i, &_master_read_set);
+                close_client_sk(i);
                 
-            else
-                _sk_request[i]->read();
+            }
+                
         }
         if (clock() - _sk_timeout[i] > _timeout)
         {

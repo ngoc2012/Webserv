@@ -91,16 +91,17 @@ int     Request::read(void)
     //if (!_read_queue)
     //    return (0);
     if (_str_header == "")
-        read_header();
-    else
-        read_body();
-    return (0);
+        return (read_header());
+    return (read_body());
 }
 
 int     Request::read_header()
 {
     //std::cout << "read_header _body_size: " << _body_size << std::endl;
-    if (!receive_header())
+    int ret = receive_header();
+    if (!ret)
+        return (ret);
+    if (ret == -1)
         return (end_request());
     if (!parse_header())
         return (end_request());
@@ -124,10 +125,10 @@ int     Request::read_header()
         end_request();
     }
         
-    return (0);
+    return (ret);
 }
 
-bool	Request::receive_header(void)
+int Request::receive_header(void)
 {
     std::string     str_buffer;
     size_t		    body_position;
@@ -141,8 +142,10 @@ bool	Request::receive_header(void)
         if (ret < 0)
         {
             _status_code = 500;
-            return (false);
+            return (-1);
         }
+        if (!ret)
+            return (ret);
         if (ret > 0)
         {
             _buffer[ret] = 0;
@@ -160,13 +163,13 @@ bool	Request::receive_header(void)
     {
         std::cerr << "Error: No end header found.\n" << std::endl;
         _status_code = 400;	// Bad Request
-        return (false);
+        return (-1);
     }
     body_position += 4;
     _body_left = ret - body_position;
     //std::cout << "_body_left: " << _body_left << " " << body_position << " " << ret << std::endl;
     memcpy(_buffer, _buffer + body_position, _body_left);
-    return (true);
+    return (ret);
 }
 
 bool	Request::parse_header(void)
@@ -257,6 +260,8 @@ int     Request::read_body()
     int     ret;
 
     ret = recv(_socket, _buffer + _body_left, _body_buffer, 0);
+    if (!ret)
+        return (ret);
     if (ret < 0)
     {
         std::cerr << "Error: recv error" << std::endl;
@@ -284,7 +289,7 @@ int     Request::read_body()
     if ((!_content_length && ret < (int) _body_buffer)
             || (_content_length &&_body_size >= _content_length))
         return (end_request());
-    return (0);
+    return (ret);
 }
 
 bool    Request::write_chunked(size_t len)
@@ -356,9 +361,6 @@ bool    Request::write_chunked(size_t len)
 
 bool	Request::check_location()
 {
-    //std::cout << "============================" << std::endl;
-    //std::cout << "Header:" << _header.size() << std::endl  << _header << std::endl;
-    //std::cout << "============================" << std::endl;
     _location = Location::find_location(_url,
             _server->get_locations(), _method, _status_code);
     //std::cout << _location << std::endl;
@@ -440,12 +442,12 @@ int     Request::end_request(void)
     _response.set_status_code(_status_code);
     if (_status_code == 200 && _cgi)
         _status_code = _cgi->execute();
-    if (_status_code == -1)
-    {
-        delete _host;
-        exit(1);
-    }
-    return (0);
+    //if (_status_code == -1)
+    //{
+    //    delete _host;
+    //    exit(1);
+    //}
+    return (1);
 }
 
 Host*		    Request::get_host(void) const {return (_host);}

@@ -100,6 +100,7 @@ std::string	Location::get_full_file_name(std::string url, std::string root, e_me
         return (file_name);
     if (!S_ISDIR(info.st_mode))
         return (file_name);
+    file_name += "/";
     if (!_index.size())
     {
         file_name += "index.html";
