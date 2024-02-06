@@ -79,6 +79,7 @@ class	Host
 		void    		                    start(void);
 		void			                    new_request_sk(int, Address*);
 		void			                    new_response_sk(int);
+		void								renew_request_sk(int);
 		void			                    close_client_sk(int);
 		void			                    start_workers(void);
 		static void*   						handleConnectionsHelper(void*);

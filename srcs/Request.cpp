@@ -101,14 +101,14 @@ int     Request::read_header()
 {
     //std::cout << "read_header _body_size: " << _body_size << std::endl;
     if (!receive_header())
-        return (end_read());
+        return (end_request());
     if (!parse_header())
-        return (end_read());
+        return (end_request());
     process_fd_in();
     if (_status_code != 200)
-        return (end_read());
+        return (end_request());
     if (!_content_length || _content_length == NPOS)
-        end_read();
+        end_request();
     //std::cout << _body_size << " " << _body_left << " " << _content_length << std::endl;
     if (_method == POST && _content_length == _body_left)
     {
@@ -119,9 +119,9 @@ int     Request::read_header()
         {
             std::cerr << "Error: Unable to write to file " << _tmp_file << std::endl;
             _status_code = 500;
-            end_read();
+            end_request();
         }
-        end_read();
+        end_request();
     }
         
     return (0);
@@ -261,7 +261,7 @@ int     Request::read_body()
     {
         std::cerr << "Error: recv error" << std::endl;
         _status_code = 400;
-        return (end_read());
+        return (end_request());
     }
 	//std::cout << "read_body: " << ret << std::endl;
     if (ret > 0)
@@ -271,19 +271,19 @@ int     Request::read_body()
         _body_size += ret + _body_left;
         //std::cout << "_body_size: " << _body_size << std::endl;
         if (ret > 0 && write(_fd_in, _buffer, ret + _body_left) == -1)
-            return (end_read());
+            return (end_request());
         _body_left = 0;
     }
     else if (!write_chunked(ret + _body_left))
-        return (end_read());
+        return (end_request());
     //std::cout << "_body_size: " << _body_size << std::endl;
     //std::cout << "ret: " << ret << std::endl;
     //std::cout << "_content_length: " << _content_length << std::endl;
     if (_chunked && !_chunked_size)
-        return (end_read());
+        return (end_request());
     if ((!_content_length && ret < (int) _body_buffer)
             || (_content_length &&_body_size >= _content_length))
-        return (end_read());
+        return (end_request());
     return (0);
 }
 
@@ -418,7 +418,7 @@ void	Request::process_fd_in()
             {
                 std::cerr << "Error: POST method, fd in open error." << std::endl;
                 _status_code = 500;
-                end_read();
+                end_request();
             }
             break;
         case DELETE:
@@ -431,13 +431,11 @@ void	Request::process_fd_in()
     std::cout << "end process_fd_in" << std::endl;
 }
 
-int     Request::end_read(void)
+int     Request::end_request(void)
 {
-    //std::cout << "end_read " << _socket << " " << _body_size << " " << _full_file_name << std::endl;
-
+    //std::cout << "end_request " << _socket << " " << _body_size << " " << _full_file_name << std::endl;
     if (!_cgi && _fd_in > 0)
         close(_fd_in);
-    //_read_queue = false;
     _host->new_response_sk(_socket);
     _response.set_status_code(_status_code);
     if (_status_code == 200 && _cgi)
@@ -447,7 +445,6 @@ int     Request::end_read(void)
         delete _host;
         exit(1);
     }
-    //_response.set_write_queue(true);
     return (0);
 }
 

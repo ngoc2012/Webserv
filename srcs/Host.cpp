@@ -161,20 +161,19 @@ bool	Host::select_available_sk(void)
         std::cerr << "Error: select() failed" << std::endl;
 		return (false);
 	}
-    //_sk_ready = sk;
+    _sk_ready = sk;
 	return (true);
 }
 
 void	Host::check_sk_ready(void)
 {
     //pthread_mutex_lock(&_set_mutex);
-    //for (int i = 2; i <= _max_sk && _sk_ready > 0; ++i)
-    for (int i = 2; i <= _max_sk; ++i)
+    for (int i = 2; i <= _max_sk && _sk_ready > 0; ++i)
     {
         if (FD_ISSET(i, &_read_set))
         {
             std::cout << "Read set sk = " << i << std::endl;
-            //_sk_ready--;
+            _sk_ready--;
             if (FD_ISSET(i, &_listen_set))
             {
                 _sk_timeout[i] = clock();
@@ -192,7 +191,7 @@ void	Host::check_sk_ready(void)
         }
         if (FD_ISSET(i, &_write_set))
         {
-            //_sk_ready--;
+            _sk_ready--;
             std::cout << "Write set sk = " << i << std::endl;
             _sk_request[i]->get_response()->write();
             
@@ -221,6 +220,14 @@ void	Host::new_response_sk(int new_sk)
     //pthread_mutex_lock(&_set_mutex);
 	FD_CLR(new_sk, &_master_read_set);
 	FD_SET(new_sk, &_master_write_set);
+    //pthread_mutex_unlock(&_set_mutex);
+}
+
+void	Host::renew_request_sk(int new_sk)
+{
+    //pthread_mutex_lock(&_set_mutex);
+    FD_CLR(new_sk, &_master_write_set);
+	FD_SET(new_sk, &_master_read_set);
     //pthread_mutex_unlock(&_set_mutex);
 }
 

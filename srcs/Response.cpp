@@ -219,8 +219,8 @@ int     Response::end_response(void)
     if (_fd_out > 0)
         close(_fd_out);
     //_write_queue = false;
-    std::cout << _status_code << " dfgdsfg";
-    std::cout << _request->get_url() << std::endl;
+    //std::cout << _status_code << " dfgdsfg";
+    //std::cout << _request->get_url() << std::endl;
     //usleep(5);
     _host->close_client_sk(_socket);
     return (0);

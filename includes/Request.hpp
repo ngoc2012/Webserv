@@ -75,7 +75,7 @@ class	Request
         int 	        read_body();
         bool 	        write_chunked(size_t);
 
-		int             end_read(void);
+		int             end_request(void);
         void            envs(void);
         void            exec(void);
 
