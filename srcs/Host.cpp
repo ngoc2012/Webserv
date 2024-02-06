@@ -10,6 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <ctime>
+
 #include "Host.hpp"
 #include "Address.hpp"
 #include "Server.hpp"
@@ -28,7 +30,7 @@ Host::Host() {
     _workers = 0;
     _terminate_flag = false;
     _terminate_mutex = PTHREAD_MUTEX_INITIALIZER;
-    _timeout = TIMEOUT;
+    _timeout = TIMEOUT * CLOCKS_PER_SEC;
     pthread_cond_init(&_terminate_cond, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
 
@@ -145,7 +147,7 @@ bool	Host::select_available_sk(void)
 {
     timeval timeout;
 
-    timeout.tv_sec = _timeout;
+    timeout.tv_sec = 1;
     timeout.tv_usec = 0;
 
 	std::cout << "Waiting on select() ..." << std::endl;
@@ -153,44 +155,49 @@ bool	Host::select_available_sk(void)
 	int sk = select(_max_sk + 1, &_read_set, &_write_set, NULL, &timeout);// No timeout
     //pthread_mutex_unlock(&_set_mutex);
 	//std::cout << "_sk_ready = " << _sk_ready << std::endl;
+    std::cout << sk << " ";
 	if (sk < 0)
 	{
         std::cerr << "Error: select() failed" << std::endl;
 		return (false);
 	}
-    _sk_ready = sk;
+    //_sk_ready = sk;
 	return (true);
 }
 
 void	Host::check_sk_ready(void)
 {
     //pthread_mutex_lock(&_set_mutex);
-    for (int i = 2; i <= _max_sk && _sk_ready > 0; ++i)
+    //for (int i = 2; i <= _max_sk && _sk_ready > 0; ++i)
+    for (int i = 2; i <= _max_sk; ++i)
     {
         if (FD_ISSET(i, &_read_set))
         {
             std::cout << "Read set sk = " << i << std::endl;
-            _sk_ready--;
+            //_sk_ready--;
             if (FD_ISSET(i, &_listen_set))
+            {
+                _sk_timeout[i] = clock();
                 _sk_address[i]->accept_client_sk();
+            }
+                
             else
                 _sk_request[i]->read();
         }
+        if (clock() - _sk_timeout[i] > _timeout)
+        {
+            FD_CLR(i, &_master_read_set);
+            close_client_sk(i);
+            std::cout << "time out: " << (clock() - _sk_timeout[i]) / CLOCKS_PER_SEC << std::endl;
+        }
         if (FD_ISSET(i, &_write_set))
         {
-            _sk_ready--;
+            //_sk_ready--;
             std::cout << "Write set sk = " << i << std::endl;
             _sk_request[i]->get_response()->write();
+            
         }
-        /*
-        if (i > 2 && !FD_ISSET(i, &_read_set) && !FD_ISSET(i, &_write_set))
-        {
-            std::cerr << "Error: Close the socket " << i  << " due to timeout." << std::endl;
-            FD_CLR(i, &_master_read_set);
-            FD_CLR(i, &_master_write_set);
-            close_client_sk(i);
-        }
-        */
+        
     }
     //pthread_mutex_unlock(&_set_mutex);
 }
@@ -220,7 +227,7 @@ void	Host::new_response_sk(int new_sk)
 void	Host::close_client_sk(int i)
 {
     //pthread_mutex_lock(&_set_mutex);
-    //std::cout << "close_client_sk " << i << std::endl;
+    std::cout << "close_client_sk " << i << std::endl;
 	FD_CLR(i, &_master_write_set);
 	delete (_sk_request[i]);
 	_sk_request.erase(i);
@@ -229,6 +236,11 @@ void	Host::close_client_sk(int i)
 		while (!FD_ISSET(_max_sk, &_master_read_set))
 			_max_sk -= 1;
     //pthread_mutex_unlock(&_set_mutex);
+}
+
+void	Host::set_sk_timeout(int i)
+{
+    _sk_timeout[i] = clock();
 }
 
 void    Host::status_message(void)

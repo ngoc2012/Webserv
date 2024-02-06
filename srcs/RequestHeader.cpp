@@ -6,9 +6,11 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/30 16:22:03 by nbechon          ###   ########.fr       */
+/*   Updated: 2024/02/06 07:03:17 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#include <sstream>
 
 #include "Host.hpp"
 #include "webserv.hpp"
@@ -101,6 +103,24 @@ std::string	    RequestHeader::parse_content_type()
     return ("");
 }
 
+std::string	    RequestHeader::parse_connection()
+{
+    size_t  last_pos = _str->find("Connection:", _pos);
+    if (last_pos == NPOS)
+    {
+        //std::cerr << "Error: Content-Type not found." << std::endl;
+        return ("");
+    }
+    last_pos += 12;
+    size_t  pos = _str->find("\r\n", last_pos);
+    if (pos == NPOS)
+    {
+        std::cerr << "Error: No newline for Connection." << std::endl;
+        return ("");
+    }
+    return (_str->substr(last_pos, pos - last_pos));
+}
+
 size_t	RequestHeader::parse_content_length()
 {
     size_t  last_pos = _str->find("Content-Length:", _pos);
@@ -184,3 +204,4 @@ std::map<std::string, std::string>    RequestHeader::parse_cookies()
 
 void	RequestHeader::set_host(Host* h) {_host = h;}
 void    RequestHeader::set_str(std::string* s) {_str = s;}
+void	RequestHeader::set_request(Request* r) {_request = r;}

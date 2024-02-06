@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/30 17:02:48 by nbechon          ###   ########.fr       */
+/*   Updated: 2024/02/06 07:07:15 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,14 +35,25 @@ Request&	Request::operator=( Request const & src )
 Request::Request(int sk, Host* h, Address* a) : _socket(sk), _host(h), _address(a)
 {
 	//std::cout << "Request Constructor sk: " << sk << std::endl;
-
-    _server = 0;
 	_response.set_socket(sk);
 	_response.set_host(h);
 	_response.set_server(_server);
 	_response.set_request(this);
-    _cgi = 0;
 
+	_header.set_request(this);
+    _header.set_host(h);
+    _header.set_str(&_str_header);
+
+    _body_max = _host->get_client_max_body_size() * MEGABYTE;
+    _body_buffer = _host->get_client_body_buffer_size() * KILOBYTE;
+    _buffer = new char[_body_buffer * 2 + 1];
+    init();
+}
+
+void    Request::init(void)
+{
+    _server = 0;
+    _cgi = 0;
 	_str_header = "";
 	_url = "";
 	_method = NONE;
@@ -53,16 +64,10 @@ Request::Request(int sk, Host* h, Address* a) : _socket(sk), _host(h), _address(
     _chunked_writed = 0;
     _body_left = 0;
 	_body_size = 0;
-    _header.set_host(h);
-    _header.set_str(&_str_header);
     _session_id = "";
-
 	_fd_in = -1;
 	_full_file_name = "";
-    _body_max = _host->get_client_max_body_size() * MEGABYTE;
-    _body_buffer = _host->get_client_body_buffer_size() * KILOBYTE;
-    _buffer = new char[_body_buffer * 2 + 1];
-	_read_queue = true;
+	//_read_queue = true;
 	_tmp_file = "";
 
 	_status_code = 200;
@@ -83,8 +88,8 @@ Request::~Request()
 
 int     Request::read(void)
 {
-    if (!_read_queue)
-        return (0);
+    //if (!_read_queue)
+    //    return (0);
     if (_str_header == "")
         read_header();
     else
@@ -144,6 +149,7 @@ bool	Request::receive_header(void)
             str_buffer = _buffer;
             _str_header += str_buffer;
             body_position = str_buffer.find("\r\n\r\n");
+            _host->set_sk_timeout(_socket);
         }
     }
     std::cout << "Request header: " << _str_header.size() << std::endl;
@@ -178,7 +184,7 @@ bool	Request::parse_header(void)
         _status_code = 400;	// Bad Request
         return (false);
     }
-    std::cout << _host_name << std::endl;
+    //std::cout << _host_name << std::endl;
     std::vector<Server*>        servers = _address->get_servers();
     std::vector<std::string>    server_names;
     _server = servers[0];
@@ -217,6 +223,9 @@ bool	Request::parse_header(void)
     if (_cookies.find("sid") != _cookies.end())
         _session_id = _cookies["sid"];
     std::cout << "Session id: " << _session_id << std::endl;
+    std::cout << "Connection: " << _header.parse_connection() << std::endl;
+    if (_header.parse_connection() == "close")
+        _close = true;
     if (_method == GET || _method == HEAD)
     {
         if (_content_length == NPOS)
@@ -255,6 +264,8 @@ int     Request::read_body()
         return (end_read());
     }
 	//std::cout << "read_body: " << ret << std::endl;
+    if (ret > 0)
+        _host->set_sk_timeout(_socket);
     if (!_chunked)
     {
         _body_size += ret + _body_left;
@@ -426,7 +437,7 @@ int     Request::end_read(void)
 
     if (!_cgi && _fd_in > 0)
         close(_fd_in);
-    _read_queue = false;
+    //_read_queue = false;
     _host->new_response_sk(_socket);
     _response.set_status_code(_status_code);
     if (_status_code == 200 && _cgi)
@@ -436,7 +447,7 @@ int     Request::end_read(void)
         delete _host;
         exit(1);
     }
-    _response.set_write_queue(true);
+    //_response.set_write_queue(true);
     return (0);
 }
 

@@ -56,6 +56,7 @@ class	Host
 		std::map<int, Worker*>		            _sk_worker;
 		std::map<int, Address*>		            _sk_address;
 		std::map<int, Request*>	                _sk_request;
+		std::map<int, clock_t>		            _sk_timeout;
 		std::map<int, std::string>  		    _status_message;
 		std::map<std::string, std::string>	    _mimes;
 		std::set<std::string>	                _set_mimes;
@@ -83,6 +84,7 @@ class	Host
 		static void*   						handleConnectionsHelper(void*);
 		void* 								handleConnections(void);
 		void								waitForTermination(void);
+		void								set_sk_timeout(int);
 
 		int				                    get_max_clients(void) const;
 		std::map<int, Server*>		        get_sk_server(void) const;

@@ -26,20 +26,7 @@
 
 #include "Response.hpp"
 
-Response::Response()
-{
-    //std::cout << "Response Default constructor" << std::endl;
-    _header = "";
-    _body = "";
-    _status_code = 200;
-    _content_length = 0;
-    _body_size = 0;
-    _pos = 0;
-
-    _full_file_name = "";
-    _write_queue = false;
-    _fd_out = -1;
-}
+Response::Response() { init(); }
 Response::Response(const Response& src) { *this = src; }
 Response&	Response::operator=( Response const & src )
 {
@@ -52,10 +39,23 @@ Response::~Response()
         close(_fd_out);
 }
 
+void    Response::init(void)
+{
+    _header = "";
+    _body = "";
+    _status_code = 200;
+    _content_length = 0;
+    _body_size = 0;
+    _pos = 0;
+    _full_file_name = "";
+    //_write_queue = false;
+    _fd_out = -1;
+}
+
 int     Response::write()
 {
-    if (!_write_queue)
-        return (0);
+    //if (!_write_queue)
+    //    return (0);
     if (_header == "")
         write_header();
     else
@@ -108,9 +108,9 @@ void     Response::write_header()
     _header = header.generate();
     //std::cout << "Response Header:\n" << _header << std::endl;
     if (send(_socket, _header.c_str(), _header.length(), 0) < 0)
-        end_connection();
+        end_response();
     if (_request->get_method() == HEAD)
-        end_connection();
+        end_response();
     //else
     //    std::cout << "Header sent" << std::endl;
 }
@@ -164,16 +164,19 @@ int     Response::write_body()
             len = RESPONSE_BUFFER * 1028;
 
         std::cout << "write_body " << _pos << " " << len << " " << _body << std::endl;
-        if (send(_socket, &_body.c_str()[_pos], len, 0) < 0)
-            return (end_connection());
+        int     ret = send(_socket, &_body.c_str()[_pos], len, 0);
+        if (ret < 0)
+            return (end_response());
+        if (ret > 0)
+            _host->set_sk_timeout(_socket);
 
         _pos += len;
         if (_pos >= _content_length)
-            return (end_connection());
+            return (end_response());
         return (0);
     }
     if (_fd_out == -1)
-        return (end_connection());
+        return (end_response());
     //std::cerr << "_fd_out:" << _fd_out << std::endl;
     char	buffer[RESPONSE_BUFFER * 1028 + 20];
     int ret = read(_fd_out, buffer, RESPONSE_BUFFER * 1028);
@@ -185,8 +188,9 @@ int     Response::write_body()
             //std::cout << "0\r\n" << std::endl;
             send(_socket, "0\r\n", 3, 0);
         }
-        return (end_connection());
+        return (end_response());
     }
+    
     buffer[ret] = 0;
     //std::cout << ret << ":" << buffer;
     _body_size += ret;
@@ -202,21 +206,22 @@ int     Response::write_body()
         //std::cout << "here:" << buffer << std::endl;
     }
     if (send(_socket, buffer, ret, 0) < 0)
-        return (end_connection());
+        return (end_response());
     return (0);
 }
 
-int     Response::end_connection(void)
+int     Response::end_response(void)
 {
     int     status;
     if (_request->get_cgi() && _request->get_cgi()->get_pid() != -1)
         waitpid(_request->get_cgi()->get_pid(), &status, 0);
-    std::cout << "end_connection " << _socket << " " << _full_file_name << std::endl;
+    std::cout << "end_response " << _socket << " " << _full_file_name << std::endl;
     if (_fd_out > 0)
         close(_fd_out);
-    _write_queue = false;
+    //_write_queue = false;
     std::cout << _status_code << " dfgdsfg";
     std::cout << _request->get_url() << std::endl;
+    //usleep(5);
     _host->close_client_sk(_socket);
     return (0);
 }
@@ -232,5 +237,5 @@ void		Response::set_host(Host* h) {_host = h;}
 void		Response::set_server(Server* s) {_server = s;}
 void		Response::set_request(Request* r) {_request = r;}
 void		Response::set_status_code(int e) {_status_code = e;}
-void        Response::set_write_queue(bool b) {_write_queue = b;}
+//void        Response::set_write_queue(bool b) {_write_queue = b;}
 void        Response::set_fd_out(int f) {_fd_out = f;}

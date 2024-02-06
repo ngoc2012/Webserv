@@ -60,7 +60,7 @@ class	Request
 		size_t		    _body_max;
         char*   	    _buffer;
 		size_t		    _buffer_size;
-        bool            _read_queue;
+        //bool            _read_queue;
         std::string     _tmp_file;
 
 		int		        _status_code;
@@ -87,6 +87,7 @@ class	Request
 		virtual ~Request();
 
 		int             read(void);
+		void            init(void);
 
         Host*		    get_host(void) const;
         Server*		    get_server(void) const;

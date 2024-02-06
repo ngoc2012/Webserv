@@ -38,7 +38,7 @@ class	Response
 
         int             _fd_out;
 		std::string	    _full_file_name;
-        bool            _write_queue;
+        //bool            _write_queue;
 
         void	        write_header(void);
         void	        get_file_size(void);
@@ -48,7 +48,7 @@ class	Response
 		void		    process_fd_out(void);
         int 	        write_body(void);
 
-		int 		    end_connection(void);
+		int 		    end_response(void);
 
 		Response(const Response&);
 		Response	&operator=(const Response& op);
@@ -57,6 +57,7 @@ class	Response
 		virtual ~Response();
 
 		int 		    write(void);
+		void            init(void);
 
         int		        get_status_code(void) const;
 		size_t		    get_content_length(void) const;
@@ -69,7 +70,7 @@ class	Response
 		void		    set_server(Server*);
 		void		    set_request(Request*);
         void		    set_status_code(int);
-        void            set_write_queue(bool);
+        //void            set_write_queue(bool);
         void            set_fd_out(int);
 };
 
