@@ -99,7 +99,10 @@ void     Response::write_header()
             header.set_session_id(token);
         }
 		else
-			sessions->add(sid, std::time(0) + 30);
+        {
+            sessions->add(sid, std::time(0) + 30);
+            header.set_session_id(sid);
+        }
     }
     if (_request->get_method() == HEAD && _status_code == 200)
         _content_length = 0;
