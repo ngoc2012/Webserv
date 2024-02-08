@@ -201,6 +201,16 @@ bool	Configuration::host_parser(std::string cmd, Host* host, std::vector<std::st
         }
 		host->set_n_workers(n);
 	}
+	else if (words[0] == "large_client_header_buffer")
+	{
+		n = std::atoi(words[1].c_str());
+		if (!ft::is_digit(words[1]) || n < 1 || n > 64)
+        {
+			std::cerr << "Error: large_client_header_buffer value not valid (1..64)." << std::endl;
+			return (true);
+        }
+		host->set_large_client_header_buffer(n);
+	}
 	else if (words[0] == "timeout")
 	{
 		n = std::atoi(words[1].c_str());

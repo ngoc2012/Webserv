@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/26 11:52:45 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/08 07:03:49 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,10 +45,12 @@ class	Request
 		std::string	    _content_type;
 		size_t		    _content_length;
 		bool		    _close;
-		bool		    _closed;
+		bool		    _end_header;
+		bool		    _end;
 		bool		    _chunked;
         size_t 		    _chunked_size;
         size_t 		    _chunked_writed;
+		size_t			_header_size;
 		size_t		    _body_size;
         size_t 		    _body_left;
 		std::map<std::string, std::string>  _cookies;
@@ -59,8 +61,8 @@ class	Request
 		size_t		    _body_buffer;
 		size_t		    _body_max;
         char*   	    _buffer;
-		size_t		    _buffer_size;
-        //bool            _read_queue;
+		size_t			_buffer_size;
+		size_t			_header_buffer;
         std::string     _tmp_file;
 
 		int		        _status_code;
@@ -104,8 +106,11 @@ class	Request
         Location*	    get_location(void) const;	
         int		        get_fd_in(void) const;
         std::string	    get_session_id(void) const;
+        bool		    get_end(void) const;
+        bool		    get_end_header(void) const;
 
         void		    set_fd_in(int);
+        //void		    set_end(bool);
 };
 
 #endif

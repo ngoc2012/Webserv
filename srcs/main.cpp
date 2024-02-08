@@ -23,7 +23,7 @@ void	main_signal_handler(int sig)
 {
 	if (sig == SIGINT)
 	{
-		write(STDOUT_FILENO, "", 0);
+        std::cout << "\b\b";
         g_host->set_terminate_flag(true);
         g_host->waitForTermination();
 

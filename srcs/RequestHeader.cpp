@@ -34,29 +34,38 @@ bool	RequestHeader::parse_method_url(std::string& url, e_method& m)
         std::cerr << "Error: No newline." << std::endl;
         return (false);
     }
-    std::vector<std::string>	words;
-    words = ft::split_string(_str->substr(0, _pos), "     ");
-    if (words.size() != 3)
+    std::istringstream      iss(_str->substr(0, _pos));
+    std::string             tk;
+    std::string             method;
+    int i = 0;
+    while (iss >> tk && i < 4)
+    {
+        if (i == 0)
+            method = tk;
+        if (i == 1)
+            url = tk;
+        i++;
+    }
+    if (i > 3)
     {
         std::cerr << "Error: First line header invalid." << std::endl;
         return (false);
     }
-    url = words[1];
-    if (words[0] == "GET")
+    if (method == "GET")
         m = GET;
-    else if (words[0] == "POST")
+    else if (method == "POST")
         m = POST;
-    else if (words[0] == "PUT")
+    else if (method == "PUT")
         m = PUT;
-    else if (words[0] == "DELETE")
+    else if (method == "DELETE")
         m = DELETE;
-	else if (words[0] == "OPTIONS")
+	else if (method == "OPTIONS")
 		m = OPTIONS;
-    else if (words[0] == "HEAD")
+    else if (method == "HEAD")
 		m = HEAD;
     else
     {
-        std::cerr << "Error: Method unknown : " << words[0] << std::endl;
+        std::cerr << "Error: Method unknown : " << method << std::endl;
         return (false);
     }
     return (true);
@@ -125,10 +134,7 @@ size_t	RequestHeader::parse_content_length()
 {
     size_t  last_pos = _str->find("Content-Length:", _pos);
     if (last_pos == NPOS)
-    {
-        //std::cerr << "Error: Content-Length not found." << std::endl;
-        return (NPOS);
-    }
+        return (0);
     last_pos += 16;
     size_t  pos = _str->find("\r\n", last_pos);
     if (pos == NPOS)

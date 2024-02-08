@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/05 11:21:44 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/08 07:05:33 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ Host::Host() {
     _max_clients = 128;
     _client_max_body_size = 1;
     _client_body_buffer_size = 128;
+    _large_client_header_buffer = 8;
     _parser_error = false;
     _workers = 0;
     _terminate_flag = false;
@@ -47,7 +48,6 @@ Host&	Host::operator=( Host const & src )
 
 Host::~Host()
 {
-    std::cout << "Host Destructor" << std::endl;
     for (std::map<int, Request*>::iterator it = _sk_request.begin();
             it != _sk_request.end(); ++it)
         delete (it->second);
@@ -56,6 +56,7 @@ Host::~Host()
         delete (it->second);
     if (_workers)
         delete [] _workers;
+    ft::timestamp();
     std::cout << "End server" << std::endl;
 }
 
@@ -94,7 +95,8 @@ void	Host::start_server(void)
 		if (listen_sk > 0)
 		{
             //pthread_mutex_lock(&_set_mutex);
-			add_sk_2_master_read_set(listen_sk, ad->second);
+			add_sk_2_master_read_set(listen_sk);
+            _sk_address[listen_sk] = ad->second;
 			FD_SET(listen_sk, &_listen_set);
             //pthread_mutex_unlock(&_set_mutex);
 			++ad;
@@ -150,73 +152,65 @@ bool	Host::select_available_sk(void)
     timeout.tv_sec = 1;
     timeout.tv_usec = 0;
 
-	std::cout << "Waiting on select() ..." << std::endl;
-    //pthread_mutex_lock(&_set_mutex);
-	int sk = select(_max_sk + 1, &_read_set, &_write_set, NULL, &timeout);// No timeout
-    //pthread_mutex_unlock(&_set_mutex);
-	//std::cout << "_sk_ready = " << _sk_ready << std::endl;
-    std::cout << sk << " ";
+	//std::cout << "Waiting on select() ..." << std::endl;
+	int sk = select(_max_sk + 1, &_read_set, &_write_set, NULL, &timeout);
 	if (sk < 0)
-	{
-        std::cerr << "Error: select() failed" << std::endl;
 		return (false);
-	}
-    _sk_ready = sk;
 	return (true);
 }
 
 void	Host::check_sk_ready(void)
 {
-    //pthread_mutex_lock(&_set_mutex);
-    for (int i = 2; i <= _max_sk && _sk_ready > 0; ++i)
+    for (std::map<int, Address*>::iterator it = _sk_address.begin();
+        it != _sk_address.end(); it++)
     {
-        if (FD_ISSET(i, &_read_set))
+        if (FD_ISSET(it->first, &_read_set))
         {
-            std::cout << "Read set sk = " << i << std::endl;
-            _sk_ready--;
-            if (FD_ISSET(i, &_listen_set))
-            {
-                _sk_timeout[i] = clock();
-                _sk_address[i]->accept_client_sk();
-            }
-            else if (!_sk_request[i]->read())
-            {
-                //std::cout << "============read: " << _sk_request[i]->read() << std::endl;
-                FD_CLR(i, &_master_read_set);
-                close_client_sk(i);
-                
-            }
-                
+            _sk_timeout[it->first] = clock();
+            _sk_address[it->first]->accept_client_sk();
         }
-        if (clock() - _sk_timeout[i] > _timeout)
-        {
-            FD_CLR(i, &_master_read_set);
-            close_client_sk(i);
-            std::cout << "time out: " << (clock() - _sk_timeout[i]) / CLOCKS_PER_SEC << std::endl;
-        }
-        if (FD_ISSET(i, &_write_set))
-        {
-            _sk_ready--;
-            std::cout << "Write set sk = " << i << std::endl;
-            _sk_request[i]->get_response()->write();
-            
-        }
-        
     }
-    //pthread_mutex_unlock(&_set_mutex);
+    
+    std::map<int, Request*>::iterator next;
+    for (std::map<int, Request*>::iterator it = _sk_request.begin(), next = it;
+        it != _sk_request.end(); it = next)
+    {
+        next++;
+        if (clock() - _sk_timeout[it->first] > _timeout)
+        {
+            ft::timestamp();
+            std::cout << MAGENTA << "Time Out " << it->first << RESET << std::endl;
+            FD_CLR(it->first, &_master_read_set);
+            close_client_sk(it->first);
+        }
+        else if (FD_ISSET(it->first, &_read_set) && !_sk_request[it->first]->get_end())
+        {
+            //std::cout << "Read set sk = " << it->first << std::endl;
+            //_sk_request[it->first]->read();
+            if (_sk_request[it->first]->read() <= 0)
+            {
+                FD_CLR(it->first, &_master_read_set);
+                close_client_sk(it->first);
+            }
+        }
+        else if (FD_ISSET(it->first, &_write_set))
+        {
+            //std::cout << "Write set sk = " << it->first << std::endl;
+            _sk_request[it->first]->get_response()->write();
+        }
+    }
 }
 
-void  	Host::add_sk_2_master_read_set(int new_sk, Address* a)
+void  	Host::add_sk_2_master_read_set(int new_sk)
 {
 	if (new_sk > _max_sk)
 		_max_sk = new_sk;
 	FD_SET(new_sk, &_master_read_set);
-	_sk_address[new_sk] = a;
 }
 
 void	Host::new_request_sk(int new_sk, Address* a)
 {
-	add_sk_2_master_read_set(new_sk, a);
+	add_sk_2_master_read_set(new_sk);
 	_sk_request[new_sk] = new Request(new_sk, this, a);
 }
 
@@ -519,6 +513,7 @@ int 				                Host::get_n_workers(void) const {return (_n_workers);}
 bool								Host::get_terminate_flag(void) const {return (_terminate_flag);}
 pthread_mutex_t*					Host::get_terminate_mutex(void) {return (&_terminate_mutex);}
 int				                    Host::get_timeout(void) const {return (_timeout);}
+size_t								Host::get_large_client_header_buffer(void) const {return (_large_client_header_buffer);}
 
 void			Host::set_client_max_body_size(size_t n) {_client_max_body_size = n;}
 void			Host::set_client_body_buffer_size(size_t n) {_client_body_buffer_size = n;}
@@ -535,3 +530,4 @@ void	        Host::set_terminate_flag(bool f)
     pthread_cond_signal(&_terminate_cond);
     pthread_mutex_unlock(&_terminate_mutex);
 }
+void	        Host::set_large_client_header_buffer(size_t l) {_large_client_header_buffer = l;}

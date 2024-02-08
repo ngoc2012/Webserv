@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/06 07:07:15 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/08 07:25:08 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,12 +46,15 @@ Request::Request(int sk, Host* h, Address* a) : _socket(sk), _host(h), _address(
 
     _body_max = _host->get_client_max_body_size() * MEGABYTE;
     _body_buffer = _host->get_client_body_buffer_size() * KILOBYTE;
-    _buffer = new char[_body_buffer * 2 + 1];
+    _header_buffer = _host->get_large_client_header_buffer() * KILOBYTE;
+    _buffer_size = MAX(_header_buffer, _body_buffer);
+    _buffer = new char[_buffer_size];
     init();
 }
 
 void    Request::init(void)
 {
+    std::cout << "Request init" << std::endl;
     _server = 0;
     _cgi = 0;
 	_str_header = "";
@@ -63,13 +66,15 @@ void    Request::init(void)
     _chunked_size = 0;
     _chunked_writed = 0;
     _body_left = 0;
+    _header_size = 0;
 	_body_size = 0;
     _session_id = "";
 	_fd_in = -1;
 	_full_file_name = "";
-	//_read_queue = true;
 	_tmp_file = "";
-
+    _end_header = false;
+    _end = false;
+    std::memset(_buffer, 0, _buffer_size);
 	_status_code = 200;
 }
 
@@ -83,103 +88,133 @@ Request::~Request()
     if (_fd_in > 0)
         close(_fd_in);
     if (_tmp_file != "" && std::remove(_tmp_file.c_str()))
-        std::cerr << "Error: Can not delete file " << _tmp_file << std::endl;
+        std::cerr << MAGENTA << "Error: Can not delete file " << _tmp_file << RESET << std::endl;
 }
 
 int     Request::read(void)
 {
-    //if (!_read_queue)
-    //    return (0);
-    if (_str_header == "")
+    if (!_end_header)
         return (read_header());
     return (read_body());
 }
 
 int     Request::read_header()
 {
-    //std::cout << "read_header _body_size: " << _body_size << std::endl;
+    std::cout << "read_header" << std::endl;
     int ret = receive_header();
-    if (!ret)
+    if (ret <= 0)
         return (ret);
-    if (ret == -1)
-        return (end_request());
+    if (!_end_header)
+        return (1);
     if (!parse_header())
         return (end_request());
-    process_fd_in();
     if (_status_code != 200)
         return (end_request());
-    if (!_content_length || _content_length == NPOS)
-        end_request();
+    process_fd_in();
     //std::cout << _body_size << " " << _body_left << " " << _content_length << std::endl;
-    if (_method == POST && _content_length == _body_left)
+    if (_fd_in != -1 && _body_left > 0)
     {
-        // Écrire le contenu de _buffer[] dans le fichier associé à _fd_in
-        _buffer[_content_length] = 0;
-        ssize_t bytes_written = write(_fd_in, _buffer, _content_length);
-        if (bytes_written == -1)
+        if (_chunked)
+            write_chunked(_body_left);
+        else
         {
-            std::cerr << "Error: Unable to write to file " << _tmp_file << std::endl;
-            _status_code = 500;
-            end_request();
+            // Écrire le contenu de _buffer[] dans le fichier associé à _fd_in
+            ssize_t bytes_written = write(_fd_in, _buffer, _body_left);
+            if (bytes_written == -1)
+            {
+                std::cerr << "Error: Unable to write to file " << _tmp_file << std::endl;
+                _status_code = 500;
+                end_request();
+            }
+            
         }
-        end_request();
+        _body_size += _body_left;
+        std::memset(_buffer, 0, _buffer_size);
+        _body_left = 0;
     }
-        
+    if (!_content_length)
+        return (end_request());
     return (ret);
 }
 
 int Request::receive_header(void)
 {
-    std::string     str_buffer;
     size_t		    body_position;
+    size_t		    received;
     int ret = 1;
 
-    body_position = NPOS;
-    while (body_position == NPOS && ret > 0)
+    ret = recv(_socket, _buffer + _header_size, _header_buffer - _header_size, 0);
+    std::cout << "receive_header:ret " << ret << std::endl;
+    if (ret <= 0)
+        return (ret);
+    _host->set_sk_timeout(_socket);
+    received = _header_size + ret;
+    _buffer[received] = 0;
+    
+    /*
+    std::cout << "The buffer:" << std::endl;
+    char *c = _buffer;
+    while (*c)
     {
-        ret = recv(_socket, _buffer, _body_buffer, 0);
-        //std::cout << "ret " << ret << std::endl;
-        if (ret < 0)
-        {
-            _status_code = 500;
-            return (-1);
-        }
-        if (!ret)
-            return (ret);
-        if (ret > 0)
-        {
-            _buffer[ret] = 0;
-            str_buffer = _buffer;
-            _str_header += str_buffer;
-            body_position = str_buffer.find("\r\n\r\n");
-            _host->set_sk_timeout(_socket);
-        }
+        std::cout << (int) *c << ":";
+        c++;
     }
+    std::cout << std::endl;
+    */
+
+    _str_header = _buffer;
+    body_position = _str_header.find("\r\n\r\n");
+    if (body_position == NPOS)
+    {
+        _header_size += ret;
+        if (_header_size > _header_buffer)
+        {
+            ft::timestamp();
+            std::cerr << MAGENTA << "Error: No end header found or header too big.\n" << RESET << std::endl;
+            _status_code = 400;	// Bad Request
+            return (end_request());
+        }
+        return (1);
+    }
+    _header_size = body_position;
+    _end_header = true;
+
     std::cout << "Request header: " << _str_header.size() << std::endl;
     std::cout << _str_header << std::endl;
     if (!_str_header.size())
-        std::cerr << "Error: No header found." << std::endl;
-    if (body_position == NPOS)
     {
-        std::cerr << "Error: No end header found.\n" << std::endl;
+        std::cerr << MAGENTA << "Error: No header found." << RESET << std::endl;
         _status_code = 400;	// Bad Request
-        return (-1);
+        return (end_request());
     }
-    body_position += 4;
-    _body_left = ret - body_position;
-    //std::cout << "_body_left: " << _body_left << " " << body_position << " " << ret << std::endl;
-    memcpy(_buffer, _buffer + body_position, _body_left);
-    return (ret);
+    _body_left = received - _header_size - 4;
+    std::cout << "_body_left: " << _body_left << " " << received << " " << _header_size << " " << body_position << " " << ret << std::endl;
+    memmove(_buffer, _buffer + _header_size + 4, _body_left);
+    /*
+    _buffer[_body_left] = 0;
+    std::cout << "The buffer:" << std::endl;
+    char *c = _buffer;
+    while (*c)
+    {
+        std::cout << (int) *c << ":";
+        c++;
+    }
+    std::cout << std::endl;
+    
+    */
+   return (ret);
 }
 
 bool	Request::parse_header(void)
 {
+    std::cout << "parse_header" << std::endl;
     if (!_header.parse_method_url(_url, _method))
     {
         _status_code = 400;	// Bad Request
         return (false);
     }
-    std::cout << _location->get_method_str(_method) << " ";
+    ft::timestamp();
+    std::cout << GREEN << _location->get_method_str(_method) << " ";
     std::cout << _url << " ";
     _host_name = _header.parse_host_name();
     if (_host_name == "")
@@ -187,7 +222,7 @@ bool	Request::parse_header(void)
         _status_code = 400;	// Bad Request
         return (false);
     }
-    //std::cout << _host_name << std::endl;
+    std::cout << _host_name << RESET << std::endl;
     std::vector<Server*>        servers = _address->get_servers();
     std::vector<std::string>    server_names;
     _server = servers[0];
@@ -215,41 +250,27 @@ bool	Request::parse_header(void)
         _cgi->set_file(_full_file_name);
     }
     _chunked = _header.parse_transfer_encoding();
-    //std::cout << "_chunked: " << _chunked << std::endl;
     if (_chunked)
         return (true);
     _content_length = _header.parse_content_length();
+    std::cout << "_chunked: " << _chunked << std::endl;
     //std::cout << "Content-Length: " << _content_length << std::endl;
     _cookies = _header.parse_cookies();
     if (_cookies.find("session_id") != _cookies.end())
         _session_id = _cookies["session_id"];
     if (_cookies.find("sid") != _cookies.end())
         _session_id = _cookies["sid"];
-    std::cout << "Session id: " << _session_id << std::endl;
-    std::cout << "Connection: " << _header.parse_connection() << std::endl;
+    //std::cout << "Session id: " << _session_id << std::endl;
+    //std::cout << "Connection: " << _header.parse_connection() << std::endl;
     if (_header.parse_connection() == "close")
         _close = true;
-    if (_method == GET || _method == HEAD)
-    {
-        if (_content_length == NPOS)
-            return (false);
-        return (true);
-    }
     _content_type = _header.parse_content_type();
     //std::cout << "Content-Type: " << _content_type << std::endl;
-    if (_method == PUT && _content_length != NPOS)
-        return (true);
-    if (_method == POST)
-        return (true);
-    if (_content_type == "" || _content_length == NPOS)
-    {
-        _status_code = 400;	// Bad Request
-        return (false);
-    }
     if (_content_length > _body_max)
     {
         _status_code = 400;	// Bad Request
-        std::cerr << "Error: Content length bigger than " << _body_max << std::endl;
+        ft::timestamp();
+        std::cerr << MAGENTA << "Error: Content length bigger than " << _body_max << RESET << std::endl;
         return (false);
     }
     return (true);
@@ -259,16 +280,18 @@ int     Request::read_body()
 {
     int     ret;
 
-    ret = recv(_socket, _buffer + _body_left, _body_buffer, 0);
+    std::cout << "Read body start" << std::endl;
+    ret = recv(_socket, _buffer + _body_left, _body_buffer - _body_left, 0);
     if (!ret)
         return (ret);
     if (ret < 0)
     {
-        std::cerr << "Error: recv error" << std::endl;
+        ft::timestamp();
+        std::cerr << MAGENTA << "Error: recv error" << RESET << std::endl;
         _status_code = 400;
         return (end_request());
     }
-	//std::cout << "read_body: " << ret << std::endl;
+	std::cout << "read_body: " << ret << std::endl;
     if (ret > 0)
         _host->set_sk_timeout(_socket);
     if (!_chunked)
@@ -277,7 +300,6 @@ int     Request::read_body()
         //std::cout << "_body_size: " << _body_size << std::endl;
         if (ret > 0 && write(_fd_in, _buffer, ret + _body_left) == -1)
             return (end_request());
-        _body_left = 0;
     }
     else if (!write_chunked(ret + _body_left))
         return (end_request());
@@ -296,9 +318,10 @@ bool    Request::write_chunked(size_t len)
 {
     size_t		body_position = 0;
 
+    std::cout << "write_chunked" << std::endl;
     _buffer[len] = 0;
     std::string     str_buffer(_buffer);
-    //std::cout << "_chunked_size: " << _chunked_size << " _chunked_writed: " << _chunked_writed << std::endl;
+    std::cout << "_chunked_size: " << _chunked_size << " _chunked_writed: " << _chunked_writed << std::endl;
     if (_chunked_size - _chunked_writed > 0)
     {
         body_position = _chunked_size - _chunked_writed;
@@ -363,19 +386,13 @@ bool	Request::check_location()
 {
     _location = Location::find_location(_url,
             _server->get_locations(), _method, _status_code);
-    //std::cout << _location << std::endl;
     if (!_location || _status_code != 200)
         return (false);
     if (_location->get_redirection())
         return (true);
-
-    // if (!_location || _status_code != 200)
-    //     return (false);
-
     _full_file_name = _location->get_full_file_name(_url,
             _server->get_root(), _method);
     std::cout << _full_file_name << std::endl;
-
     struct stat info;
     if (_method != PUT
             && stat(_full_file_name.c_str(), &info) != 0)
@@ -393,7 +410,7 @@ bool	Request::check_session()
 
 void	Request::process_fd_in()
 {
-    std::cout << "process_fd_in" << std::endl;
+    //std::cout << "process_fd_in" << std::endl;
     int i = 0;
     switch (_method)
     {
@@ -430,18 +447,19 @@ void	Request::process_fd_in()
         case NONE:
             break;
     }
-    std::cout << "end process_fd_in" << std::endl;
+    //std::cout << "end process_fd_in" << std::endl;
 }
 
 int     Request::end_request(void)
 {
-    //std::cout << "end_request " << _socket << " " << _body_size << " " << _full_file_name << std::endl;
+    std::cout << "end_request: socket=" << _socket << " body size=" << _body_size << " file name=" << _full_file_name << std::endl;
     if (!_cgi && _fd_in > 0)
         close(_fd_in);
     _host->new_response_sk(_socket);
     _response.set_status_code(_status_code);
     if (_status_code == 200 && _cgi)
         _status_code = _cgi->execute();
+    _end = true;
     //if (_status_code == -1)
     //{
     //    delete _host;
@@ -465,5 +483,7 @@ std::string	    Request::get_full_file_name(void) const {return (_full_file_name
 Location*	    Request::get_location(void) const {return (_location);}
 int		        Request::get_fd_in(void) const {return (_fd_in);}
 std::string	    Request::get_session_id(void) const {return (_session_id);}
+bool		    Request::get_end(void) const {return (_end);}
 
 void		    Request::set_fd_in(int f) {_fd_in = f;}
+//void		    Request::set_end(bool e) {_end = e;}

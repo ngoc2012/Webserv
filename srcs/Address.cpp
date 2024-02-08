@@ -12,8 +12,6 @@
 
 #include "Host.hpp"
 #include "Server.hpp"
-//#include "Request.hpp"
-//#include "Response.hpp"
 #include "webserv.hpp"
 
 #include "Address.hpp"
@@ -31,10 +29,7 @@ Address::~Address()
 		it != _servers.end(); ++it)
 		delete (*it);
 	if (_listen_socket > 0)
-	{
-		std::cout << "~Address: Close listen socket: " << _listen_socket << std::endl;
 		close(_listen_socket);
-	}
 }
 Address::Address(Host* host, std::string ip, short unsigned int p):
     _host(host),
@@ -75,14 +70,17 @@ int	    Address::bind_addr()
     //std::cout << _ip_address << ":" << _port << std::endl;
 	if (bind(_listen_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0)
 	{
+		ft::timestamp();
         std::cout << "Error: bind_addr: bind() failed " << _ip_address << ":" << _port << std::endl;
 		return (-1);
 	}
 	if (listen(_listen_socket, _host->get_max_clients()) < 0)
 	{
+		ft::timestamp();
         std::cout << "Error: bind_addr: listen() failed " << _ip_address << ":" << _port << std::endl;
 		return (-1);
 	}
+	ft::timestamp();
 	std::cout << "Listening at " << _ip_address << ":" << _port
 		<< " (socket : " << _listen_socket << ")" << std::endl;
 	return (_listen_socket);
@@ -93,19 +91,20 @@ void	Address::accept_client_sk(void)
 {
 	std::cout << "Listening socket is readable " << _listen_socket << std::endl;
 	int	new_sk;
-	do
-	{
+	//do
+	//{
 		new_sk = accept(_listen_socket, NULL, NULL);
 		if (new_sk < 0)
 		{
-			//if (errno != EWOULDBLOCK)
-			//	perror("accept() failed");
-			break;
+			ft::timestamp();
+			std::cerr << "Error: accept function." << std::endl;
+			//break;
 		}
 		fcntl(new_sk, F_SETFL, O_NONBLOCK);
+		ft::timestamp();
 		std::cout << "accept_client_sk " << new_sk << std::endl;
 		_host->new_request_sk(new_sk, this);
-	} while (new_sk != -1);
+	//} while (new_sk != -1);
 }
 
 std::vector<Server*>    Address::get_servers(void) {return (_servers);}

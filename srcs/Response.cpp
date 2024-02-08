@@ -48,14 +48,11 @@ void    Response::init(void)
     _body_size = 0;
     _pos = 0;
     _full_file_name = "";
-    //_write_queue = false;
     _fd_out = -1;
 }
 
 int     Response::write()
 {
-    //if (!_write_queue)
-    //    return (0);
     if (_header == "")
         write_header();
     else
@@ -70,9 +67,10 @@ void     Response::write_header()
     _full_file_name = _request->get_full_file_name();
     //std::cout << "write_header " << _full_file_name << std::endl;
     Header	header(this, ft::file_extension(_full_file_name));
+    if (_status_code == 405)
+        header.set_allow(_request->get_location()->get_methods_str());
     if (_status_code == 200)
     {
-        header.set_allow(_request->get_location()->get_methods_str());
         if (_request->get_method() == GET)
             get_file_size();
     }
@@ -103,13 +101,13 @@ void     Response::write_header()
 		else
 			sessions->add(sid, std::time(0) + 30);
     }
-    if (_request->get_method() == HEAD)
+    if (_request->get_method() == HEAD && _status_code == 200)
         _content_length = 0;
     _header = header.generate();
     //std::cout << "Response Header:\n" << _header << std::endl;
     if (send(_socket, _header.c_str(), _header.length(), 0) < 0)
         end_response();
-    if (_request->get_method() == HEAD)
+    if (_request->get_method() == HEAD && _status_code == 200)
         end_response();
     //else
     //    std::cout << "Header sent" << std::endl;
@@ -157,6 +155,7 @@ void     Response::get_file_size()
 
 int     Response::write_body()
 {
+    std::cout << "write_body " << std::endl;
     if (_body != "")
     {
         size_t     len = _content_length - _pos;
@@ -215,12 +214,18 @@ int     Response::end_response(void)
     int     status;
     if (_request->get_cgi() && _request->get_cgi()->get_pid() != -1)
         waitpid(_request->get_cgi()->get_pid(), &status, 0);
-    std::cout << "end_response " << _socket << " " << _full_file_name << std::endl;
+    //std::cout << "end_response " << _socket << " " << _full_file_name << std::endl;
     if (_fd_out > 0)
         close(_fd_out);
     //_write_queue = false;
-    //std::cout << _status_code << " dfgdsfg";
-    //std::cout << _request->get_url() << std::endl;
+    ft::timestamp();
+    if (_status_code == 200)
+        std::cout << GREEN;
+    else
+        std::cout << RED;
+    std::cout << _status_code << " ";
+    std::cout << _request->get_url() << " ";
+    std::cout << _request->get_location()->get_method_str(_request->get_method()) << RESET << std::endl;
     //usleep(5);
     //_host->close_client_sk(_socket);
     init();

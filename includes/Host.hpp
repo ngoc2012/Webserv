@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/05 11:20:36 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/06 18:34:00 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ class	Host
 		int				                        _max_clients;
 		size_t				                    _client_max_body_size;
 		size_t				                    _client_body_buffer_size;
+		size_t									_large_client_header_buffer;
 
 		bool				                    _parser_error;
 
@@ -62,7 +63,7 @@ class	Host
 		std::set<std::string>	                _set_mimes;
 
 		bool				                    select_available_sk(void);
-		void  				                    add_sk_2_master_read_set(int, Address*);
+		void  				                    add_sk_2_master_read_set(int);
 		void    			                    start_server(void);
 		void    			                    check_sk_ready(void);
 		bool				                    check_servers_conf(void);
@@ -101,6 +102,7 @@ class	Host
         bool								get_terminate_flag(void) const;
         pthread_mutex_t*					get_terminate_mutex(void);
         int				                    get_timeout(void) const;
+        size_t								get_large_client_header_buffer(void) const;
 
 		void	set_client_max_body_size(size_t);
 		void	set_client_body_buffer_size(size_t);
@@ -111,6 +113,7 @@ class	Host
         void	set_terminate_flag(bool);
         void	set_terminate_mutex(pthread_mutex_t);
         void	set_timeout(int);
+        void	set_large_client_header_buffer(size_t);
 };
 
 #endif
