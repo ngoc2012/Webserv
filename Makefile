@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/02/07 10:31:34 by ngoc             ###   ########.fr        #
+#    Updated: 2024/02/08 15:05:37 by ngoc             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,6 +38,7 @@ gitd:
 	git add Makefile
 	git add *.cpp
 	git add *.hpp
+	git add .conf
 	#git commit -m "all"
 	#git add -A -- :!*.o :!*.swp :!*.env
 	git commit -m "$(M)"
