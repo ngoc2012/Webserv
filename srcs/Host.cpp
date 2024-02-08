@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/08 14:58:49 by minh-ngu         ###   ########.fr       */
+/*   Updated: 2024/02/08 15:00:51 by minh-ngu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,10 @@ Host::Host() {
     _workers = 0;
     _terminate_flag = false;
     //_terminate_mutex = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_init(&_terminate_mutex, NULL);
     _timeout = TIMEOUT * CLOCKS_PER_SEC;
     pthread_cond_init(&_terminate_cond, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
-    pthread_mutex_init(&_terminate_mutex, NULL);
 
     _max_sk = -1;
     mimes();
