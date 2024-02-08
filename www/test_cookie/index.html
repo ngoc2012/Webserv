@@ -5,11 +5,12 @@
     </head>
     <body>
         <h1>Blip Bloup</h1>
-        <button type="button" onclick="send_get_request()" >Send GET request</button>
+        <button id="button" onclick="send_get_request()">Send GET request</button>
         <ul></ul>
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script>
+
             document.cookie = "session_id=123456; expires=Thu, 01 Jan 2025 00:00:00 UTC; path=/; SameSite=None; Secure";
 
             function send_get_request()
@@ -26,12 +27,15 @@
                     //const setCookieHeader = "session_id=1; path=/"
                     console.log(response);
                     console.log(setCookieHeader);
+                    console.log(document.cookie);
 
                     if (setCookieHeader)
                     {
                         cookies = parseCookies(setCookieHeader);
                         console.log(cookies);
                         alert("Cookie found - token: " + cookies.session_id);
+                        document.cookie = "session_id=" + cookies.session_id + "; expires=Thu, 01 Jan 2025 00:00:00 UTC; path=/; SameSite=None; Secure";
+                        console.log(document.cookie);
                     }
                     else
                         alert("No cookies");
