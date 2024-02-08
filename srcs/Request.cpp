@@ -260,7 +260,7 @@ bool	Request::parse_header(void)
         _session_id = _cookies["session_id"];
     if (_cookies.find("sid") != _cookies.end())
         _session_id = _cookies["sid"];
-    //std::cout << "Session id: " << _session_id << std::endl;
+    std::cout << "Session id: " << _session_id << std::endl;
     //std::cout << "Connection: " << _header.parse_connection() << std::endl;
     if (_header.parse_connection() == "close")
         _close = true;
