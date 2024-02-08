@@ -71,7 +71,7 @@ std::string	Header::generate(void)
 	}
 	std::cout << "===============" << _session_id << std::endl;
 	if (_session_id != "")
-		str += "Set-Cookies: " + _session_id + "\r\n";
+		str += "Set-Cookies: session_id=" + _session_id + "\r\n";
     str += "Date: " + get_current_time() + "\r\n";
 	str += "server: webserv\r\n\r\n";
 	return (str);

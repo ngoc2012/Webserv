@@ -104,7 +104,7 @@ void     Response::write_header()
     if (_request->get_method() == HEAD && _status_code == 200)
         _content_length = 0;
     _header = header.generate();
-    //std::cout << "Response Header:\n" << _header << std::endl;
+    std::cout << "Response Header:\n" << _header << std::endl;
     if (send(_socket, _header.c_str(), _header.length(), 0) < 0)
         end_response();
     if (_request->get_method() == HEAD && _status_code == 200)
