@@ -25,9 +25,9 @@
                 .then(response => {
                     const setCookieHeader = response.headers.get('set-cookies');
                     //const setCookieHeader = "session_id=1; path=/"
-                    console.log(response);
-                    console.log(setCookieHeader);
-                    console.log(document.cookie);
+                    //console.log(response);
+                    //console.log(setCookieHeader);
+                    //console.log(document.cookie);
 
                     if (setCookieHeader)
                     {
@@ -35,7 +35,7 @@
                         console.log(cookies);
                         alert("Cookie found - token: " + cookies.session_id);
                         document.cookie = "session_id=" + cookies.session_id + "; expires=Thu, 01 Jan 2025 00:00:00 UTC; path=/; SameSite=None; Secure";
-                        console.log(document.cookie);
+                        //console.log(document.cookie);
                     }
                     else
                         alert("No cookies");
