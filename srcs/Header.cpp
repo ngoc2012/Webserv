@@ -69,6 +69,7 @@ std::string	Header::generate(void)
 	{
         str += "Content-Length: " + ft::itos(_response->get_content_length()) + "\r\n";
 	}
+	std::cout << "===============" << _session_id << std::endl;
 	if (_session_id != "")
 		str += "Set-Cookies: " + _session_id + "\r\n";
     str += "Date: " + get_current_time() + "\r\n";
