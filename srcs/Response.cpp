@@ -110,7 +110,7 @@ void     Response::write_header()
     std::cout << "Response Header:\n" << _header << std::endl;
     if (send(_socket, _header.c_str(), _header.length(), 0) < 0)
         end_response();
-    if (_request->get_method() == HEAD && _status_code == 200)
+    if (_request->get_method() == HEAD)
         end_response();
     //else
     //    std::cout << "Header sent" << std::endl;

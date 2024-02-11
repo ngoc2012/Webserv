@@ -40,6 +40,7 @@ gitd:
 	git add *.hpp
 	git add .conf
 	git add www
+	git add tester
 	#git commit -m "all"
 	#git add -A -- :!*.o :!*.swp :!*.env
 	git commit -m "$(M)"

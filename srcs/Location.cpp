@@ -55,7 +55,11 @@ Location*	Location::find_location(std::string url, std::vector<Location*> locati
 		}
 	}
     if (!loc)
+    {
+        std::cerr << RED << "Error: Location not found." << RESET << std::endl;
         status_code = 404; // Not found
+    }
+        
     return (loc);
 }
 
