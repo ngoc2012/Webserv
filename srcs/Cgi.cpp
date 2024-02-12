@@ -157,35 +157,10 @@ bool    Cgi::get_envs()
         envs.push_back("CONTENT_LENGTH=" + ft::itos((int) _request->get_content_length()));
     }
     envs.push_back("GATEWAY_INTERFACE=CGI/1.1");
-
-    size_t          i;
-
-    //std::vector<std::string> header_lines = ft::split_string(_request->get_str_header(), "\n");
-    //for (std::vector<std::string>::iterator it = header_lines.begin();
-    //        it != header_lines.end(); it++)
-    //{
-    //    i = it->find(":");
-    //    if (i != NPOS)
-    //        envs.push_back(ft::str_replace(
-    //                "HTTP_" + ft::to_upper(it->substr(0, i)), "-", "_")
-    //                + "=" + it->substr(i + 2));
-    //}
-
     envs.push_back("PATH_INFO=" + _file);
     envs.push_back("PATH_TRANSLATED=" + _file);
     envs.push_back("QUERY_STRING=");
     envs.push_back("REMOTE_ADDR=...");
-    //envs["QUERY_STRING" + config_.getQuery();
-    //envs["REMOTE_ADDR" + config_.getClient().getAddr();
-
-    //if (config_.getAuth() != "off") {
-        //envs.push_back("AUTH_TYPE=Basic");
-        //envs.push_back("REMOTE_IDENT=");
-        //envs.push_back("REMOTE_USER=");
-        //envs["REMOTE_IDENT" + config_.getAuth().substr(0, config_.getAuth().find(':'));
-        //envs["REMOTE_USER" + config_.getAuth().substr(0, config_.getAuth().find(':'));
-    //}
-
     envs.push_back("REQUEST_METHOD=" + Location::get_method_str(_request->get_method()));
     envs.push_back("REQUEST_URI=" + _file);
 
@@ -204,6 +179,7 @@ bool    Cgi::get_envs()
     if (!(_envs = new char*[envs.size() + 1]))
         return false;
 
+    size_t          i;
     i = 0;
     for (std::vector<std::string>::iterator it = envs.begin();
             it != envs.end(); it++)
