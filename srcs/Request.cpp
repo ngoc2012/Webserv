@@ -176,9 +176,9 @@ int Request::receive_header(void)
     _host->set_sk_timeout(_socket);
     _buffer[ret] = 0;
     _str_header += _buffer;
-    std::cout << "============================================" << std::endl;
-    std::cout << "`" << _str_header << "`" << std::endl;
-    std::cout << "********************************************" << std::endl;
+    //std::cout << "============================================" << std::endl;
+    //std::cout << "`" << _str_header << "`" << std::endl;
+    //std::cout << "********************************************" << std::endl;
     //std::cout << "`" << _buffer << "`" << std::endl;
     //std::cout << "********************************************" << std::endl;
 
