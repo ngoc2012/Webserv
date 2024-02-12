@@ -52,13 +52,28 @@ Request::Request(int sk, Host* h, Address* a) : _socket(sk), _host(h), _address(
     std::cout << "_body_buffer: " << _body_buffer << std::endl;
     std::cout << "_header_buffer: " << _header_buffer << std::endl;
     std::cout << "_buffer_size: " << _buffer_size << std::endl;
-    _buffer = new char[_buffer_size];
+    _buffer = new char[_buffer_size + 1];
+
+    _cgi = 0;
+    _fd_in = -1;
+    _tmp_file = "";
     init();
+}
+
+void    Request::clean(void)
+{
+    if (_cgi)
+        delete (_cgi);
+    if (_fd_in > 0)
+        close(_fd_in);
+    if (_tmp_file != "" && std::remove(_tmp_file.c_str()))
+        std::cerr << MAGENTA << "Error: Can not delete file " << _tmp_file << RESET << std::endl;
 }
 
 void    Request::init(void)
 {
     std::cout << "Request init" << std::endl;
+    clean();
     _server = 0;
     _cgi = 0;
 	_str_header = "";
@@ -78,21 +93,17 @@ void    Request::init(void)
     _end_chunked_body = true;
     _chunked_data = "";
     _end = false;
-    std::memset(_buffer, 0, _buffer_size);
+    std::memset(_buffer, 0, _buffer_size + 1);
 	_status_code = 200;
 }
 
 Request::~Request()
 {
+    //std::cout << "Request Destructor" << std::endl;
     delete[] _buffer;
-    if (_cgi)
-        delete (_cgi);
+    clean();
     if (_socket > 0)
         close(_socket);
-    if (_fd_in > 0)
-        close(_fd_in);
-    if (_tmp_file != "" && std::remove(_tmp_file.c_str()))
-        std::cerr << MAGENTA << "Error: Can not delete file " << _tmp_file << RESET << std::endl;
 }
 
 int     Request::read(void)
@@ -168,10 +179,11 @@ int Request::receive_header(void)
     std::cout << "============================================" << std::endl;
     std::cout << "`" << _str_header << "`" << std::endl;
     std::cout << "********************************************" << std::endl;
-    std::cout << "`" << _buffer << "`" << std::endl;
-    std::cout << "********************************************" << std::endl;
+    //std::cout << "`" << _buffer << "`" << std::endl;
+    //std::cout << "********************************************" << std::endl;
 
     _header_size = _str_header.find("\r\n\r\n");
+    /*
     std::cout << "The buffer:" << std::endl;
     char *c = _buffer;
     while (*c)
@@ -180,6 +192,7 @@ int Request::receive_header(void)
         c++;
     }
     std::cout << std::endl;
+    */
     if (_header_size == NPOS)
     {
         if (_str_header.size() > _header_buffer)
@@ -250,6 +263,7 @@ bool	Request::parse_header(void)
     }
 	_response.set_server(_server);
     check_location();
+    std::cout << "Location found: " << _location->get_url() << std::endl;
     _chunked = _header.parse_transfer_encoding();
     std::cout << "_chunked: " << _chunked << std::endl;
     if (_chunked)

@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/26 16:38:56 by nbechon          ###   ########.fr       */
+/*   Updated: 2024/02/12 09:56:34 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,14 @@ Cgi&	Cgi::operator=( Cgi const & src )
 }
 Cgi::~Cgi()
 {
+    
     if (_envs)
+    {
+        int i = 0;
+        while (_envs[i])
+            free(_envs[i++]);
         delete[] _envs;
+    }
 }
 
 int    Cgi::execute()
@@ -58,7 +64,7 @@ int    Cgi::execute()
         return 500;
     }
 
-    //std::cout << "Cgi execute" << std::endl;
+    std::cout << "Cgi execute" << std::endl;
     
     int pipe_in[2];
     int pipe_out[2];
@@ -92,11 +98,11 @@ int    Cgi::execute()
         argv[1] = (char*) _file.c_str();
         argv[2] = 0;
         //execve(argv[0], argv, _envs);
-        execve(argv[0], argv, 0);
+        execve(argv[0], argv, _envs);
         //execlp("cat", "cat", nullptr);
         
         std::cerr << "Execution error" << std::endl;
-        return -1;
+        return (-1);
     }
     else
     {
@@ -112,16 +118,19 @@ int    Cgi::execute()
                 std::cerr << "Error: using lseek" << std::endl;
                 return 500;
             }
+            std::cout << "fd_in: " << fd_in << std::endl;
             while ((bytesRead = read(fd_in, buffer, BUFFER_SIZE)) > 0)
             {
                 buffer[bytesRead] = 0;
-                //std::cout << buffer;
+                std::cout << buffer;
                 if (write(pipe_in[1], buffer, bytesRead) == -1)
                 {
                     std::cerr << "Error: write pipe in" << std::endl;
                     return 500;
                 }
             }
+            std::cout << std::endl;
+            close(fd_in);
         }
         close(pipe_in[1]);
         /*
@@ -140,6 +149,7 @@ int    Cgi::execute()
 
 bool    Cgi::get_envs()
 {
+    std::cout << "Cgi get_envs" << std::endl;
     std::vector<std::string>  envs;
 
     if (_request->get_method() == POST) {
@@ -163,10 +173,10 @@ bool    Cgi::get_envs()
     //}
 
     envs.push_back("REQUEST_METHOD=" + Location::get_method_str(_request->get_method()));
-    envs.push_back("REQUEST_URI=" + _request->get_url());
+    envs.push_back("REQUEST_URI=" + _file);
 
     Server*   server = _request->get_server();
-    envs.push_back("SCRIPT_NAME=" + _file);
+    envs.push_back("SCRIPT_NAME=" + _pass);
     //envs.push_back("SERVER_NAME=" + server->get_server_name());
     envs.push_back("SERVER_PROTOCOL=HTTP/1.1");
     envs.push_back("SERVER_PORT=" + ft::itos((int) server->get_port()));
@@ -195,8 +205,8 @@ bool    Cgi::get_envs()
     for (std::vector<std::string>::iterator it = envs.begin();
             it != envs.end(); it++)
     {
-        //std::cout << *it << std::endl;
-        _envs[i++] = (char*) it->c_str();
+        std::cout << *it << std::endl;
+        _envs[i++] = strdup(it->c_str());
     }
     _envs[i] = 0;
     return (true);

@@ -80,6 +80,7 @@ class	Request
 		int             end_request(void);
         void            envs(void);
         void            exec(void);
+		void            clean(void);
 
 		Request();
 		Request(const Request&);

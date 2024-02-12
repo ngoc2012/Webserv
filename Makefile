@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/02/08 15:20:36 by minh-ngu         ###   ########.fr        #
+#    Updated: 2024/02/11 22:29:36 by ngoc             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,7 @@ $(MANDA): $(SRCS) $(OBJS) $(INCS)
 test:
 	clear && make re && make clean && ./webserv
 test0:
-	clear && make re && make clean && valgrind --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv
+	clear && make re && make clean && valgrind --track-origins=yes --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv
 gits:
 	git add Makefile
 	git add *.cpp

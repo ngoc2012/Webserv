@@ -37,6 +37,7 @@ Location::~Location() {}
 Location*	Location::find_location(std::string url, std::vector<Location*> locations, e_method method, int &status_code)
 {
     Location*   loc = 0;
+    bool        found = false;
 
 	for (std::vector<Location*>::iterator it = locations.begin();
 		it != locations.end(); ++it)
@@ -45,13 +46,17 @@ Location*	Location::find_location(std::string url, std::vector<Location*> locati
 		if ((*it)->compare_url(url, (*it)->get_url()))
 		{
 			if ((*it)->find_method(method))
-				status_code = 200;
-			else
             {
-                //std::cerr << "Method not allowed\n";
+                loc = *it;
+                found = true;
+                status_code = 200;
+            }
+			else if (!found)
+            {
+                loc = *it;
 				status_code = 405; // Method not allowed
             }
-            loc = *it;
+            
 		}
 	}
     if (!loc)
@@ -89,14 +94,21 @@ bool	Location::find_method(e_method m)
 
 std::string	Location::get_full_file_name(std::string url, std::string root, e_method e)
 {
-    std::string file_name;
+    std::string             file_name;
+    long unsigned int       i;
 
     if (_alias == "")
         file_name = root;
     else
         file_name = _alias;
     if (_url.size() < url.size())
-        file_name += url.substr(1);
+    {
+        if (_url.find('*') != NPOS)
+            i = _url.find('*');
+        else
+            i = _url.size();
+        file_name += url.substr(i);
+    }
     if (_autoindex || e == PUT || e == POST)
         return (file_name);
     struct stat	info;
@@ -104,12 +116,13 @@ std::string	Location::get_full_file_name(std::string url, std::string root, e_me
         return (file_name);
     if (!S_ISDIR(info.st_mode))
         return (file_name);
+    file_name += "/";
     if (!_index.size())
     {
         file_name += "index.html";
         return (file_name);
     }
-    long unsigned int     i = 0;
+    i = 0;
     std::string fn0 = file_name + _index[i];
     while (stat(fn0.c_str(), &info) && ++i < _index.size())
         fn0 = file_name + _index[i];
