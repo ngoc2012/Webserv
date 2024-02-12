@@ -173,14 +173,14 @@ bool    Cgi::get_envs()
     envs.push_back("PATH_INFO=" + _file);
     envs.push_back("PATH_TRANSLATED=" + _file);
     envs.push_back("QUERY_STRING=");
-    envs.push_back("REMOTE_ADDR=");
+    envs.push_back("REMOTE_ADDR=...");
     //envs["QUERY_STRING" + config_.getQuery();
     //envs["REMOTE_ADDR" + config_.getClient().getAddr();
 
     //if (config_.getAuth() != "off") {
-        envs.push_back("AUTH_TYPE=Basic");
-        envs.push_back("REMOTE_IDENT=");
-        envs.push_back("REMOTE_USER=");
+        //envs.push_back("AUTH_TYPE=Basic");
+        //envs.push_back("REMOTE_IDENT=");
+        //envs.push_back("REMOTE_USER=");
         //envs["REMOTE_IDENT" + config_.getAuth().substr(0, config_.getAuth().find(':'));
         //envs["REMOTE_USER" + config_.getAuth().substr(0, config_.getAuth().find(':'));
     //}
