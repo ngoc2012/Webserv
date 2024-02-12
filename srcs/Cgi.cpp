@@ -122,14 +122,14 @@ int    Cgi::execute()
             while ((bytesRead = read(fd_in, buffer, BUFFER_SIZE)) > 0)
             {
                 buffer[bytesRead] = 0;
-                std::cout << buffer;
+                //std::cout << buffer;
                 if (write(pipe_in[1], buffer, bytesRead) == -1)
                 {
                     std::cerr << "Error: write pipe in" << std::endl;
                     return 500;
                 }
             }
-            std::cout << std::endl;
+            //std::cout << std::endl;
             close(fd_in);
         }
         close(pipe_in[1]);
