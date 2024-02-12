@@ -190,7 +190,7 @@ bool    Cgi::get_envs()
 
     Server*   server = _request->get_server();
     envs.push_back("SCRIPT_NAME=" + _pass);
-    envs.push_back("SERVER_NAME=" + server->get_server_names()[0]);
+    envs.push_back("SERVER_NAME=" + std::string(server->get_ip_address()));
     envs.push_back("SERVER_PORT=" + ft::itos((int) server->get_port()));
     envs.push_back("SERVER_PROTOCOL=HTTP/1.1");
     envs.push_back("SERVER_SOFTWARE=WEBSERV/1.0");
