@@ -206,7 +206,7 @@ int Request::receive_header(void)
     }
     _end_header = true;
     std::cout << "Request header: " << _header_size << std::endl;
-    std::cout << _str_header << std::endl;
+    //std::cout << _str_header << std::endl;
     if (!_str_header.size())
     {
         std::cerr << MAGENTA << "Error: No header found." << RESET << std::endl;
@@ -218,7 +218,7 @@ int Request::receive_header(void)
     {
         std::cout << "Body left: " << _body_left << std::endl;
         std::string     body = _str_header.substr(_header_size + 4);
-        std::cout << "Body: `" << body << "`" << std::endl;
+        //std::cout << "Body: `" << body << "`" << std::endl;
         std::memcpy(_buffer, body.c_str(), _body_left);
         _buffer[_body_left] = 0;
     }
@@ -334,9 +334,10 @@ bool    Request::write_chunked()
     size_t      chunk_size = 0;
     size_t      read_chunk;
 
-    std::cout << "write_chunked" << _buffer << std::endl;
+    //std::cout << "write_chunked" << _buffer << std::endl;
     _chunked_data += std::string(_buffer);
-    std::cout << "_chunked_data: (" << _chunked_data.size() << ") `" << _chunked_data << "`" << std::endl;
+    std::cout << "_chunked_data: (" << _chunked_data.size() << ")" << std::endl;
+    //std::cout << " `" << _chunked_data << "`" << std::endl;
     if (!_chunked_data.size())
     {
         std::cerr << "Error: No chunked data." << std::endl;
