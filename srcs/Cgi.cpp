@@ -158,8 +158,9 @@ bool    Cgi::get_envs()
     }
     envs.push_back("GATEWAY_INTERFACE=CGI/1.1");
 
+    size_t          i;
+
     //std::vector<std::string> header_lines = ft::split_string(_request->get_str_header(), "\n");
-    //size_t          i;
     //for (std::vector<std::string>::iterator it = header_lines.begin();
     //        it != header_lines.end(); it++)
     //{
