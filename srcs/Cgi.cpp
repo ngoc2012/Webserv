@@ -17,7 +17,7 @@
 #include <cstring>
 #include <unistd.h>
 
-#include "Host.hpp"
+#include "Host.shpp"
 #include "Server.hpp"
 #include "Location.hpp"
 #include "Request.hpp"
@@ -153,10 +153,23 @@ bool    Cgi::get_envs()
     std::vector<std::string>  envs;
 
     if (_request->get_method() == POST) {
-        envs.push_back("CONTENT_TYPE=" + _request->get_content_type());
+        envs.push_back("CONTENT_TYPE=" + _request->get_content_type());s
         envs.push_back("CONTENT_LENGTH=" + ft::itos((int) _request->get_content_length()));
     }
     envs.push_back("GATEWAY_INTERFACE=CGI/1.1");
+
+    std::vector<std::string> header_lines = ft::split_string(_request->get_str_header(), "\n");
+    size_t          i;
+    for (std::vector<std::string>::iterator it = header_lines.begin();
+            it != header_lines.end(); it++)
+    {
+        i = it->find(":");
+        if (i != NPOS)
+            envs.push_back(ft::str_replace(
+                    "HTTP_" + ft::to_upper(it->substr(0, i)), "-", "_")
+                    + "=" + it->substr(i + 2));
+    }
+
     envs.push_back("PATH_INFO=" + _file);
     envs.push_back("PATH_TRANSLATED=" + _file);
     envs.push_back("QUERY_STRING=");
@@ -186,18 +199,7 @@ bool    Cgi::get_envs()
     if (extension == "php")
         envs.push_back("REDIRECT_STATUS=200");
 
-    std::vector<std::string> header_lines = ft::split_string(_request->get_str_header(), "\n");
-    size_t          i;
-    for (std::vector<std::string>::iterator it = header_lines.begin();
-            it != header_lines.end(); it++)
-    {
-        i = it->find(":");
-        if (i != NPOS)
-            envs.push_back(ft::str_replace(
-                    "HTTP_" + ft::to_upper(it->substr(0, i)), "-", "_")
-                    + "=" + it->substr(i + 2));
-    }
-
+    
     if (!(_envs = new char*[envs.size() + 1]))
         return false;
 
