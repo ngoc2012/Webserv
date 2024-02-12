@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/02/11 22:29:36 by ngoc             ###   ########.fr        #
+#    Updated: 2024/02/12 10:29:41 by ngoc             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,6 +32,12 @@ gits:
 	git add *.hpp
 	git commit -m "all"
 	git push
+others:
+	./ubuntu_tester http://0.0.0.0:8012
+	curl -i -X GET http://127.0.2.1:4242
+	curl -i -X POST http://127.0.2.1:4242/directory/youpi.bla
+	curl -i -X POST http://0.0.0.0:8012/directory/youpi.bla
+
 M:=
 gitd:
 	make fclean
@@ -41,6 +47,7 @@ gitd:
 	git add .conf
 	git add www
 	git add tester
+	git add webserv-master
 	#git commit -m "all"
 	#git add -A -- :!*.o :!*.swp :!*.env
 	git commit -m "$(M)"
