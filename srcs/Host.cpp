@@ -183,8 +183,9 @@ void	Host::check_sk_ready(void)
             std::cout << MAGENTA << "Time Out " << it->first << RESET << std::endl;
             FD_CLR(it->first, &_master_read_set);
             close_client_sk(it->first);
+            continue;
         }
-        else if (FD_ISSET(it->first, &_read_set) && !_sk_request[it->first]->get_end())
+        if (FD_ISSET(it->first, &_read_set) && !_sk_request[it->first]->get_end())
         {
             //std::cout << "Read set sk = " << it->first << std::endl;
             //_sk_request[it->first]->read();
