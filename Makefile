@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/02/12 11:15:14 by minh-ngu         ###   ########.fr        #
+#    Updated: 2024/02/12 14:40:27 by ngoc             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,6 +38,8 @@ others:
 	curl -i -X GET http://127.0.2.1:4242
 	curl -i -X POST http://127.0.2.1:4242/directory/youpi.bla
 	curl -i -X POST http://0.0.0.0:8012/directory/youpi.bla
+	curl -X POST -H "Transfer-Encoding: chunked" --data-raw "$(dd if=/dev/urandom bs=10000 count=1 status=none | base64)" http://127.0.2.1:4242/directory/youpi.bla
+
 
 M:=
 gitd:
