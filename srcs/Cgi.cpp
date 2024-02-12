@@ -17,7 +17,7 @@
 #include <cstring>
 #include <unistd.h>
 
-#include "Host.shpp"
+#include "Host.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
 #include "Request.hpp"
@@ -153,7 +153,7 @@ bool    Cgi::get_envs()
     std::vector<std::string>  envs;
 
     if (_request->get_method() == POST) {
-        envs.push_back("CONTENT_TYPE=" + _request->get_content_type());s
+        envs.push_back("CONTENT_TYPE=" + _request->get_content_type());
         envs.push_back("CONTENT_LENGTH=" + ft::itos((int) _request->get_content_length()));
     }
     envs.push_back("GATEWAY_INTERFACE=CGI/1.1");
@@ -191,8 +191,8 @@ bool    Cgi::get_envs()
     Server*   server = _request->get_server();
     envs.push_back("SCRIPT_NAME=" + _pass);
     envs.push_back("SERVER_NAME=" + server->get_server_names()[0]);
-    envs.push_back("SERVER_PROTOCOL=HTTP/1.1");
     envs.push_back("SERVER_PORT=" + ft::itos((int) server->get_port()));
+    envs.push_back("SERVER_PROTOCOL=HTTP/1.1");
     envs.push_back("SERVER_SOFTWARE=WEBSERV/1.0");
 
     std::string extension = ft::file_extension(_request->get_full_file_name());
