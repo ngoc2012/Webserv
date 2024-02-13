@@ -177,7 +177,7 @@ void	Host::check_sk_ready(void)
         it != _sk_request.end(); it = next)
     {
         next++;
-        std::cout << it->first << ":" << time(0) << ":" << _sk_timeout[it->first] << ":" << _timeout << std::endl;
+        //std::cout << it->first << ":" << time(0) << ":" << _sk_timeout[it->first] << ":" << _timeout << std::endl;
         if (static_cast<double>(time(0) - _sk_timeout[it->first]) > _timeout)
         {
             ft::timestamp();
@@ -253,7 +253,7 @@ void	Host::close_client_sk(int i)
 
 void	Host::set_sk_timeout(int i)
 {
-    std::cout << "set_sk_timeout " << i << std::endl;
+    //std::cout << "set_sk_timeout " << i << std::endl;
     _sk_timeout[i] = time(0);
 }
 
