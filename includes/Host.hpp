@@ -37,7 +37,7 @@ class	Host
 
 		bool				                    _parser_error;
 
-		int				                        _timeout;
+		double				                    _timeout;
 		int				                        _n_workers;
 		Worker*				                    _workers;
 		volatile bool							_terminate_flag;
@@ -57,7 +57,7 @@ class	Host
 		std::map<int, Worker*>		            _sk_worker;
 		std::map<int, Address*>		            _sk_address;
 		std::map<int, Request*>	                _sk_request;
-		std::map<int, clock_t>		            _sk_timeout;
+		std::map<int, time_t>		            _sk_timeout;
 		std::map<int, std::string>  		    _status_message;
 		std::map<std::string, std::string>	    _mimes;
 		std::set<std::string>	                _set_mimes;

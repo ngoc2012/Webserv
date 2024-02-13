@@ -32,7 +32,7 @@ Host::Host() {
     _terminate_flag = false;
     //_terminate_mutex = PTHREAD_MUTEX_INITIALIZER;
     pthread_mutex_init(&_terminate_mutex, NULL);
-    _timeout = TIMEOUT * CLOCKS_PER_SEC;
+    _timeout = TIMEOUT;
     pthread_cond_init(&_terminate_cond, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
 
@@ -167,7 +167,7 @@ void	Host::check_sk_ready(void)
     {
         if (FD_ISSET(it->first, &_read_set))
         {
-            _sk_timeout[it->first] = clock();
+            _sk_timeout[it->first] = time(0);
             _sk_address[it->first]->accept_client_sk();
         }
     }
@@ -177,7 +177,8 @@ void	Host::check_sk_ready(void)
         it != _sk_request.end(); it = next)
     {
         next++;
-        if (clock() - _sk_timeout[it->first] > _timeout)
+        std::cout << it->first << ":" << time(0) << ":" << _sk_timeout[it->first] << ":" << _timeout << std::endl;
+        if (static_cast<double>(time(0) - _sk_timeout[it->first]) > _timeout)
         {
             ft::timestamp();
             std::cout << MAGENTA << "Time Out " << it->first << RESET << std::endl;
@@ -214,6 +215,7 @@ void  	Host::add_sk_2_master_read_set(int new_sk)
 
 void	Host::new_request_sk(int new_sk, Address* a)
 {
+    set_sk_timeout(new_sk);
 	add_sk_2_master_read_set(new_sk);
 	_sk_request[new_sk] = new Request(new_sk, this, a);
 }
@@ -229,6 +231,7 @@ void	Host::new_response_sk(int new_sk)
 void	Host::renew_request_sk(int new_sk)
 {
     //pthread_mutex_lock(&_set_mutex);
+    set_sk_timeout(new_sk);
     FD_CLR(new_sk, &_master_write_set);
 	FD_SET(new_sk, &_master_read_set);
     //pthread_mutex_unlock(&_set_mutex);
@@ -250,7 +253,8 @@ void	Host::close_client_sk(int i)
 
 void	Host::set_sk_timeout(int i)
 {
-    _sk_timeout[i] = clock();
+    std::cout << "set_sk_timeout " << i << std::endl;
+    _sk_timeout[i] = time(0);
 }
 
 void    Host::status_message(void)
