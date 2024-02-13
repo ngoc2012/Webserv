@@ -56,7 +56,10 @@ std::string	Header::generate(void)
     {
         
         str += std::string("Content-Language: en") + "\r\n";
-        if (_mimes->find(_extension) == _mimes->end())
+		Request*	_request = _response->get_request();
+		if (_request->get_cgi() && _extension == "js")
+			str += "Content-Type: application/json\r\n";
+        else if (_mimes->find(_extension) == _mimes->end())
             str += "Content-Type: text/html\r\n";
         else
             str += "Content-Type: " + (*_mimes)[_extension] + "\r\n";
