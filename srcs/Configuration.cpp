@@ -219,7 +219,7 @@ bool	Configuration::host_parser(std::string cmd, Host* host, std::vector<std::st
 			std::cerr << "Error: timeout value not valid (0..100)." << std::endl;
 			return (true);
         }
-		host->set_timeout(n * CLOCKS_PER_SEC);
+		host->set_timeout(n);
 	}
 	else
 		return (true);

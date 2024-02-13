@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/30 16:45:54 by nbechon          ###   ########.fr       */
+/*   Updated: 2024/02/13 09:06:55 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,17 +186,13 @@ int     Response::write_body()
     if (ret <= 0)
     {
         if (_request->get_cgi())
-        {
-            //std::cout << "0\r\n" << std::endl;
-            send(_socket, "0\r\n", 3, 0);
-        }
+            send(_socket, "0\r\n\r\n", 5, 0);
         return (end_response());
     }
     
     buffer[ret] = 0;
     //std::cout << ret << ":" << buffer;
     _body_size += ret;
-
     if (_request->get_cgi())
     {
         std::string     s = ft::itoa_base(ret, "0123456789abcdef") + "\r\n";
