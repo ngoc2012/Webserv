@@ -15,31 +15,16 @@
 
             function send_get_request()
             {
-                fetch('http://localhost:4141/hello.js', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  credentials: 'include',
-  contentType: 'text/plain',
-  crossDomain: true,
-  body: JSON.stringify({ key1: 'value1', key2: 'value2' }),
-})
-  .then(response => response.json())
-  .then(data => {
-    console.log(data); // This will log the parsed JSON data
-  })
-  .catch(error => {
-    console.error('Error:', error);
-  });
-  /*
+
                 fetch("http://127.0.0.1:4141/hello.js", {
                     method: 'POST',
                     headers: {'Cookie': document.cookie},
                     credentials: 'include',
-                    contentType: 'text/plain',
+                    contentType: 'application/json',
+                    body: JSON.stringify({ key1: 'value1', key2: 'value2' }),
                     crossDomain: true,
                 })
+                .then(response => response.json())
                 .then(response => {
                     console.log(response);
                     const setCookieHeader = response.headers.get('set-cookies');
@@ -60,7 +45,7 @@
                         alert("No cookies");
 
                 })
-                .catch(error => alert("Request GET fail: " + error));*/
+                .catch(error => alert("Request GET fail: " + error));
             }
 
             function parseCookies(setCookieHeader) {
