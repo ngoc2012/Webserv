@@ -20,6 +20,9 @@
   headers: {
     'Content-Type': 'application/json',
   },
+  credentials: 'include',
+  contentType: 'text/plain',
+  crossDomain: true,
   body: JSON.stringify({ key1: 'value1', key2: 'value2' }),
 })
   .then(response => response.json())
