@@ -142,9 +142,8 @@ int     Request::read_header()
                 _status_code = 500;
                 end_request();
             }
-            
+            _body_size = _body_left;
         }
-        _body_size = _body_left;
         std::memset(_buffer, 0, _body_left);
     }
     if ((!_chunked && (!_content_length || _body_left >= _content_length)) || (_chunked && _end_chunked_body))
