@@ -15,6 +15,7 @@
         <script>
             //                    body: JSON.stringify('{ "action": "signup", "name": "bubulle2", "password": "1234" }'),
             document.cookie = "session_id=123456; expires=Thu, 01 Jan 2025 00:00:00 UTC; path=/; SameSite=None; Secure";
+            var setCookieHeader;
 
             function send_get_request(action)
             {
@@ -33,28 +34,32 @@
                     body: JSON.stringify(data),
                     crossDomain: true,
                 })
-                .then(response => response.json())
                 .then(response => {
-                    console.log(response);
-                    const setCookieHeader = response.headers.get('set-cookies');
+                    setCookieHeader = response.headers.get('set-cookies');
+                    console.log('Cook first', setCookieHeader);
+                    return response.json(); // Parse JSON data
+                })
+                .then(data => {
+                    console.log(data["input"]);
+                    //const setCookieHeader = data.headers.get('set-cookies');
                     //const setCookieHeader = "session_id=1; path=/"
                     //console.log(response);
                     //console.log(setCookieHeader);
                     //console.log(document.cookie);
-
+                    
                     if (setCookieHeader)
                     {
                         cookies = parseCookies(setCookieHeader);
-                        console.log(cookies);
-                        alert("Cookie found - token: " + cookies.session_id);
+                        console.log("Cookie found - token: " + cookies.session_id);
                         document.cookie = "session_id=" + cookies.session_id + "; expires=Thu, 01 Jan 2025 00:00:00 UTC; path=/; SameSite=None; Secure";
                         //console.log(document.cookie);
                     }
                     else
-                        alert("No cookies");
+                        console.log("No cookies");
+                    
 
                 })
-                .catch(error => alert("Request GET fail: " + error));
+                .catch(error => {console.log('Catch', error)});
             }
 
             function parseCookies(setCookieHeader) {
@@ -67,35 +72,6 @@
                 }, {});
             }
 
-
-
-
-            /*
-            function send_post_request()
-            {
-                $.ajax({
-                    type: "POST",
-                    url: "http://127.0.0.1:4141",
-                    async: true,
-                    success: function(data)
-                    {
-                        alert(data);
-                    }
-                });
-            }
-            */
-                           /*
-                $.ajax({
-                type: "GET",
-                url: "http://127.0.0.1:4141",
-                async: true,
-                }).done(function () {
-                    alert("Request GET success");
-                })
-                .fail(function () {
-                    alert("Request GET fail");
-                });
-                */
         </script>
     </body>
 </html>
