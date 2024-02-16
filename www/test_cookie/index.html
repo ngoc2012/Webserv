@@ -37,10 +37,12 @@
                 .then(response => {
                     setCookieHeader = response.headers.get('set-cookies');
                     console.log('Cook first', setCookieHeader);
+                    //let data = response.json();
+                    //data["cookies"] = setCookieHeader;
                     return response.json(); // Parse JSON data
                 })
                 .then(data => {
-                    console.log(data["input"]);
+                    console.log(data);
                     //const setCookieHeader = data.headers.get('set-cookies');
                     //const setCookieHeader = "session_id=1; path=/"
                     //console.log(response);
