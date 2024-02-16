@@ -374,13 +374,13 @@ bool    Request::write_chunked()
         }
         _chunked_data = _chunked_data.substr(start_size);
         start_size = 0;
-        if (start_size >= _chunked_data.size() || (_content_length && _body_size >= _content_length))
+        if (_content_length && _body_size >= _content_length)
             break;
-        std::cout << "start_size: " << start_size << std::endl;
+        //std::cout << "start_size: " << start_size << std::endl;
         end_size = _chunked_data.find("\r\n", start_size);
     }
     std::cout << "body_size: " << _body_size << std::endl;
-    if (_chunked_data.find("\r\n0\r\n\r\n") != NPOS || (_content_length && _body_size >= _content_length))
+    if (_chunked_data.find("0\r\n\r\n") != NPOS || (_content_length && _body_size >= _content_length))
     {
         std::cout << "_end_chunked_body" << (_chunked_data.find("\r\n0\r\n\r\n") == NPOS) << ":";
         std::cout << _body_size << ":" << _content_length << std::endl;
