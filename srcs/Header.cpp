@@ -60,7 +60,7 @@ std::string	Header::generate(void)
 		if (_request->get_cgi() && _extension == "js")
 			str += "Content-Type: application/json\r\n";
         else if (_mimes->find(_extension) == _mimes->end())
-            str += "Content-Type: text/html\r\n";
+            str += "Content-Type: plain/text\r\n";
         else
             str += "Content-Type: " + (*_mimes)[_extension] + "\r\n";
     }

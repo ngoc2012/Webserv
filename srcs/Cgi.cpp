@@ -149,7 +149,7 @@ int    Cgi::execute()
 
 bool    Cgi::get_envs()
 {
-    std::cout << "Cgi get_envs" << std::endl;
+    //std::cout << "Cgi get_envs" << std::endl;
     std::vector<std::string>  envs;
 
     if (_request->get_method() == POST) {
@@ -184,7 +184,7 @@ bool    Cgi::get_envs()
     for (std::vector<std::string>::iterator it = envs.begin();
             it != envs.end(); it++)
     {
-        std::cout << *it << std::endl;
+        //std::cout << *it << std::endl;
         _envs[i++] = strdup(it->c_str());
     }
     _envs[i] = 0;

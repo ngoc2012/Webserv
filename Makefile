@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/02/12 14:40:27 by ngoc             ###   ########.fr        #
+#    Updated: 2024/02/16 11:59:23 by ngoc             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,12 +33,12 @@ gits:
 	git commit -m "all"
 	git push
 others:
-	./ubuntu_tester http://127.0.2.1:4242
-	./ubuntu_tester http://0.0.0.0:8012
-	curl -i -X GET http://127.0.2.1:4242
-	curl -i -X POST http://127.0.2.1:4242/directory/youpi.bla
-	curl -i -X POST http://0.0.0.0:8012/directory/youpi.bla
-	curl -X POST -H "Transfer-Encoding: chunked" --data-raw "$(dd if=/dev/urandom bs=10000 count=1 status=none | base64)" http://127.0.2.1:4242/directory/youpi.bla
+	#./ubuntu_tester http://127.0.2.1:4242
+	#./ubuntu_tester http://0.0.0.0:8012
+	#curl -i -X GET http://127.0.2.1:4242
+	#curl -i -X POST http://127.0.2.1:4242/directory/youpi.bla
+	#curl -i -X POST http://0.0.0.0:8012/directory/youpi.bla
+	curl -i -X POST -H "Transfer-Encoding: chunked" --data-raw "$$(dd if=/dev/urandom bs=1000 count=1 status=none | base64 | head -c 1000)" http://127.0.2.1:4242/directory/youpi.bla
 
 
 M:=

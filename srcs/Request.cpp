@@ -488,11 +488,6 @@ int     Request::end_request(void)
     if (_status_code == 200 && _cgi)
         _status_code = _cgi->execute();
     _end = true;
-    //if (_status_code == -1)
-    //{
-    //    delete _host;
-    //    exit(1);
-    //}
     return (1);
 }
 

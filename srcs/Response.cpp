@@ -201,7 +201,7 @@ int     Response::write_body()
         memcpy(buffer + s.size() + ret, "\r\n", 2);
         ret += s.size() + 2;
         buffer[ret] = 0;
-        std::cout << "here:" << buffer << std::endl;
+        //std::cout << "here:" << buffer << std::endl;
     }
     if (send(_socket, buffer, ret, 0) < 0)
         return (end_response());
