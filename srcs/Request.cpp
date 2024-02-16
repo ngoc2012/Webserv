@@ -372,6 +372,8 @@ bool    Request::write_chunked()
             _status_code = 500;
             return (false);
         }
+        _chunked_data = _chunked_data.substr(start_size);
+        start_size = 0;
         if (start_size >= _chunked_data.size() || (_content_length && _body_size >= _content_length))
             break;
         std::cout << "start_size: " << start_size << std::endl;
