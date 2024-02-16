@@ -191,13 +191,6 @@ int Request::receive_header(void)
     }
     _end_header = true;
     std::cout << "Request header: " << _header_size << std::endl;
-    //std::cout << _str_header << std::endl;
-    if (!_str_header.size())
-    {
-        std::cerr << MAGENTA << "Error: No header found." << RESET << std::endl;
-        _status_code = 400;	// Bad Request
-        return (end_request());
-    }
     _body_left = _str_header.size() - _header_size - 4;
     if (_body_left > 0)
     {
