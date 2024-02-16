@@ -174,6 +174,29 @@ So to save a macro `'x'`, you can do:
 
 ## Basic knowledge
 
+In a typical web server, the decision to close a connection depends on several factors, and it's often determined by the HTTP headers, connection headers, and the server's configuration. Here are some scenarios where a web server might close a connection:
+
+1. **Content-Length Header:** If the incoming HTTP request has a `Content-Length` header, it means the client is sending a request body. In this case, you would read the body until the specified content length, process the request, and then decide whether to keep the connection open for additional requests or close it. The decision may depend on server settings, HTTP version, and the specific requirements of your application.
+
+2. **Connection Header:** The `Connection` header in the HTTP request or response can specify whether the connection should be kept alive (`Connection: keep-alive`) or closed (`Connection: close`). If the client or server specifies `Connection: close`, it indicates that the connection should be closed after processing the current request/response.
+
+3. **Timeouts and Inactivity:** Web servers often implement connection timeouts to close idle connections after a certain period of inactivity. This helps free up resources on the server.
+
+4. **Error Handling:** If an error occurs during request processing, and the server cannot fulfill the request properly, it may respond with an error status code (e.g., 500 Internal Server Error) and close the connection.
+
+Here's a general flow for handling connections in a server:
+
+- Accept a new connection.
+- Read the HTTP request headers.
+- Based on headers, handle the request body (if any).
+- Process the request and generate a response.
+- Send the response to the client.
+- Based on headers and server settings, decide whether to keep the connection open or close it.
+
+In the case of HTTP/1.1, the default behavior is to keep the connection alive unless the client or server explicitly specifies otherwise.
+
+Always refer to the HTTP specifications (RFC 2616 for HTTP/1.1) for detailed information about header fields and connection handling: [RFC 2616 - Hypertext Transfer Protocol -- HTTP/1.1](https://datatracker.ietf.org/doc/html/rfc2616)
+
 [rfc9110](https://www.rfc-editor.org/rfc/rfc9110.html)
 
 ### How the netcat command `nc` works:

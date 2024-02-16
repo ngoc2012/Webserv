@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/02/16 11:59:23 by ngoc             ###   ########.fr        #
+#    Updated: 2024/02/16 13:46:10 by ngoc             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -51,6 +51,7 @@ gitd:
 	git add www
 	git add tester
 	git add webserv-master
+	git add README.md
 	#git commit -m "all"
 	#git add -A -- :!*.o :!*.swp :!*.env
 	git commit -m "$(M)"
