@@ -167,10 +167,6 @@ int Request::receive_header(void)
     _str_header = _buffer;
     std::cout << "============================================" << std::endl;
     std::cout << "`" << _str_header << "`" << std::endl;
-    //std::cout << "********************************************" << std::endl;
-    //std::cout << "`" << _buffer << "`" << std::endl;
-    //std::cout << "********************************************" << std::endl;
-
     _header_size = _str_header.find("\r\n\r\n");
     /*
     std::cout << "The buffer:" << std::endl;
