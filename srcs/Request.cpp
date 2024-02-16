@@ -195,10 +195,9 @@ int Request::receive_header(void)
     if (_body_left > 0)
     {
         std::cout << "Body left: " << _body_left << std::endl;
-        std::string     body = _str_header.substr(_header_size + 4);
-        std::cout << "Body: `" << body << "`" << std::endl;
-        std::memcpy(_buffer, body.c_str(), _body_left);
+        std::memmove(_buffer, _buffer + _header_size + 4, _body_left);
         _buffer[_body_left] = 0;
+        std::cout << "Body: `" << _buffer << "`" << std::endl;
     }
     
     std::cout << "End receive header with status code " << _status_code << std::endl;
