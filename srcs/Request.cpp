@@ -175,7 +175,7 @@ int Request::receive_header(void)
     }
     _host->set_sk_timeout(_socket);
     _buffer[ret] = 0;
-    _str_header = _buffer;
+    _str_header += _buffer;
     std::cout << "============================================" << std::endl;
     std::cout << "`" << _str_header << "`" << std::endl;
     _header_size = _str_header.find("\r\n\r\n");
@@ -191,10 +191,14 @@ int Request::receive_header(void)
     */
     if (_header_size == NPOS)
     {
-        ft::timestamp();
-        std::cerr << MAGENTA << "Error: No end header found or header too big.\n" << RESET << std::endl;
-        _status_code = 400;	// Bad Request
-        return (end_request());
+        if (_str_header.size() > _header_buffer)
+        {
+            ft::timestamp();
+            std::cerr << MAGENTA << "Error: No end header found or header too big.\n" << RESET << std::endl;
+            _status_code = 400;	// Bad Request
+            return (end_request());
+        }
+        return (ret);
     }
     _end_header = true;
     std::cout << "Request header: " << _header_size << std::endl;
