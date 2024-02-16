@@ -160,8 +160,19 @@ int Request::receive_header(void)
 {
     int ret = recv(_socket, _buffer, _header_buffer, 0);
     std::cout << "receive_header: ret=" << ret << std::endl;
-    if (ret <= 0)
+    if (ret < 0)
         return (ret);
+    if (!ret)
+    {
+        if (_str_header.size())
+        {
+            std::cerr << MAGENTA << "Error: No end header found." << RESET << std::endl;
+            _status_code = 400;	// Bad Request
+            return (end_request());
+        }
+        else
+            return (ret);
+    }
     _host->set_sk_timeout(_socket);
     _buffer[ret] = 0;
     _str_header = _buffer;
