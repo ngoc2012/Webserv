@@ -13,9 +13,10 @@ process.stdin.on('data', function(data) {
     // Process the input as needed
     //console.log("Received input:", input);
 
-    //output["input"] = input;
+    output["input"] = input;
     
     //console.log(input);
+    /*
     jason = JSON.parse(input);
 
     fs.access(path, fs.constants.F_OK, (err) => 
@@ -70,7 +71,7 @@ process.stdin.on('data', function(data) {
                             console.log("Data saved to save.json successfully! ---- (signup)");
                     });
                     //output["input"] = jason;
-                    output["input"] = input;
+                    //output["input"] = jason;
                 }
             }
             else if (jason["action"] == "signout") 
@@ -98,7 +99,7 @@ process.stdin.on('data', function(data) {
         }
     });
     output["input"] = input;
-
+*/
     // You can perform any other operations with the input here
 });
 
