@@ -359,6 +359,7 @@ bool    Request::write_chunked()
                 _status_code = 500;
                 return (false);
             }
+            _body_size += len;
             _chunk_size -= len;
             _chunked_data = "";
             return (true);
