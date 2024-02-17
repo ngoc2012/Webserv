@@ -361,6 +361,7 @@ bool    Request::write_chunked()
             }
             _body_size += len;
             _chunk_size -= len;
+            std::cout << "body_size: " << _body_size << ", _chunk_size = " << _chunk_size << std::endl;
             _chunked_data = "";
             return (true);
         }
