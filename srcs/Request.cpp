@@ -337,7 +337,7 @@ bool    Request::write_chunked()
         read_chunk = _chunked_data.find("\r\n", data_position);
     }
     size_t      end_size = _chunked_data.find("\r\n");
-    while (_chunked_data != "")
+    while (end_size != NPOS && _chunked_data != "")
     {
         if (_chunk_size <= 0)
         {
