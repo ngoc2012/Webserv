@@ -332,6 +332,10 @@ bool    Request::write_chunked()
         _status_code = 400;
         return (false);
     }
+    if (_chunk_size > 0)
+    {
+        read_chunk = _chunked_data.find("\r\n", data_position);
+    }
     size_t      end_size = _chunked_data.find("\r\n");
     while (end_size != NPOS)
     {
