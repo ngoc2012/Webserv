@@ -49,6 +49,7 @@ Request::Request(int sk, Host* h, Address* a) : _socket(sk), _host(h), _address(
     _body_buffer = _host->get_client_body_buffer_size() * KILOBYTE;
     _header_buffer = _host->get_large_client_header_buffer() * KILOBYTE;
     _buffer_size = MAX(_header_buffer, _body_buffer);
+    _chunk_size = 0;
     std::cout << "_body_buffer: " << _body_buffer << std::endl;
     std::cout << "_header_buffer: " << _header_buffer << std::endl;
     std::cout << "_buffer_size: " << _buffer_size << std::endl;
@@ -318,7 +319,6 @@ bool    Request::write_chunked()
 {
     size_t		start_size = 0;
     size_t		data_position = 0;
-    size_t      chunk_size = 0;
     size_t      read_chunk;
 
     //std::cout << "write_chunked" << _buffer << std::endl;
@@ -334,7 +334,7 @@ bool    Request::write_chunked()
     size_t      end_size = _chunked_data.find("\r\n");
     while (end_size != NPOS)
     {
-        chunk_size = ft::atoi_base(_chunked_data.substr(start_size, end_size - start_size).c_str(), "0123456789abcdef");
+        _chunk_size = ft::atoi_base(_chunked_data.substr(start_size, end_size - start_size).c_str(), "0123456789abcdef");
         std::cout << "chunk_size: " << _chunked_data.substr(start_size, end_size - start_size) << ":" << chunk_size << std::endl;
         data_position = end_size + 2;
         std::cout << "data_position: " << data_position << std::endl;
