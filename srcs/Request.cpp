@@ -333,7 +333,7 @@ bool    Request::write_chunked()
         return (false);
     }
     size_t      end_size = _chunked_data.find("\r\n");
-    while (end_size != NPOS)
+    do
     {
         if (_chunk_size <= 0)
         {
@@ -393,7 +393,7 @@ bool    Request::write_chunked()
             break;
         //std::cout << "start_size: " << start_size << std::endl;
         end_size = _chunked_data.find("\r\n", start_size);
-    }
+    } while (end_size != NPOS)
     std::cout << "body_size: " << _body_size << std::endl;
     if (_chunked_data.find("0\r\n\r\n") != NPOS || (_content_length && _body_size >= _content_length))
     {
