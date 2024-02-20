@@ -92,7 +92,7 @@ int    Cgi::execute()
         std::cerr << "Error: CGI fd_out open error." << std::endl;
         return 500;
     }
-
+    std::cerr << "Cgi _fd_out:" << _fd_out << std::endl;
     response->set_fd_out(_fd_out);
 
     _pid = fork();
