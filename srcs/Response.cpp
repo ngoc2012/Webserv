@@ -75,7 +75,7 @@ void     Response::write_header()
         {
 
         }
-        if (_request->get_method() == GET && _request)
+        if (_request->get_method() == GET && !_request.get_cgi())
             get_file_size();
     }
     if (_status_code != 200)
