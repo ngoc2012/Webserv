@@ -71,12 +71,18 @@ void     Response::write_header()
         header.set_allow(_request->get_location()->get_methods_str());
     if (_status_code == 200)
     {
-        if (_fd_out != -1)
-        {
-
-        }
-        if (_request->get_method() == GET && !_request.get_cgi())
+        if (_request->get_method() == GET && !_request->get_cgi())
             get_file_size();
+        else if (_fd_out != -1)
+        {
+            struct stat fileStat;
+            if (fstat(_fd_out, &fileStat) == -1) {
+                _status_code = 500;
+                std::cerr << "Error getting file information" << std::endl;
+            }
+            else
+                _content_length = fileStat.st_size;
+        }
     }
     if (_status_code != 200)
     {
@@ -157,7 +163,6 @@ void     Response::get_file_size()
         return ;
     }
     _content_length = fileStat.st_size;
-    //std::cout << "get_file_size _content_length: " << _content_length << std::endl;
 }
 
 int     Response::write_body()
@@ -214,9 +219,7 @@ int     Response::write_body()
 
 int     Response::end_response(void)
 {
-    int     status;
-    if (_request->get_cgi() && _request->get_cgi()->get_pid() != -1)
-        waitpid(_request->get_cgi()->get_pid(), &status, 0);
+    
     //std::cout << "end_response " << _socket << " " << _full_file_name << std::endl;
     if (_fd_out > 0)
         close(_fd_out);

@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/02/16 15:55:53 by minh-ngu         ###   ########.fr        #
+#    Updated: 2024/02/20 14:33:35 by minh-ngu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,9 +23,9 @@ all:	$(MANDA)
 $(MANDA): $(SRCS) $(OBJS) $(INCS)
 	$(CC) $(FLAGS) $(OBJS) -o $(MANDA)
 test:
-	clear && make re && make clean && ./webserv
+	clear && make re && make clean && ./webserv 2>&1 | tee logs
 test0:
-	clear && make re && make clean && valgrind --track-origins=yes --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv
+	clear && make re && make clean && valgrind --track-origins=yes --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv 2>&1 | tee logs
 gits:
 	git add Makefile
 	git add *.cpp
@@ -39,8 +39,9 @@ others:
 	#curl -i -X GET http://127.0.2.1:4242
 	#curl -i -X POST http://127.0.2.1:4242/directory/youpi.bla
 	#curl -i -X POST http://0.0.0.0:8012/directory/youpi.bla
-	curl -i -X POST -H "Transfer-Encoding: chunked" --data-raw "$$(dd if=/dev/urandom bs=20000 count=1 status=none | base64 | tr -d '\n' | head -c 20000)" http://127.0.2.1:4242/directory/youpi.bla
-
+	#curl -i -X POST -H "Transfer-Encoding: chunked" --data-raw "$$(dd if=/dev/urandom bs=20000 count=1 status=none | base64 | tr -d '\n' | head -c 20000)" http://127.0.2.1:4242/directory/youpi.bla
+js:	
+	curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.0.1:4141/hello.js
 
 M:=
 gitd:

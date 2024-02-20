@@ -33,6 +33,7 @@ Cgi::Cgi(Request* request): _request(request)
 {
     _envs = 0;
     _pid = -1;
+    _tmp_file = "";
 }
 Cgi::Cgi(const Cgi& src) { *this = src; }
 Cgi&	Cgi::operator=( Cgi const & src )
@@ -50,6 +51,8 @@ Cgi::~Cgi()
             free(_envs[i++]);
         delete[] _envs;
     }
+    if (_tmp_file != "" && std::remove(_tmp_file.c_str()))
+        std::cerr << MAGENTA << "Error: Can not delete file " << _tmp_file << RESET << std::endl;
 }
 
 int    Cgi::execute()
@@ -66,12 +69,24 @@ int    Cgi::execute()
 
     std::cout << "Cgi execute" << std::endl;
     
-    int pipe_in[2];
-    int pipe_out[2];
+    int pip[2];
     
-    if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1) {
+    if (pipe(pip) == -1) {
         std::cerr << "Error: pipe" << std::endl;
         perror("pipe");
+        return 500;
+    }
+
+    _tmp_file = "/tmp/1";
+    struct stat buffer;
+    int i = 0;
+    while (stat(_tmp_file.c_str(), &buffer) == 0)
+        _tmp_file = "/tmp/" + ft::itos(++i);
+    int     fd_out;
+    fd_out = open(_tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0664);
+    if (fd_out == -1)
+    {
+        std::cerr << "Error: CGI fd_out open error." << std::endl;
         return 500;
     }
 
@@ -84,12 +99,12 @@ int    Cgi::execute()
     }
     else if (!_pid)
     {
-        close(pipe_in[1]);
-        dup2(pipe_in[0], STDIN_FILENO);
-        close(pipe_in[0]);
-        close(pipe_out[0]);
-        dup2(pipe_out[1], STDOUT_FILENO);
-        close(pipe_out[1]);
+        close(pip[1]);
+        if (dup2(pip[0], STDIN_FILENO) == -1)
+            return (-1);
+        if (dup2(fd_out, STDOUT_FILENO) == -1)
+            return 500;
+        close(pip[0]);
         //std::cout << _pass.c_str() << std::endl;
         //std::cout << _file.c_str() << std::endl;
         
@@ -102,15 +117,14 @@ int    Cgi::execute()
         //execlp("cat", "cat", nullptr);
         
         std::cerr << "Execution error" << std::endl;
-        return (-1);
+        return (500);
     }
     else
     {
         char    buffer[BUFFER_SIZE + 1];
         ssize_t bytesRead;
 
-        close(pipe_in[0]);
-        close(pipe_out[1]);
+        close(pip[0]);
         int     fd_in = _request->get_fd_in();
         if (fd_in != -1)
         {
@@ -133,6 +147,11 @@ int    Cgi::execute()
             close(fd_in);
         }
         close(pipe_in[1]);
+        int     status;
+        if (waitpid(_pid, &status, 0) == -1)
+            return 500;
+        if (WIFEXITED(status) && WEXITSTATUS(status))
+            return 502;
         /*
         std::cerr << "fork output" << std::endl;
         while ((bytesRead = read(pipe_out[0], buffer, BUFFER_SIZE)) > 0)
@@ -142,7 +161,7 @@ int    Cgi::execute()
         }
         close(pipe_out[0]);
         */
-        _request->get_response()->set_fd_out(pipe_out[0]);
+        _request->get_response()->set_fd_out(fd_out);
         return 200;
     }
 }

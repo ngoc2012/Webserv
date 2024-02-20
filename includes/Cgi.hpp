@@ -25,6 +25,7 @@ class	Cgi
 		Request*        _request;
         char**          _envs;
         int             _pid;
+        std::string     _tmp_file;
 
         bool            get_envs();
 

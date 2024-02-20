@@ -328,9 +328,9 @@ bool    Request::write_chunked()
     std::cout << " `" << _chunked_data << "`" << std::endl;
     if (!_chunked_data.size())
     {
-        std::cerr << "Error: No chunked data." << std::endl;
-        _status_code = 400;
-        return (false);
+        std::cout << "No chunked data." << std::endl;
+        _end_chunked_body = true;
+        return (true);
     }
     if (_chunk_size > 0)
     {
@@ -447,7 +447,7 @@ bool	Request::check_session()
 void	Request::process_fd_in()
 {
     //std::cout << "process_fd_in" << std::endl;
-    int i = 0;
+    
     switch (_method)
     {
 		case OPTIONS:
@@ -464,6 +464,7 @@ void	Request::process_fd_in()
             }
             break;
         case POST:
+            int i = 0;
             _tmp_file = "/tmp/0";
             struct stat buffer;
             while (stat(_tmp_file.c_str(), &buffer) == 0)
@@ -495,6 +496,10 @@ int     Request::end_request(void)
     _response.set_status_code(_status_code);
     if (_status_code == 200 && _cgi)
         _status_code = _cgi->execute();
+    if (_cgi)
+    {
+        
+    }
     _end = true;
     return (1);
 }
