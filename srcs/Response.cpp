@@ -193,25 +193,11 @@ int     Response::write_body()
     int ret = read(_fd_out, buffer, RESPONSE_BUFFER * 1028);
     //std::cout << _request->get_cgi() << std::endl;
     if (ret <= 0)
-    {
-        if (_request->get_cgi())
-            send(_socket, "0\r\n\r\n", 5, 0);
         return (end_response());
-    }
     
     buffer[ret] = 0;
     std::cout << ret << ":" << buffer << std::endl;
     _body_size += ret;
-    if (_request->get_cgi())
-    {
-        std::string     s = ft::itoa_base(ret, "0123456789abcdef") + "\r\n";
-        memmove(buffer + s.size(), buffer, ret);
-        memcpy(buffer, s.c_str(), s.size());
-        memcpy(buffer + s.size() + ret, "\r\n", 2);
-        ret += s.size() + 2;
-        buffer[ret] = 0;
-        //std::cout << "here:" << buffer << std::endl;
-    }
     if (send(_socket, buffer, ret, 0) < 0)
         return (end_response());
     return (0);

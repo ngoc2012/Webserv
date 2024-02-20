@@ -66,18 +66,14 @@ std::string	Header::generate(void)
     }
     else
     	str += "Content-Type: text/html\r\n";
-    if (_status_code == 200 &&_response->get_request()->get_cgi())
-        str += "Transfer-Encoding: chunked\r\n";
-    else
-	{
+    if (_response->get_content_length() > 0)
         str += "Content-Length: " + ft::itos(_response->get_content_length()) + "\r\n";
-	}
-	std::cout << "===============" << _session_id << std::endl;
-	if (_session_id != "")
-		str += "Set-Cookies: session_id=" + _session_id + "\r\n";
+    std::cout << "===============" << _session_id << std::endl;
+    if (_session_id != "")
+        str += "Set-Cookies: session_id=" + _session_id + "\r\n";
     str += "Date: " + get_current_time() + "\r\n";
-	str += "server: webserv\r\n\r\n";
-	return (str);
+    str += "server: webserv\r\n\r\n";
+    return (str);
 }
 
 void	Header::init(void)

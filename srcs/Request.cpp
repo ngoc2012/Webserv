@@ -326,7 +326,7 @@ bool    Request::write_chunked()
     //std::cout << "write_chunked" << _buffer << std::endl;
     _chunked_data += std::string(_buffer);
     std::cout << "_chunked_data: (" << _chunked_data.size() << ")" << std::endl;
-    std::cout << " `" << _chunked_data << "`" << std::endl;
+    //std::cout << " `" << _chunked_data << "`" << std::endl;
     if (!_chunked_data.size())
     {
         std::cout << "No chunked data." << std::endl;
@@ -336,6 +336,39 @@ bool    Request::write_chunked()
     if (_chunk_size > 0)
     {
         read_chunk = _chunked_data.find("\r\n", data_position);
+        if (read_chunk == NPOS)
+        {
+            len = _chunked_data.size() - data_position;
+            if (write(_fd_in, &_chunked_data.c_str()[data_position], len) == -1)
+            {
+                std::cerr << "Error: Write fd in error 2." << std::endl;
+                _status_code = 500;
+                return (false);
+            }
+            _body_size += len;
+            _chunk_size -= len;
+            std::cout << "body_size: " << _body_size << ", _chunk_size = " << _chunk_size << std::endl;
+            _chunked_data = "";
+            return (true);
+        }
+        else
+        {
+            _body_size += read_chunk;
+            if (_body_size > _body_max)
+            {
+                _status_code = 400;
+                std::cerr << RED << "Error: Content length bigger than body_max: " << _body_max << RESET << std::endl;
+                return (false);
+            }
+            if (write(_fd_in, _chunked_data.c_str(), read_chunk) == -1)
+            {
+                std::cerr << "Error: Write fd in error 2." << std::endl;
+                _status_code = 500;
+                return (false);
+            }
+            _chunk_size = 0;
+            _chunked_data = _chunked_data.substr(read_chunk + 2);
+        }
     }
     size_t      end_size = _chunked_data.find("\r\n");
     while (end_size != NPOS && _chunked_data != "")
