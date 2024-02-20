@@ -51,8 +51,11 @@ Cgi::~Cgi()
             free(_envs[i++]);
         delete[] _envs;
     }
+    if (_fd_out != -1)
+        close(_fd_out);
     if (_tmp_file != "" && std::remove(_tmp_file.c_str()))
         std::cerr << MAGENTA << "Error: Can not delete file " << _tmp_file << RESET << std::endl;
+    _request->get_response()->set_fd_out(-1);
 }
 
 int    Cgi::execute()
@@ -90,7 +93,7 @@ int    Cgi::execute()
         return 500;
     }
 
-    
+    response->set_fd_out(fd_out);
 
     _pid = fork();
 
@@ -163,8 +166,7 @@ int    Cgi::execute()
         }
         close(pipe_out[0]);
         */
-        _request->get_response()->set_fd_out(fd_out);
-        response->set_fd_out(fd_out);
+        
         return 200;
     }
 }
