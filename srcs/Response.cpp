@@ -188,7 +188,7 @@ int     Response::write_body()
     }
     if (_fd_out == -1)
         return (end_response());
-    //std::cerr << "_fd_out:" << _fd_out << std::endl;
+    std::cerr << "Response _fd_out:" << _fd_out << std::endl;
     char	buffer[RESPONSE_BUFFER * 1028 + 20];
     int ret = read(_fd_out, buffer, RESPONSE_BUFFER * 1028);
     //std::cout << _request->get_cgi() << std::endl;
@@ -200,7 +200,7 @@ int     Response::write_body()
     }
     
     buffer[ret] = 0;
-    //std::cout << ret << ":" << buffer;
+    std::cout << ret << ":" << buffer << std::endl;
     _body_size += ret;
     if (_request->get_cgi())
     {
