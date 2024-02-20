@@ -158,6 +158,7 @@ int    Cgi::execute()
             return 500;
         if (WIFEXITED(status) && WEXITSTATUS(status))
             return 502;
+        std::cout << "Cgi output: " << status << std::endl;
         /*
         std::cerr << "fork output" << std::endl;
         while ((bytesRead = read(pipe_out[0], buffer, BUFFER_SIZE)) > 0)
