@@ -90,6 +90,8 @@ int    Cgi::execute()
         return 500;
     }
 
+    
+
     _pid = fork();
 
     if (_pid == -1)
@@ -162,6 +164,7 @@ int    Cgi::execute()
         close(pipe_out[0]);
         */
         _request->get_response()->set_fd_out(fd_out);
+        response->set_fd_out(fd_out);
         return 200;
     }
 }
