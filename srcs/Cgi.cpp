@@ -137,7 +137,7 @@ int    Cgi::execute()
             {
                 buffer[bytesRead] = 0;
                 //std::cout << buffer;
-                if (write(pipe_in[1], buffer, bytesRead) == -1)
+                if (write(pip[1], buffer, bytesRead) == -1)
                 {
                     std::cerr << "Error: write pipe in" << std::endl;
                     return 500;
@@ -146,7 +146,7 @@ int    Cgi::execute()
             //std::cout << std::endl;
             close(fd_in);
         }
-        close(pipe_in[1]);
+        close(pip[1]);
         int     status;
         if (waitpid(_pid, &status, 0) == -1)
             return 500;
