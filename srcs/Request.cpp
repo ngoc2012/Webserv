@@ -203,10 +203,11 @@ int Request::receive_header(void)
     _end_header = true;
     std::cout << "Request header: " << _header_size << std::endl;
     _body_left = _str_header.size() - _header_size - 4;
+    std::string body_left = _str_header.substr(_str_header.size() - _header_size - 4);
     if (_body_left > 0)
     {
         std::cout << "Body left: " << _body_left << std::endl;
-        std::memmove(_buffer, _buffer + _header_size + 4, _body_left);
+        std::memmove(_buffer, body_left.c_str(), _body_left);
         _buffer[_body_left] = 0;
         std::cout << "Body: `" << _buffer << "`" << std::endl;
     }
