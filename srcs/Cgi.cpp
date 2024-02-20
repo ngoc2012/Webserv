@@ -118,7 +118,6 @@ int    Cgi::execute()
         argv[1] = (char*) _file.c_str();
         argv[2] = 0;
         //execve(argv[0], argv, _envs);
-        std::cout << "Cgi child" << std::endl;
         execve(argv[0], argv, _envs);
         //execlp("cat", "cat", nullptr);
         
@@ -159,10 +158,11 @@ int    Cgi::execute()
         if (WIFEXITED(status) && WEXITSTATUS(status))
             return 502;
         std::cout << "Cgi output: " << status << std::endl;
-        if (lseek(fd_in, 0, SEEK_SET) == -1) {
-                std::cerr << "Error: using lseek" << std::endl;
-                return 500;
-            }
+        if (lseek(_fd_out, 0, SEEK_SET) == -1)
+        {
+            std::cerr << "Error: cgi _fd_out using lseek" << std::endl;
+            return 500;
+        }
         /*
         std::cerr << "fork output" << std::endl;
         while ((bytesRead = read(pipe_out[0], buffer, BUFFER_SIZE)) > 0)
