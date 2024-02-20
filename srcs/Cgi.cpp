@@ -118,6 +118,7 @@ int    Cgi::execute()
         argv[1] = (char*) _file.c_str();
         argv[2] = 0;
         //execve(argv[0], argv, _envs);
+        std::cout << "Cgi child" << std::endl;
         execve(argv[0], argv, _envs);
         //execlp("cat", "cat", nullptr);
         
