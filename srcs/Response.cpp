@@ -71,6 +71,10 @@ void     Response::write_header()
         header.set_allow(_request->get_location()->get_methods_str());
     if (_status_code == 200)
     {
+        if (_fd_out != -1)
+        {
+            
+        }
         if (_request->get_method() == GET)
             get_file_size();
     }
