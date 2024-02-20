@@ -447,7 +447,7 @@ bool	Request::check_session()
 void	Request::process_fd_in()
 {
     //std::cout << "process_fd_in" << std::endl;
-    
+    int i = 0;
     switch (_method)
     {
 		case OPTIONS:
@@ -464,7 +464,6 @@ void	Request::process_fd_in()
             }
             break;
         case POST:
-            int i = 0;
             _tmp_file = "/tmp/0";
             struct stat buffer;
             while (stat(_tmp_file.c_str(), &buffer) == 0)
