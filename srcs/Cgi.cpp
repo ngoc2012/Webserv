@@ -159,6 +159,10 @@ int    Cgi::execute()
         if (WIFEXITED(status) && WEXITSTATUS(status))
             return 502;
         std::cout << "Cgi output: " << status << std::endl;
+        if (lseek(fd_in, 0, SEEK_SET) == -1) {
+                std::cerr << "Error: using lseek" << std::endl;
+                return 500;
+            }
         /*
         std::cerr << "fork output" << std::endl;
         while ((bytesRead = read(pipe_out[0], buffer, BUFFER_SIZE)) > 0)
