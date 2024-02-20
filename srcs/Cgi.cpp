@@ -43,7 +43,6 @@ Cgi&	Cgi::operator=( Cgi const & src )
 }
 Cgi::~Cgi()
 {
-    
     if (_envs)
     {
         int i = 0;
@@ -52,10 +51,12 @@ Cgi::~Cgi()
         delete[] _envs;
     }
     if (_fd_out != -1)
+    {
+        _request->get_response()->set_fd_out(-1);
         close(_fd_out);
+    }
     if (_tmp_file != "" && std::remove(_tmp_file.c_str()))
         std::cerr << MAGENTA << "Error: Can not delete file " << _tmp_file << RESET << std::endl;
-    _request->get_response()->set_fd_out(-1);
 }
 
 int    Cgi::execute()
@@ -85,15 +86,14 @@ int    Cgi::execute()
     int i = 0;
     while (stat(_tmp_file.c_str(), &buffer) == 0)
         _tmp_file = "/tmp/" + ft::itos(++i);
-    int     fd_out;
-    fd_out = open(_tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0664);
-    if (fd_out == -1)
+    _fd_out = open(_tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0664);
+    if (_fd_out == -1)
     {
         std::cerr << "Error: CGI fd_out open error." << std::endl;
         return 500;
     }
 
-    response->set_fd_out(fd_out);
+    response->set_fd_out(_fd_out);
 
     _pid = fork();
 
@@ -107,7 +107,7 @@ int    Cgi::execute()
         close(pip[1]);
         if (dup2(pip[0], STDIN_FILENO) == -1)
             return (-1);
-        if (dup2(fd_out, STDOUT_FILENO) == -1)
+        if (dup2(_fd_out, STDOUT_FILENO) == -1)
             return 500;
         close(pip[0]);
         //std::cout << _pass.c_str() << std::endl;
