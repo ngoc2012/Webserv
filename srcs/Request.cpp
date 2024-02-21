@@ -299,16 +299,16 @@ int     Request::read_body()
     _buffer[ret] = 0;
     _host->set_sk_timeout(_socket);
     if (_chunked)
-        write_chunked();
-    else
     {
-        //std::cout << "_body_size: " << _body_size << std::endl;
-        _body_size += ret;
-        if (ret > 0 && write(_fd_in, _buffer, ret) == -1)
-            return (end_request());
-        if (_body_size >= _content_length)
-            return (end_request());
+        write_chunked();
+        return (ret);
     }
+    //std::cout << "_body_size: " << _body_size << std::endl;
+    _body_size += ret;
+    if (ret > 0 && write(_fd_in, _buffer, ret) == -1)
+        return (end_request());
+    if (_body_size >= _content_length)
+        return (end_request());
     return (ret);
 }
 
