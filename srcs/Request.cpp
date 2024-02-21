@@ -131,7 +131,7 @@ int     Request::read_header()
     {
         std::cout << "Write body left to fd_in, body_left=" << _body_left << std::endl;
         if (_chunked)
-            write_chunked();
+            write_chunked(true);
         else
         {
             // Écrire le contenu de _buffer[] dans le fichier associé à _fd_in
