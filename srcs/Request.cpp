@@ -378,7 +378,7 @@ void    Request::write_chunked(bool read_buffer)
         _chunk_size -= len;
         read_size -= len;
         _read_data.erase(0, len);
-        if (!_read_data.size())
+        if (!read_size)
             return ;
     }
     find_chunk_size(_read_data, cs);
@@ -393,6 +393,7 @@ void    Request::write_chunked(bool read_buffer)
     }
     _read_data.erase(0, cs.end);
     std::cout << "After erase: " << _read_data.substr(0, 100) << std::endl;
+    read_size = _read_data.size();
     if (_read_data.size() > 0)
         write_chunked(false);
 }
