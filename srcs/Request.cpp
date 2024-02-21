@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/21 11:02:59 by minh-ngu         ###   ########.fr       */
+/*   Updated: 2024/02/21 11:05:20 by minh-ngu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -315,7 +315,7 @@ int     Request::read_body()
     return (ret);
 }
 
-static struct  chunk_size_s
+struct  chunk_size_s
 {
     size_t  start;
     size_t  end;
@@ -332,6 +332,7 @@ static void find_chunk_size(std::string &s, chunk_size_s &cs)
     if (cs.end == NPOS)
         return ;
     cs.value = ft::atoi_base(s.substr(cs.start, cs.end - cs.start - 2).c_str(), "0123456789abcdef");
+    cs.end += 2;
     return ;
 }
 
@@ -350,7 +351,7 @@ bool    Request::write_chunked()
     read_size = _read_data.size();
     if (!read_size)
     {
-        std::cerr << RET << "Error: No chunked data received." << RESET << std::endl;
+        std::cerr << RED << "Error: No chunked data received." << RESET << std::endl;
         _end_chunked_body = true;
         return (true);
     }
@@ -361,7 +362,7 @@ bool    Request::write_chunked()
             len = read_size;
         if (write(_fd_in, _read_data.c_str(), len) == -1)
         {
-            std::cerr << RET << "Error: Chunked data: Write fd in error(1)." << RESET << std::endl;
+            std::cerr << RED << "Error: Chunked data: Write fd in error(1)." << RESET << std::endl;
             _status_code = 500;
             return (false);
         }
