@@ -30,6 +30,7 @@ class	Cgi
         int             _status_code;
         std::string     _status_message;
         std::string     _content_type;
+        size_t          _content_length;
 
         bool            get_envs();
 

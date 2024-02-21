@@ -34,6 +34,7 @@ Cgi::Cgi(Request* request): _request(request)
     _envs = 0;
     _pid = -1;
     _tmp_file = "";
+    _content_length = 0;
 }
 Cgi::Cgi(const Cgi& src) { *this = src; }
 Cgi&	Cgi::operator=( Cgi const & src )
@@ -216,10 +217,21 @@ int    Cgi::parse_header()
         return 500;
     }
     off_t body_start = pos + 4;
-    if (lseek(_fd_out, body_start, SEEK_SET) == -1) {
+    if (lseek(_fd_out, body_start + 1, SEEK_SET) == -1) {
         std::cerr << "Error: failed to position _fd_out at the beginning of the body" << std::endl;
         return 500;
     }
+    struct stat fileStat;
+    if (fstat(_fd_out, &fileStat) == -1)
+    {
+        std::cerr << RED << "Error: Cgi getting file information" << std::endl;
+        return 500;
+        
+    }
+    _content_length = fileStat.st_size - body_start;
+    // ret = read(_fd_out, buffer, 4);
+    // buffer[ret] = '\0';
+    // std::cout << "`" << buffer << "`" << std::endl;
     return 200;
 }
 
