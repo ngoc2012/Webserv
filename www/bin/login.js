@@ -41,6 +41,8 @@ process.stdin.on('data', function(data_in) {
 });
 
 process.stdin.on('end', function() {
+    console.log ("Status: 200 OK\r\n");
+    console.log ("Content-Type: plain/text; charset=utf-8\r\n\r\n");
     console.log(JSON.stringify(output));
 });
 

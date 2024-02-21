@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/26 10:56:20 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/21 10:59:06 by nbechon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,9 @@ class	Cgi
         int             _pid;
         std::string     _tmp_file;
         int             _fd_out;
+        int             _status_code;
+        std::string     _status_message;
+        std::string     _content_type;
 
         bool            get_envs();
 

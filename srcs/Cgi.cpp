@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/12 09:56:34 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/21 11:28:24 by nbechon          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,16 +169,45 @@ int    Cgi::parse_header()
     char            buffer[BUFFER_SIZE + 1];
     ssize_t         ret;
     size_t          pos;
+    bool            header_complete = false;
 
     if (lseek(_fd_out, 0, SEEK_SET) == -1)
     {
         std::cerr << "Error: cgi _fd_out using lseek" << std::endl;
         return 500;
     }
-    while ((ret = read(_fd_out, buffer, BUFFER_SIZE)) > 0 && header.find("\r\n\r\n") != NPOS)
-    {
-        buffer[ret] = 0;
+    while ((ret = read(_fd_out, buffer, BUFFER_SIZE)) > 0 && !header_complete) {
+        buffer[ret] = '\0';
         header += buffer;
+        pos = header.find("\r\n\r\n");
+        if (pos != std::string::npos) {
+            header_complete = true;
+            header = header.substr(0, pos + 4);
+        }
+    }
+    size_t status_pos = header.find("Status: ");
+    if (status_pos != std::string::npos) {
+        size_t code_start = status_pos + strlen("Status: ");
+        size_t code_end = header.find(" ", code_start);
+        if (code_end != std::string::npos) {
+            std::string code_str = header.substr(code_start, code_end - code_start);
+            _status_code = atoi(code_str.c_str());
+            size_t message_start = code_end + 1;
+            size_t message_end = header.find("\n", message_start);
+            if (message_end != std::string::npos) {
+                _status_message = header.substr(message_start, message_end - message_start);
+            }
+        }
+    }
+    size_t content_type_pos = header.find("Content-Type: ");
+    if (content_type_pos != std::string::npos) {
+        size_t value_start = content_type_pos + strlen("Content-Type: ");
+        size_t space_pos = header.find(" ", value_start);
+        if (space_pos != std::string::npos) {
+            _content_type = header.substr(value_start, space_pos - value_start);
+        } else {
+            _content_type = header.substr(value_start);
+        }
     }
     pos = header.find("\r\n\r\n");
     if (header == "" || pos == NPOS)
@@ -186,9 +215,9 @@ int    Cgi::parse_header()
         std::cerr << RED << "Error: No header found in cgi _fd_out" << RESET << std::endl;
         return 500;
     }
-    if (lseek(_fd_out, 0, SEEK_SET) == -1)
-    {
-        std::cerr << "Error: cgi _fd_out using lseek" << std::endl;
+    off_t body_start = pos + 4;
+    if (lseek(_fd_out, body_start, SEEK_SET) == -1) {
+        std::cerr << "Error: failed to position _fd_out at the beginning of the body" << std::endl;
         return 500;
     }
     return 200;
