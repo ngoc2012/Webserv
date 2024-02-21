@@ -46,6 +46,7 @@ class	Request
 		size_t		    _content_length;
 		bool		    _close;
 		bool		    _end_header;
+		bool		    _start_chunked_body;
 		bool		    _end_chunked_body;
 		bool		    _end;
 		std::string	    _read_data;
@@ -76,7 +77,7 @@ class	Request
 
 		void		    process_fd_in(void);
         int 	        read_body();
-        void 	        write_chunked(bool, std::string);
+        void 	        write_chunked(bool);
 
 		int             end_request(void);
         void            envs(void);

@@ -92,6 +92,7 @@ void    Request::init(void)
 	_tmp_file = "";
     _end_header = false;
     _end_chunked_body = false;
+    _start_chunked_body = false;
     _read_data = "";
     _end = false;
     std::memset(_buffer, 0, _buffer_size + 1);
@@ -131,7 +132,7 @@ int     Request::read_header()
     {
         std::cout << "Write body left to fd_in, body_left=" << _body_left << std::endl;
         if (_chunked)
-            write_chunked(true, "\r\n");
+            write_chunked(true);
         else
         {
             // Écrire le contenu de _buffer[] dans le fichier associé à _fd_in
@@ -299,7 +300,7 @@ int     Request::read_body()
     _host->set_sk_timeout(_socket);
     if (_chunked)
     {
-        write_chunked(true, "");
+        write_chunked(true);
     }
     else
     {
@@ -340,15 +341,19 @@ static void find_chunk_size(std::string &s, chunk_size_s &cs)
     return ;
 }
 
-void    Request::write_chunked(bool read_buffer, std::string ini)
+void    Request::write_chunked(bool read_buffer)
 {
     chunk_size_s    cs;
     size_t          len;
     size_t          read_size;
 
     //std::cout << "write_chunked" << _buffer << std::endl;
+    if (!_start_chunked_body)
+        _read_data += "\r\n";
+    _start_chunked_body = true;
     if (read_buffer)
-        _read_data += ini + std::string(_buffer);
+        _read_data += std::string(_buffer);
+    
     read_size = _read_data.size();
     std::cout << "_chunked_data: (" << read_size << "," << _chunk_size << "), body_size = " << _body_size << std::endl;
     std::cout << " `" << _read_data.substr(0, 100) << "`" << std::endl;
@@ -385,7 +390,7 @@ void    Request::write_chunked(bool read_buffer, std::string ini)
     }
     _read_data.erase(0, cs.end);
     std::cout << "After erase: " << _read_data.substr(0, 100) << std::endl;
-    write_chunked(false, "");
+    write_chunked(false);
 }
 
 bool	Request::check_location()
