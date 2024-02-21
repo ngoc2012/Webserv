@@ -26,7 +26,7 @@ test:
 	clear && make re && make clean && ./webserv 2>&1 | tee logs
 test0:
 	#clear && make re && make clean && valgrind --track-origins=yes --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv
-	clear && make re && make clean && valgrind --track-origins=yes --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv
+	clear && make re && make clean && valgrind --track-origins=yes --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv 2>&1 | tee logs
 gits:
 	git add Makefile
 	git add *.cpp
