@@ -392,7 +392,7 @@ void    Request::write_chunked()
             return ;
         }
         _read_data.erase(0, cs.end);
-        std::cout << "After erase: " << _read_data.substr(0, 100) << std::endl;
+        std::cout << "After erase: `" << _read_data.substr(0, 100) << "`" << std::endl;
         read_size = _read_data.size();
     } while (read_size > 0);
 }
