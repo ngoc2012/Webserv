@@ -341,7 +341,7 @@ static void find_chunk_size(std::string &s, chunk_size_s &cs)
     return ;
 }
 
-void    Request::write_chunked(bool read_buffer)
+void    Request::write_chunked()
 {
     chunk_size_s    cs;
     size_t          len;
@@ -349,53 +349,54 @@ void    Request::write_chunked(bool read_buffer)
 
     //std::cout << "write_chunked" << _buffer << std::endl;
     if (!_start_chunked_body)
+    {
         _read_data += "\r\n";
-    _start_chunked_body = true;
-    if (read_buffer)
-        _read_data += std::string(_buffer);
-    
-    read_size = _read_data.size();
-    std::cout << "_chunked_data: (" << read_size << "," << _chunk_size << "), body_size = " << _body_size << std::endl;
-    std::cout << " `" << _read_data.substr(0, 100) << "`" << std::endl;
-    if (!read_size)
-    {
-        std::cerr << RED << "Error: No chunked data received." << RESET << std::endl;
-        _end_chunked_body = true;
-        return ;
+        _start_chunked_body = true;
     }
-    if (_chunk_size > 0)
+    _read_data += std::string(_buffer);
+    read_size = _read_data.size();
+    do
     {
-        len = _chunk_size;
-        if (read_size < len)
-            len = read_size;
-        if (write(_fd_in, _read_data.c_str(), len) == -1)
+        std::cout << "_chunked_data: (" << read_size << "," << _chunk_size << "), body_size = " << _body_size << std::endl;
+        std::cout << " `" << _read_data.substr(0, 100) << "`" << std::endl;
+        if (!read_size)
         {
-            std::cerr << RED << "Error: Chunked data: Write fd in error(1)." << RESET << std::endl;
-            _status_code = 500;
+            std::cerr << RED << "Error: No chunked data received." << RESET << std::endl;
+            _end_chunked_body = true;
             return ;
         }
-        _body_size += len;
-        _chunk_size -= len;
-        read_size -= len;
-        _read_data.erase(0, len);
-        if (!read_size)
+        if (_chunk_size > 0)
+        {
+            len = _chunk_size;
+            if (read_size < len)
+                len = read_size;
+            if (write(_fd_in, _read_data.c_str(), len) == -1)
+            {
+                std::cerr << RED << "Error: Chunked data: Write fd in error(1)." << RESET << std::endl;
+                _status_code = 500;
+                return ;
+            }
+            _body_size += len;
+            _chunk_size -= len;
+            read_size -= len;
+            _read_data.erase(0, len);
+            if (!read_size)
+                return ;
+        }
+        find_chunk_size(_read_data, cs);
+        if (cs.value == NPOS)
             return ;
-    }
-    find_chunk_size(_read_data, cs);
-    if (cs.value == NPOS)
-        return ;
-    _chunk_size = cs.value;
-    if (!_chunk_size)
-    {
-        std::cout << "End chunked body" << std::endl;
-        _end_chunked_body = true;
-        return ;
-    }
-    _read_data.erase(0, cs.end);
-    std::cout << "After erase: " << _read_data.substr(0, 100) << std::endl;
-    read_size = _read_data.size();
-    if (_read_data.size() > 0)
-        write_chunked(false);
+        _chunk_size = cs.value;
+        if (!_chunk_size)
+        {
+            std::cout << "End chunked body" << std::endl;
+            _end_chunked_body = true;
+            return ;
+        }
+        _read_data.erase(0, cs.end);
+        std::cout << "After erase: " << _read_data.substr(0, 100) << std::endl;
+        read_size = _read_data.size();
+    } while (read_size > 0);
 }
 
 bool	Request::check_location()
