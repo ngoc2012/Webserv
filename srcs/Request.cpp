@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/21 11:22:00 by minh-ngu         ###   ########.fr       */
+/*   Updated: 2024/02/21 11:22:35 by minh-ngu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -374,6 +374,7 @@ bool    Request::write_chunked(bool read_buffer)
     if (cs.value == NPOS)
         return (true);
     _chunk_size = cs.value;
+    if (!_chunk_size)
     while (cs.value != NPOS)
     {
         if (_chunk_size <= 0)
