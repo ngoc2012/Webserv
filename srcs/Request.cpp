@@ -285,7 +285,7 @@ int     Request::read_body()
         _status_code = 400;
         return (end_request());
     }
-	std::cout << "read_body: " << ret << std::endl;
+	//std::cout << "read_body: " << ret << std::endl;
     _buffer[ret] = 0;
     _host->set_sk_timeout(_socket);
     if (_chunked)
@@ -340,13 +340,12 @@ void    Request::write_chunked()
     if (!read_size)
     {
         std::cerr << RED << "Error: No chunked data received." << RESET << std::endl;
-        //_end_chunked_body = true;
         return ;
     }
     do
     {
-        std::cout << "_chunked_data: (" << read_size << "," << _chunk_size << "), body_size = " << _body_size << std::endl;
-        std::cout << " `" << _read_data.substr(0, 100) << "`" << std::endl;
+        //std::cout << "_chunked_data: (" << read_size << "," << _chunk_size << "), body_size = " << _body_size << std::endl;
+        //std::cout << " `" << _read_data.substr(0, 100) << "`" << std::endl;
         if (_chunk_size > 0)
         {
             len = _chunk_size;
@@ -372,7 +371,6 @@ void    Request::write_chunked()
         {
             std::cout << "End chunked body" << std::endl;
             end_request();
-            //_end_chunked_body = true;
             return ;
         }
         _read_data.erase(0, end_size);
