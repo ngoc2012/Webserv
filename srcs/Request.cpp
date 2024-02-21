@@ -132,7 +132,7 @@ int     Request::read_header()
     {
         std::cout << "Write body left to fd_in, body_left=" << _body_left << std::endl;
         if (_chunked)
-            write_chunked(true);
+            write_chunked();
         else
         {
             // Écrire le contenu de _buffer[] dans le fichier associé à _fd_in
@@ -299,9 +299,7 @@ int     Request::read_body()
     _buffer[ret] = 0;
     _host->set_sk_timeout(_socket);
     if (_chunked)
-    {
-        write_chunked(true);
-    }
+        write_chunked();
     else
     {
         //std::cout << "_body_size: " << _body_size << std::endl;
@@ -355,16 +353,16 @@ void    Request::write_chunked()
     }
     _read_data += std::string(_buffer);
     read_size = _read_data.size();
+    if (!read_size)
+    {
+        std::cerr << RED << "Error: No chunked data received." << RESET << std::endl;
+        _end_chunked_body = true;
+        return ;
+    }
     do
     {
         std::cout << "_chunked_data: (" << read_size << "," << _chunk_size << "), body_size = " << _body_size << std::endl;
         std::cout << " `" << _read_data.substr(0, 100) << "`" << std::endl;
-        if (!read_size)
-        {
-            std::cerr << RED << "Error: No chunked data received." << RESET << std::endl;
-            _end_chunked_body = true;
-            return ;
-        }
         if (_chunk_size > 0)
         {
             len = _chunk_size;
