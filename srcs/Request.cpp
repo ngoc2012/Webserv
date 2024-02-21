@@ -306,12 +306,9 @@ int     Request::read_body()
         _body_size += ret;
         if (ret > 0 && write(_fd_in, _buffer, ret) == -1)
             return (end_request());
+        if (_body_size >= _content_length)
+            return (end_request());
     }
-    //std::cout << "_body_size: " << _body_size << std::endl;
-    //std::cout << "ret: " << ret << std::endl;
-    //std::cout << "_content_length: " << _content_length << std::endl;
-    if ((_chunked && _end_chunked_body) || (!_chunked && _body_size >= _content_length))
-        return (end_request());
     return (ret);
 }
 

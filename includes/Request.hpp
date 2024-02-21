@@ -47,7 +47,7 @@ class	Request
 		bool		    _close;
 		bool		    _end_header;
 		bool		    _start_chunked_body;
-		bool		    _end_chunked_body;
+		//bool		    _end_chunked_body;
 		bool		    _end;
 		std::string	    _read_data;
 		size_t      	_chunk_size;
