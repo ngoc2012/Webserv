@@ -284,7 +284,7 @@ int     Request::read_body()
 {
     int     ret;
 
-    std::cout << "Read body start" << std::endl;
+    //std::cout << "Read body start" << std::endl;
     ret = recv(_socket, _buffer, _body_buffer, 0);
     if (!ret)
         return (ret);
