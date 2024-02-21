@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/21 11:05:20 by minh-ngu         ###   ########.fr       */
+/*   Updated: 2024/02/21 11:07:06 by minh-ngu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -339,8 +339,6 @@ static void find_chunk_size(std::string &s, chunk_size_s &cs)
 bool    Request::write_chunked()
 {
     chunk_size_s    cs;
-    size_t		    start_size = 0;
-    size_t		    data_position = 0;
     size_t          len;
     size_t          read_size;
 
@@ -374,48 +372,7 @@ bool    Request::write_chunked()
     find_chunk_size(_read_data, cs);
     if (cs.value == NPOS)
         return (true);
-    if (_chunk_size > 0)
-    {
-        read_chunk = _chunked_data.find("\r\n");
-        if (read_chunk == NPOS)
-        {
-            if (_chunked_data[_chunked_data.size() - 1] == '\r')
-                return (true);
-            len = _chunked_data.size();
-            if (write(_fd_in, _chunked_data.c_str(), len) == -1)
-            {
-                std::cerr << "Error: Write fd in error 2." << std::endl;
-                _status_code = 500;
-                return (false);
-            }
-            _body_size += len;
-            _chunk_size -= len;
-            std::cout << "body_size: " << _body_size << ", _chunk_size = " << _chunk_size << std::endl;
-            _chunked_data = "";
-            return (true);
-        }
-        else
-        {
-            _body_size += read_chunk;
-            _chunk_size -= read_chunk;
-            if (_body_size > _body_max)
-            {
-                _status_code = 400;
-                std::cerr << RED << "Error: Content length bigger than body_max: " << _body_max << RESET << std::endl;
-                return (false);
-            }
-            if (write(_fd_in, _chunked_data.c_str(), read_chunk) == -1)
-            {
-                std::cerr << "Error: Write fd in error 2." << std::endl;
-                _status_code = 500;
-                return (false);
-            }
-            std::cout << "2_body_size: " << _body_size << ", _chunk_size = " << _chunk_size << std::endl;
-            _chunked_data = _chunked_data.substr(read_chunk + 2);
-        }
-    }
-    size_t      end_size = _chunked_data.find("\r\n");
-    while (end_size != NPOS && _chunked_data != "")
+    while (cs.value != NPOS)
     {
         if (_chunk_size <= 0)
         {
