@@ -76,7 +76,7 @@ class	Request
 
 		void		    process_fd_in(void);
         int 	        read_body();
-        void 	        write_chunked(bool);
+        void 	        write_chunked(bool, std::string);
 
 		int             end_request(void);
         void            envs(void);
