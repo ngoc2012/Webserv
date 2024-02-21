@@ -353,7 +353,7 @@ void    Request::write_chunked()
     if (!read_size)
     {
         std::cerr << RED << "Error: No chunked data received." << RESET << std::endl;
-        _end_chunked_body = true;
+        //_end_chunked_body = true;
         return ;
     }
     do
@@ -384,7 +384,8 @@ void    Request::write_chunked()
         if (!_chunk_size)
         {
             std::cout << "End chunked body" << std::endl;
-            _end_chunked_body = true;
+            end_request();
+            //_end_chunked_body = true;
             return ;
         }
         _read_data.erase(0, end_size);
