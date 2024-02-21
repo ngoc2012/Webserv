@@ -91,7 +91,7 @@ void    Request::init(void)
 	_full_file_name = "";
 	_tmp_file = "";
     _end_header = false;
-    _end_chunked_body = false;
+    //_end_chunked_body = false;
     _start_chunked_body = false;
     _read_data = "";
     _end = false;
@@ -147,7 +147,7 @@ int     Request::read_header()
         }
         std::memset(_buffer, 0, _body_left);
     }
-    if ((!_chunked && (!_content_length || _body_left >= _content_length)) || (_chunked && _end_chunked_body))
+    if (!_chunked && (!_content_length || _body_size >= _content_length))
     {
         std::cout << "No content length or the header receive has all the data body_left=" << _body_left << ", content_length=" << _content_length << std::endl;
         return (end_request());
