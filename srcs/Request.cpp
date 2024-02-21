@@ -298,7 +298,9 @@ int     Request::read_body()
     _buffer[ret] = 0;
     _host->set_sk_timeout(_socket);
     if (_chunked)
+    {
         write_chunked(true, "");
+    }
     else
     {
         //std::cout << "_body_size: " << _body_size << std::endl;
