@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/08 07:25:08 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/21 15:17:08 by minh-ngu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,8 +91,9 @@ void    Request::init(void)
 	_full_file_name = "";
 	_tmp_file = "";
     _end_header = false;
-    _end_chunked_body = true;
-    _chunked_data = "";
+    //_end_chunked_body = false;
+    _start_chunked_body = false;
+    _read_data = "";
     _end = false;
     std::memset(_buffer, 0, _buffer_size + 1);
 	_status_code = 200;
@@ -146,7 +147,7 @@ int     Request::read_header()
         }
         std::memset(_buffer, 0, _body_left);
     }
-    if ((!_chunked && (!_content_length || _body_left >= _content_length)) || (_chunked && _end_chunked_body))
+    if (!_chunked && (!_content_length || _body_size >= _content_length))
     {
         std::cout << "No content length or the header receive has all the data body_left=" << _body_left << ", content_length=" << _content_length << std::endl;
         return (end_request());
@@ -178,16 +179,6 @@ int Request::receive_header(void)
     std::cout << "============================================" << std::endl;
     std::cout << "`" << _str_header << "`" << std::endl;
     _header_size = _str_header.find("\r\n\r\n");
-    /*
-    std::cout << "The buffer:" << std::endl;
-    char *c = _buffer;
-    while (*c)
-    {
-        std::cout << (int) *c << ":";
-        c++;
-    }
-    std::cout << std::endl;
-    */
     if (_header_size == NPOS)
     {
         if (_str_header.size() > _header_buffer)
@@ -203,9 +194,10 @@ int Request::receive_header(void)
     std::cout << "Request header: " << _header_size << std::endl;
     _body_left = _str_header.size() - _header_size - 4;
     std::string body_left = _str_header.substr(_header_size + 4);
+    std::cout << "Body left: " << _body_left << std::endl;
+
     if (_body_left > 0)
     {
-        std::cout << "Body left: " << _body_left << std::endl;
         std::memmove(_buffer, body_left.c_str(), _body_left);
         _buffer[_body_left] = 0;
         std::cout << "Body: `" << _buffer << "`" << std::endl;
@@ -254,8 +246,6 @@ bool	Request::parse_header(void)
     std::cout << "Location found: " << _location->get_url() << std::endl;
     _chunked = _header.parse_transfer_encoding();
     std::cout << "_chunked: " << _chunked << std::endl;
-    if (_chunked)
-        _end_chunked_body = false;
     _content_length = _header.parse_content_length();
     //std::cout << "Content-Length: " << _content_length << std::endl;
     _cookies = _header.parse_cookies();
@@ -284,7 +274,7 @@ int     Request::read_body()
 {
     int     ret;
 
-    std::cout << "Read body start" << std::endl;
+    //std::cout << "Read body start" << std::endl;
     ret = recv(_socket, _buffer, _body_buffer, 0);
     if (!ret)
         return (ret);
@@ -295,154 +285,98 @@ int     Request::read_body()
         _status_code = 400;
         return (end_request());
     }
-	std::cout << "read_body: " << ret << std::endl;
+	//std::cout << "read_body: " << ret << std::endl;
     _buffer[ret] = 0;
     _host->set_sk_timeout(_socket);
     if (_chunked)
-        write_chunked();
-    else
     {
-        //std::cout << "_body_size: " << _body_size << std::endl;
-        _body_size += ret;
-        if (ret > 0 && write(_fd_in, _buffer, ret) == -1)
-            return (end_request());
+        write_chunked();
+        return (ret);
     }
     //std::cout << "_body_size: " << _body_size << std::endl;
-    //std::cout << "ret: " << ret << std::endl;
-    //std::cout << "_content_length: " << _content_length << std::endl;
-    if ((_chunked && _end_chunked_body) || (!_chunked && _body_size >= _content_length))
+    _body_size += ret;
+    if (ret > 0 && write(_fd_in, _buffer, ret) == -1)
+        return (end_request());
+    if (_body_size >= _content_length)
         return (end_request());
     return (ret);
 }
 
-bool    Request::write_chunked()
+static size_t   find_chunk_size(std::string &s, size_t &_chunk_size)
 {
-    size_t		start_size = 0;
-    size_t		data_position = 0;
-    size_t      read_chunk;
-    size_t      len;
+    size_t  start;
+    size_t  end;
+    size_t  size;
+    
+    start = s.find("\r\n");
+    if (start == NPOS)
+        return (NPOS);
+    start += 2;
+    end = s.find("\r\n", start);
+    if (end == NPOS)
+        return (NPOS);
+    std::cout << "size:'" << s.substr(start, end - start) << "'" << std::endl;
+    size = ft::atoi_base(s.substr(start, end - start).c_str(), "0123456789abcdef");
+    if (size == 0 && s.find("\r\n\r\n", start) == NPOS)
+        return (NPOS);
+    _chunk_size = size;
+    return (end + 2);
+}
+
+void    Request::write_chunked()
+{
+    size_t          end_size;
+    size_t          len;
+    size_t          read_size;
 
     //std::cout << "write_chunked" << _buffer << std::endl;
-    _chunked_data += std::string(_buffer);
-    std::cout << "_chunked_data: (" << _chunked_data.size() << "," << _chunk_size << ")" << std::endl;
-    //std::cout << " `" << _chunked_data << "`" << std::endl;
-    if (!_chunked_data.size())
+    if (!_start_chunked_body)
     {
-        std::cout << "No chunked data." << std::endl;
-        _end_chunked_body = true;
-        return (true);
+        _read_data += "\r\n";
+        _start_chunked_body = true;
     }
-    if (_chunk_size > 0)
+    _read_data += std::string(_buffer);
+    read_size = _read_data.size();
+    if (!read_size)
     {
-        read_chunk = _chunked_data.find("\r\n");
-        if (read_chunk == NPOS)
+        std::cerr << RED << "Error: No chunked data received." << RESET << std::endl;
+        return ;
+    }
+    do
+    {
+        //std::cout << "_chunked_data: (" << read_size << "," << _chunk_size << "), body_size = " << _body_size << std::endl;
+        //std::cout << " `" << _read_data.substr(0, 100) << "`" << std::endl;
+        if (_chunk_size > 0)
         {
-            if (_chunked_data[_chunked_data.size() - 1] == '\r')
-                return (true);
-            len = _chunked_data.size();
-            if (write(_fd_in, _chunked_data.c_str(), len) == -1)
+            len = _chunk_size;
+            if (read_size < len)
+                len = read_size;
+            if (write(_fd_in, _read_data.c_str(), len) == -1)
             {
-                std::cerr << "Error: Write fd in error 2." << std::endl;
+                std::cerr << RED << "Error: Chunked data: Write fd in error(1)." << RESET << std::endl;
                 _status_code = 500;
-                return (false);
+                return ;
             }
             _body_size += len;
             _chunk_size -= len;
-            std::cout << "body_size: " << _body_size << ", _chunk_size = " << _chunk_size << std::endl;
-            _chunked_data = "";
-            return (true);
+            read_size -= len;
+            _read_data.erase(0, len);
+            if (!read_size)
+                return ;
         }
-        else
+        end_size = find_chunk_size(_read_data, _chunk_size);
+        if (end_size == NPOS)
+            return ;
+        if (!_chunk_size)
         {
-            _body_size += read_chunk;
-            _chunk_size -= read_chunk;
-            if (_body_size > _body_max)
-            {
-                _status_code = 400;
-                std::cerr << RED << "Error: Content length bigger than body_max: " << _body_max << RESET << std::endl;
-                return (false);
-            }
-            if (write(_fd_in, _chunked_data.c_str(), read_chunk) == -1)
-            {
-                std::cerr << "Error: Write fd in error 2." << std::endl;
-                _status_code = 500;
-                return (false);
-            }
-            std::cout << "2_body_size: " << _body_size << ", _chunk_size = " << _chunk_size << std::endl;
-            _chunked_data = _chunked_data.substr(read_chunk + 2);
+            std::cout << "End chunked body" << std::endl;
+            end_request();
+            return ;
         }
-    }
-    size_t      end_size = _chunked_data.find("\r\n");
-    while (end_size != NPOS && _chunked_data != "")
-    {
-        if (_chunk_size <= 0)
-        {
-            _chunk_size = ft::atoi_base(_chunked_data.substr(start_size, end_size - start_size).c_str(), "0123456789abcdef");
-            std::cout << "chunk_size: " << _chunked_data.substr(start_size, end_size - start_size) <<   ":" << _chunk_size << std::endl;
-            data_position = end_size + 2;
-            std::cout << "'" << _chunked_data.substr(start_size, 100) << "'" << std::endl; 
-            std::cout << "data_position: " << data_position << "," << _chunked_data.size() << std::endl;
-            if (data_position >= _chunked_data.size())
-            {
-                std::cout << "data_position >=  _chunked_data.size()" << std::endl;
-                _chunked_data = _chunked_data.substr(start_size);
-                return (true);
-            }
-        }
-        //std::cout << _chunked_data.substr(data_position) << std::endl;
-        read_chunk = _chunked_data.find("\r\n", data_position);
-        if (read_chunk == NPOS)
-        {
-            len = _chunked_data.size() - data_position;
-            if (write(_fd_in, &_chunked_data.c_str()[data_position], len) == -1)
-            {
-                std::cerr << "Error: Write fd in error 2." << std::endl;
-                _status_code = 500;
-                return (false);
-            }
-            _body_size += len;
-            _chunk_size -= len;
-            std::cout << "body_size: " << _body_size << ", _chunk_size = " << _chunk_size << std::endl;
-            _chunked_data = "";
-            return (true);
-        }
-        start_size = read_chunk + 2;
-        read_chunk -= data_position;
-        if (!_chunk_size || !read_chunk)
-        {
-            std::cout << "chunk_size == 0 || read_chunk == 0" << std::endl;
-            _end_chunked_body = true;
-            break;
-        }
-        _body_size += read_chunk;
-        if (_body_size > _body_max)
-        {
-            _status_code = 400;
-            std::cerr << RED << "Error: Content length bigger than body_max: " << _body_max << RESET << std::endl;
-            return (false);
-        }
-        if (write(_fd_in, &_chunked_data.c_str()[data_position], read_chunk) == -1)
-        {
-            std::cerr << "Error: Write fd in error 2." << std::endl;
-            _status_code = 500;
-            return (false);
-        }
-        _chunk_size = 0;
-        _chunked_data = _chunked_data.substr(start_size);
-        start_size = 0;
-        if (_content_length && _body_size >= _content_length)
-            break;
-        //std::cout << "start_size: " << start_size << std::endl;
-        end_size = _chunked_data.find("\r\n", start_size);
-    }
-    std::cout << "body_size: " << _body_size << std::endl;
-    if (_chunked_data.find("0\r\n\r\n") != NPOS || (_content_length && _body_size >= _content_length))
-    {
-        std::cout << "_end_chunked_body" << (_chunked_data.find("\r\n0\r\n\r\n") == NPOS) << ":";
-        std::cout << _body_size << ":" << _content_length << std::endl;
-        _end_chunked_body = true;
-    }
-    return (true);
+        _read_data.erase(0, end_size);
+        std::cout << "After erase: `" << _read_data.substr(0, 100) << "`" << std::endl;
+        read_size = _read_data.size();
+    } while (read_size > 0);
 }
 
 bool	Request::check_location()
