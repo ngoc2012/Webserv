@@ -385,6 +385,7 @@ void    Request::write_chunked(bool read_buffer)
     _chunk_size = cs.value;
     if (!_chunk_size)
     {
+        std::cout << "End chunked body" << std::endl;
         _end_chunked_body = true;
         return ;
     }
