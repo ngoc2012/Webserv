@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/21 15:11:27 by minh-ngu         ###   ########.fr       */
+/*   Updated: 2024/02/21 15:15:37 by minh-ngu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -315,23 +315,24 @@ int     Request::read_body()
     return (ret);
 }
 
-static size_t   find_chunk_size(std::string &s, _chunk_size &cs)
+static size_t   find_chunk_size(std::string &s, size_t &_chunk_size)
 {
     size_t  start;
+    size_t  end;
+    size_t  size;
     
-    cs.value = NPOS;
     start = s.find("\r\n");
     if (start == NPOS)
         return (NPOS);
-    cs.end = s.find("\r\n", start + 2);
-    if (cs.end == NPOS)
+    end = s.find("\r\n", start + 2);
+    if (end == NPOS)
         return (NPOS);
-    std::cout << "cs.value:'" << s.substr(start + 2, cs.end - start - 2) << "'" << std::endl;
-    cs.value = ft::atoi_base(s.substr(start + 2, cs.end - start - 2).c_str(), "0123456789abcdef");
-    if (cs.value == 0 && s.find("\r\n\r\n", start + 2) == NPOS)
+    std::cout << "size:'" << s.substr(start + 2, end - start - 2) << "'" << std::endl;
+    size = ft::atoi_base(s.substr(start + 2, end - start - 2).c_str(), "0123456789abcdef");
+    if (size == 0 && s.find("\r\n\r\n", start + 2) == NPOS)
         return (NPOS);
-    cs.end += 2;
-    return cs.end;
+    _chunk_size = size;
+    return cs.end + 2;
 }
 
 void    Request::write_chunked()
@@ -376,17 +377,16 @@ void    Request::write_chunked()
             if (!read_size)
                 return ;
         }
-        find_chunk_size(_read_data, cs);
-        if (cs.value == NPOS)
+        end_size = find_chunk_size(_read_data, _chunk_size);
+        if (end_size == NPOS)
             return ;
-        _chunk_size = cs.value;
         if (!_chunk_size)
         {
             std::cout << "End chunked body" << std::endl;
             _end_chunked_body = true;
             return ;
         }
-        _read_data.erase(0, cs.end);
+        _read_data.erase(0, end_size);
         std::cout << "After erase: `" << _read_data.substr(0, 100) << "`" << std::endl;
         read_size = _read_data.size();
     } while (read_size > 0);
