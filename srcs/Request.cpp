@@ -376,8 +376,10 @@ void    Request::write_chunked(bool read_buffer)
         }
         _body_size += len;
         _chunk_size -= len;
+        read_size -= len;
         _read_data.erase(0, len);
-        return ;
+        if (!_read_data.size())
+            return ;
     }
     find_chunk_size(_read_data, cs);
     if (cs.value == NPOS)
