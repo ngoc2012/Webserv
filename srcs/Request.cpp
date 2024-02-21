@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/21 15:15:37 by minh-ngu         ###   ########.fr       */
+/*   Updated: 2024/02/21 15:16:18 by minh-ngu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -332,7 +332,7 @@ static size_t   find_chunk_size(std::string &s, size_t &_chunk_size)
     if (size == 0 && s.find("\r\n\r\n", start + 2) == NPOS)
         return (NPOS);
     _chunk_size = size;
-    return cs.end + 2;
+    return (end + 2);
 }
 
 void    Request::write_chunked()
