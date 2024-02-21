@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/08 07:03:49 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/21 10:47:55 by minh-ngu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ class	Request
 		bool		    _end_header;
 		bool		    _end_chunked_body;
 		bool		    _end;
-		std::string	    _chunked_data;
+		std::string	    _read_data;
 		size_t      	_chunk_size;
 		bool		    _chunked;
 		size_t			_header_size;

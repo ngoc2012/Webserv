@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/08 07:25:08 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/21 10:55:43 by minh-ngu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ void    Request::init(void)
 	_tmp_file = "";
     _end_header = false;
     _end_chunked_body = true;
-    _chunked_data = "";
+    _read_data = "";
     _end = false;
     std::memset(_buffer, 0, _buffer_size + 1);
 	_status_code = 200;
@@ -315,21 +315,56 @@ int     Request::read_body()
     return (ret);
 }
 
+static struct  chunk_size_s
+{
+    size_t  start;
+    size_t  end;
+    size_t  value;
+};
+
+static void find_chunk_size(std::string &s, chunk_size_s &cs)
+{
+    cs->value = NPOS;
+    cs->start = s.find("\r\n");
+    if (cs->start == NPOS)
+        return ;
+    cs->end = s.find("\r\n", cs->start + 2);
+    if (cs->end == NPOS)
+        return ;
+    cs->value = ft::atoi_base(s.substr(cs->start, cs->end - cs->start - 2).c_str(), "0123456789abcdef");
+    return ;
+}
+
 bool    Request::write_chunked()
 {
-    size_t		start_size = 0;
-    size_t		data_position = 0;
-    size_t      read_chunk;
-    size_t      len;
+    chunk_size_s    cs;
+    size_t		    start_size = 0;
+    size_t		    data_position = 0;
+    size_t          len;
+    size_t          read_size;
 
     //std::cout << "write_chunked" << _buffer << std::endl;
-    _chunked_data += std::string(_buffer);
-    std::cout << "_chunked_data: (" << _chunked_data.size() << "," << _chunk_size << ")" << std::endl;
-    //std::cout << " `" << _chunked_data << "`" << std::endl;
-    if (!_chunked_data.size())
+    _read_data += std::string(_buffer);
+    std::cout << "_chunked_data: (" << _read_data.size() << "," << _chunk_size << ")" << std::endl;
+    std::cout << " `" << _read_data.substr(0, 100) << "`" << std::endl;
+    read_size = _read_data.size();
+    if (!read_size)
     {
-        std::cout << "No chunked data." << std::endl;
+        std::cerr << RET << "Error: No chunked data received." << RESET << std::endl;
         _end_chunked_body = true;
+        return (true);
+    }
+    if (_chunk_size > read_size)
+    {
+        if (write(_fd_in, _read_data.c_str(), read_size) == -1)
+        {
+            std::cerr << RET << "Error: Chunked data: Write fd in error(1)." << RESET << std::endl;
+            _status_code = 500;
+            return (false);
+        }
+        _body_size += read_size;
+        _chunk_size -= read_size;
+        _chunked_data = "";
         return (true);
     }
     if (_chunk_size > 0)
