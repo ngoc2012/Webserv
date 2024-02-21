@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/21 11:01:45 by minh-ngu         ###   ########.fr       */
+/*   Updated: 2024/02/21 11:02:59 by minh-ngu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -324,14 +324,14 @@ static struct  chunk_size_s
 
 static void find_chunk_size(std::string &s, chunk_size_s &cs)
 {
-    cs->value = NPOS;
-    cs->start = s.find("\r\n");
-    if (cs->start == NPOS)
+    cs.value = NPOS;
+    cs.start = s.find("\r\n");
+    if (cs.start == NPOS)
         return ;
-    cs->end = s.find("\r\n", cs->start + 2);
-    if (cs->end == NPOS)
+    cs.end = s.find("\r\n", cs.start + 2);
+    if (cs.end == NPOS)
         return ;
-    cs->value = ft::atoi_base(s.substr(cs->start, cs->end - cs->start - 2).c_str(), "0123456789abcdef");
+    cs.value = ft::atoi_base(s.substr(cs.start, cs.end - cs.start - 2).c_str(), "0123456789abcdef");
     return ;
 }
 
