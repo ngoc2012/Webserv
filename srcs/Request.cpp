@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/21 15:16:18 by minh-ngu         ###   ########.fr       */
+/*   Updated: 2024/02/21 15:17:08 by minh-ngu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -324,12 +324,13 @@ static size_t   find_chunk_size(std::string &s, size_t &_chunk_size)
     start = s.find("\r\n");
     if (start == NPOS)
         return (NPOS);
-    end = s.find("\r\n", start + 2);
+    start += 2;
+    end = s.find("\r\n", start);
     if (end == NPOS)
         return (NPOS);
-    std::cout << "size:'" << s.substr(start + 2, end - start - 2) << "'" << std::endl;
-    size = ft::atoi_base(s.substr(start + 2, end - start - 2).c_str(), "0123456789abcdef");
-    if (size == 0 && s.find("\r\n\r\n", start + 2) == NPOS)
+    std::cout << "size:'" << s.substr(start, end - start) << "'" << std::endl;
+    size = ft::atoi_base(s.substr(start, end - start).c_str(), "0123456789abcdef");
+    if (size == 0 && s.find("\r\n\r\n", start) == NPOS)
         return (NPOS);
     _chunk_size = size;
     return (end + 2);
