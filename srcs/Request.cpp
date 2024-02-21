@@ -324,6 +324,8 @@ struct  chunk_size_s
 
 static void find_chunk_size(std::string &s, chunk_size_s &cs)
 {
+    size_t  start;
+    
     cs.value = NPOS;
     cs.start = s.find("\r\n");
     if (cs.start == NPOS)
