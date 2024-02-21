@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/21 10:58:53 by minh-ngu         ###   ########.fr       */
+/*   Updated: 2024/02/21 11:01:45 by minh-ngu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -356,15 +356,18 @@ bool    Request::write_chunked()
     }
     if (_chunk_size > 0)
     {
-        if (write(_fd_in, _read_data.c_str(), read_size) == -1)
+        len = _chunk_size;
+        if (read_size <= len)
+            len = read_size;
+        if (write(_fd_in, _read_data.c_str(), len) == -1)
         {
             std::cerr << RET << "Error: Chunked data: Write fd in error(1)." << RESET << std::endl;
             _status_code = 500;
             return (false);
         }
-        _body_size += read_size;
-        _chunk_size -= read_size;
-        _chunked_data = "";
+        _body_size += len;
+        _chunk_size -= len;
+        _read_data.erase(0, len);
         return (true);
     }
     find_chunk_size(_read_data, cs);
