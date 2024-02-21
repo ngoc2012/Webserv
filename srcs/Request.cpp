@@ -382,6 +382,7 @@ void    Request::write_chunked(bool read_buffer, std::string ini)
         return ;
     }
     _read_data.erase(0, cs.end);
+    std::cout << "After erase: " << _read_data.substr(0, 100) << std::endl;
     write_chunked(false, "");
 }
 
