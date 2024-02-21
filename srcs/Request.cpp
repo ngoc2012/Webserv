@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/21 11:22:35 by minh-ngu         ###   ########.fr       */
+/*   Updated: 2024/02/21 11:49:40 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ void    Request::init(void)
 	_full_file_name = "";
 	_tmp_file = "";
     _end_header = false;
-    _end_chunked_body = true;
+    _end_chunked_body = false;
     _read_data = "";
     _end = false;
     std::memset(_buffer, 0, _buffer_size + 1);
@@ -254,8 +254,6 @@ bool	Request::parse_header(void)
     std::cout << "Location found: " << _location->get_url() << std::endl;
     _chunked = _header.parse_transfer_encoding();
     std::cout << "_chunked: " << _chunked << std::endl;
-    if (_chunked)
-        _end_chunked_body = false;
     _content_length = _header.parse_content_length();
     //std::cout << "Content-Length: " << _content_length << std::endl;
     _cookies = _header.parse_cookies();
@@ -332,11 +330,13 @@ static void find_chunk_size(std::string &s, chunk_size_s &cs)
     if (cs.end == NPOS)
         return ;
     cs.value = ft::atoi_base(s.substr(cs.start, cs.end - cs.start - 2).c_str(), "0123456789abcdef");
+    if (cs.value == 0 && s.find("\r\n\r\n", cs.start + 2) == NPOS)
+        cs.value = NPOS;
     cs.end += 2;
     return ;
 }
 
-bool    Request::write_chunked(bool read_buffer)
+void    Request::write_chunked(bool read_buffer)
 {
     chunk_size_s    cs;
     size_t          len;
@@ -352,7 +352,7 @@ bool    Request::write_chunked(bool read_buffer)
     {
         std::cerr << RED << "Error: No chunked data received." << RESET << std::endl;
         _end_chunked_body = true;
-        return (true);
+        return ;
     }
     if (_chunk_size > 0)
     {
@@ -363,88 +363,23 @@ bool    Request::write_chunked(bool read_buffer)
         {
             std::cerr << RED << "Error: Chunked data: Write fd in error(1)." << RESET << std::endl;
             _status_code = 500;
-            return (false);
+            return ;
         }
         _body_size += len;
         _chunk_size -= len;
         _read_data.erase(0, len);
-        return (true);
+        return ;
     }
     find_chunk_size(_read_data, cs);
     if (cs.value == NPOS)
-        return (true);
+        return ;
     _chunk_size = cs.value;
     if (!_chunk_size)
-    while (cs.value != NPOS)
     {
-        if (_chunk_size <= 0)
-        {
-            _chunk_size = ft::atoi_base(_chunked_data.substr(start_size, end_size - start_size).c_str(), "0123456789abcdef");
-            std::cout << "chunk_size: " << _chunked_data.substr(start_size, end_size - start_size) <<   ":" << _chunk_size << std::endl;
-            data_position = end_size + 2;
-            std::cout << "'" << _chunked_data.substr(start_size, 100) << "'" << std::endl; 
-            std::cout << "data_position: " << data_position << "," << _chunked_data.size() << std::endl;
-            if (data_position >= _chunked_data.size())
-            {
-                std::cout << "data_position >=  _chunked_data.size()" << std::endl;
-                _chunked_data = _chunked_data.substr(start_size);
-                return (true);
-            }
-        }
-        //std::cout << _chunked_data.substr(data_position) << std::endl;
-        read_chunk = _chunked_data.find("\r\n", data_position);
-        if (read_chunk == NPOS)
-        {
-            len = _chunked_data.size() - data_position;
-            if (write(_fd_in, &_chunked_data.c_str()[data_position], len) == -1)
-            {
-                std::cerr << "Error: Write fd in error 2." << std::endl;
-                _status_code = 500;
-                return (false);
-            }
-            _body_size += len;
-            _chunk_size -= len;
-            std::cout << "body_size: " << _body_size << ", _chunk_size = " << _chunk_size << std::endl;
-            _chunked_data = "";
-            return (true);
-        }
-        start_size = read_chunk + 2;
-        read_chunk -= data_position;
-        if (!_chunk_size || !read_chunk)
-        {
-            std::cout << "chunk_size == 0 || read_chunk == 0" << std::endl;
-            _end_chunked_body = true;
-            break;
-        }
-        _body_size += read_chunk;
-        if (_body_size > _body_max)
-        {
-            _status_code = 400;
-            std::cerr << RED << "Error: Content length bigger than body_max: " << _body_max << RESET << std::endl;
-            return (false);
-        }
-        if (write(_fd_in, &_chunked_data.c_str()[data_position], read_chunk) == -1)
-        {
-            std::cerr << "Error: Write fd in error 2." << std::endl;
-            _status_code = 500;
-            return (false);
-        }
-        _chunk_size = 0;
-        _chunked_data = _chunked_data.substr(start_size);
-        start_size = 0;
-        if (_content_length && _body_size >= _content_length)
-            break;
-        //std::cout << "start_size: " << start_size << std::endl;
-        end_size = _chunked_data.find("\r\n", start_size);
-    }
-    std::cout << "body_size: " << _body_size << std::endl;
-    if (_chunked_data.find("0\r\n\r\n") != NPOS || (_content_length && _body_size >= _content_length))
-    {
-        std::cout << "_end_chunked_body" << (_chunked_data.find("\r\n0\r\n\r\n") == NPOS) << ":";
-        std::cout << _body_size << ":" << _content_length << std::endl;
         _end_chunked_body = true;
+        return ;
     }
-    return (true);
+    write_chunked(false);
 }
 
 bool	Request::check_location()

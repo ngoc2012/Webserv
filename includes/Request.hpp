@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/21 11:12:20 by minh-ngu         ###   ########.fr       */
+/*   Updated: 2024/02/21 11:49:00 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ class	Request
 
 		void		    process_fd_in(void);
         int 	        read_body();
-        bool 	        write_chunked(bool);
+        void 	        write_chunked(bool);
 
 		int             end_request(void);
         void            envs(void);
