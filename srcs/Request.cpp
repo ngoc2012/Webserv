@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/21 10:55:43 by minh-ngu         ###   ########.fr       */
+/*   Updated: 2024/02/21 10:58:53 by minh-ngu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -354,7 +354,7 @@ bool    Request::write_chunked()
         _end_chunked_body = true;
         return (true);
     }
-    if (_chunk_size > read_size)
+    if (_chunk_size > 0)
     {
         if (write(_fd_in, _read_data.c_str(), read_size) == -1)
         {
@@ -367,6 +367,9 @@ bool    Request::write_chunked()
         _chunked_data = "";
         return (true);
     }
+    find_chunk_size(_read_data, cs);
+    if (cs.value == NPOS)
+        return (true);
     if (_chunk_size > 0)
     {
         read_chunk = _chunked_data.find("\r\n");
