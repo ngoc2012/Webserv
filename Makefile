@@ -64,6 +64,6 @@ clean:
 	rm -f $(OBJS)
 fclean: clean
 	rm -f $(MANDA)
-	rm -f logs
+	#rm -f logs
 re: fclean all
 .PHONY: all clean fclean re test
