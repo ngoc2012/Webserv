@@ -329,7 +329,7 @@ static void find_chunk_size(std::string &s, chunk_size_s &cs)
     cs.end = s.find("\r\n", cs.start + 2);
     if (cs.end == NPOS)
         return ;
-    std::cout << s.substr(cs.start, cs.end - cs.start - 2) << std::endl;
+    std::cout << "cs.value" << s.substr(cs.start, cs.end - cs.start - 2) << std::endl;
     cs.value = ft::atoi_base(s.substr(cs.start, cs.end - cs.start - 2).c_str(), "0123456789abcdef");
     if (cs.value == 0 && s.find("\r\n\r\n", cs.start + 2) == NPOS)
         cs.value = NPOS;
