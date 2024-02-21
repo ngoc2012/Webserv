@@ -179,16 +179,6 @@ int Request::receive_header(void)
     std::cout << "============================================" << std::endl;
     std::cout << "`" << _str_header << "`" << std::endl;
     _header_size = _str_header.find("\r\n\r\n");
-    /*
-    std::cout << "The buffer:" << std::endl;
-    char *c = _buffer;
-    while (*c)
-    {
-        std::cout << (int) *c << ":";
-        c++;
-    }
-    std::cout << std::endl;
-    */
     if (_header_size == NPOS)
     {
         if (_str_header.size() > _header_buffer)
