@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/21 11:11:04 by minh-ngu         ###   ########.fr       */
+/*   Updated: 2024/02/21 11:13:05 by minh-ngu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -299,7 +299,7 @@ int     Request::read_body()
     _buffer[ret] = 0;
     _host->set_sk_timeout(_socket);
     if (_chunked)
-        write_chunked();
+        write_chunked(true);
     else
     {
         //std::cout << "_body_size: " << _body_size << std::endl;
@@ -336,14 +336,15 @@ static void find_chunk_size(std::string &s, chunk_size_s &cs)
     return ;
 }
 
-bool    Request::write_chunked()
+bool    Request::write_chunked(bool read_buffer)
 {
     chunk_size_s    cs;
     size_t          len;
     size_t          read_size;
 
     //std::cout << "write_chunked" << _buffer << std::endl;
-    _read_data += std::string(_buffer);
+    if (read_buffer)
+        _read_data += std::string(_buffer);
     std::cout << "_chunked_data: (" << _read_data.size() << "," << _chunk_size << ")" << std::endl;
     std::cout << " `" << _read_data.substr(0, 100) << "`" << std::endl;
     read_size = _read_data.size();
