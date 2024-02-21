@@ -390,7 +390,8 @@ void    Request::write_chunked(bool read_buffer)
     }
     _read_data.erase(0, cs.end);
     std::cout << "After erase: " << _read_data.substr(0, 100) << std::endl;
-    write_chunked(false);
+    if (_read_data.size() > 0)
+        write_chunked(false);
 }
 
 bool	Request::check_location()
