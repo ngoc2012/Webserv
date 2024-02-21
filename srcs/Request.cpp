@@ -329,6 +329,7 @@ static void find_chunk_size(std::string &s, chunk_size_s &cs)
     cs.end = s.find("\r\n", cs.start + 2);
     if (cs.end == NPOS)
         return ;
+    std::cout << 
     cs.value = ft::atoi_base(s.substr(cs.start, cs.end - cs.start - 2).c_str(), "0123456789abcdef");
     if (cs.value == 0 && s.find("\r\n\r\n", cs.start + 2) == NPOS)
         cs.value = NPOS;
@@ -345,9 +346,9 @@ void    Request::write_chunked(bool read_buffer)
     //std::cout << "write_chunked" << _buffer << std::endl;
     if (read_buffer)
         _read_data += std::string(_buffer);
-    std::cout << "_chunked_data: (" << _read_data.size() << "," << _chunk_size << "), body_size = " << _body_size << std::endl;
-    std::cout << " `" << _read_data.substr(0, 100) << "`" << std::endl;
     read_size = _read_data.size();
+    std::cout << "_chunked_data: (" << read_size << "," << _chunk_size << "), body_size = " << _body_size << std::endl;
+    std::cout << " `" << _read_data.substr(0, 100) << "`" << std::endl;
     if (!read_size)
     {
         std::cerr << RED << "Error: No chunked data received." << RESET << std::endl;
@@ -357,7 +358,7 @@ void    Request::write_chunked(bool read_buffer)
     if (_chunk_size > 0)
     {
         len = _chunk_size;
-        if (read_size <= len)
+        if (read_size < len)
             len = read_size;
         if (write(_fd_in, _read_data.c_str(), len) == -1)
         {
