@@ -381,7 +381,7 @@ void    Request::write_chunked(bool read_buffer, std::string ini)
         _end_chunked_body = true;
         return ;
     }
-    write_chunked(false);
+    write_chunked(false, "");
 }
 
 bool	Request::check_location()
