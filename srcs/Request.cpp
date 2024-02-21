@@ -135,7 +135,7 @@ int     Request::read_header()
         else
         {
             // Écrire le contenu de _buffer[] dans le fichier associé à _fd_in
-            ssize_t bytes_written = write(_fd_in, _buffer + 2, _body_left);
+            ssize_t bytes_written = write(_fd_in, _buffer, _body_left);
             if (bytes_written == -1)
             {
                 std::cerr << "Error: Unable to write to file " << _tmp_file << std::endl;
@@ -202,13 +202,13 @@ int Request::receive_header(void)
     _end_header = true;
     std::cout << "Request header: " << _header_size << std::endl;
     _body_left = _str_header.size() - _header_size - 4;
-    std::string body_left = _str_header.substr(_header_size + 2);
+    std::string body_left = _str_header.substr(_header_size + 4);
     std::cout << "Body left: " << _body_left << std::endl;
-    
+
     if (_body_left > 0)
     {
-        std::memmove(_buffer, body_left.c_str(), _body_left + 2);
-        _buffer[_body_left + 2] = 0;
+        std::memmove(_buffer, body_left.c_str(), _body_left);
+        _buffer[_body_left] = 0;
         std::cout << "Body: `" << _buffer << "`" << std::endl;
     }
     
