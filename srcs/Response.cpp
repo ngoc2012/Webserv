@@ -145,7 +145,7 @@ void     Response::get_file_size()
     struct stat fileStat;
     if (stat(_full_file_name.c_str(), &fileStat) != 0)
     {
-        std::cerr << "Error: File or folder not found." << std::endl;
+        std::cerr << "Error: File or folder not found: " << _full_file_name << std::endl;
         _status_code = 500;
         return ;
     }
@@ -193,13 +193,20 @@ int     Response::write_body()
     int ret = read(_fd_out, buffer, RESPONSE_BUFFER * 1028);
     //std::cout << _request->get_cgi() << std::endl;
     if (ret <= 0)
+    {
+        std::cout << "Response write body ret = " << ret << std::endl;
         return (end_response());
-    
+    }
+        
     buffer[ret] = 0;
-    std::cout << ret << ":" << buffer << std::endl;
+    std::cout << ret << ":" << std::string(buffer).substr(0, 100) << std::endl;
     _body_size += ret;
-    if (send(_socket, buffer, ret, 0) < 0)
+    int ret1 = send(_socket, buffer, ret, 0);
+    if (ret1 < 0)
+    {
+        std::cerr << "Send error ret = " << ret1 << std::endl;
         return (end_response());
+    }
     return (0);
 }
 
@@ -218,6 +225,7 @@ int     Response::end_response(void)
     std::cout << _status_code << " ";
     std::cout << _request->get_url() << " ";
     std::cout << _request->get_location()->get_method_str(_request->get_method()) << RESET << std::endl;
+    std::cout << "Response _body_size: " << _body_size << std::endl;
     //usleep(5);
     //_host->close_client_sk(_socket);
     init();

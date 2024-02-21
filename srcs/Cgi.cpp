@@ -59,6 +59,7 @@ Cgi::~Cgi()
         std::cerr << MAGENTA << "Error: Can not delete file " << _tmp_file << RESET << std::endl;
 }
 
+
 int    Cgi::execute()
 {
     Response*       response;
@@ -158,23 +159,39 @@ int    Cgi::execute()
         if (WIFEXITED(status) && WEXITSTATUS(status))
             return 502;
         std::cout << "Cgi output: " << status << std::endl;
-        if (lseek(_fd_out, 0, SEEK_SET) == -1)
-        {
-            std::cerr << "Error: cgi _fd_out using lseek" << std::endl;
-            return 500;
-        }
-        /*
-        std::cerr << "fork output" << std::endl;
-        while ((bytesRead = read(pipe_out[0], buffer, BUFFER_SIZE)) > 0)
-        {
-            buffer[bytesRead] = 0;
-            std::cout << buffer;
-        }
-        close(pipe_out[0]);
-        */
-        
-        return 200;
+        return parse_header();
     }
+}
+
+int    Cgi::parse_header()
+{
+    std::string     header = "";
+    char            buffer[BUFFER_SIZE + 1];
+    ssize_t         ret;
+    size_t          pos;
+
+    if (lseek(_fd_out, 0, SEEK_SET) == -1)
+    {
+        std::cerr << "Error: cgi _fd_out using lseek" << std::endl;
+        return 500;
+    }
+    while ((ret = read(_fd_out, buffer, BUFFER_SIZE)) > 0 && header.find("\r\n\r\n") != NPOS)
+    {
+        buffer[ret] = 0;
+        header += buffer;
+    }
+    pos = header.find("\r\n\r\n");
+    if (header == "" || pos == NPOS)
+    {
+        std::cerr << RED << "Error: No header found in cgi _fd_out" << RESET << std::endl;
+        return 500;
+    }
+    if (lseek(_fd_out, 0, SEEK_SET) == -1)
+    {
+        std::cerr << "Error: cgi _fd_out using lseek" << std::endl;
+        return 500;
+    }
+    return 200;
 }
 
 bool    Cgi::get_envs()

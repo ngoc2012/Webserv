@@ -49,6 +49,6 @@ fclean:			clean
 re:					fclean all
 
 test:
-	make re && ./webserv | tee logs
+	make re && ./webserv  2>&1 | tee logs
 
 .PHONY: 		all fclean clean re test

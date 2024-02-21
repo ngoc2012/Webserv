@@ -412,7 +412,7 @@ std::string Response::redirect_target() {
 
 int Response::send(int fd) {
   //debug
-  std::cout << "Response: '" << std::endl << response_ << "'" << std::endl;
+  std::cout << "Response: '" << std::endl << response_.substr(0, 1000) << "'" << std::endl;
   int ret = ::send(fd, response_.c_str() + total_sent_, response_.length() - total_sent_, 0);
 
   if (ret <= 0) {

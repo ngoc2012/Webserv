@@ -116,7 +116,6 @@ int     Request::read(void)
 
 int     Request::read_header()
 {
-    std::cout << "read_header" << std::endl;
     int ret = receive_header();
     std::cout << "read_header: " << ret << std::endl;
     if (ret <= 0)
@@ -325,7 +324,7 @@ bool    Request::write_chunked()
 
     //std::cout << "write_chunked" << _buffer << std::endl;
     _chunked_data += std::string(_buffer);
-    std::cout << "_chunked_data: (" << _chunked_data.size() << ")" << std::endl;
+    std::cout << "_chunked_data: (" << _chunked_data.size() << "," << _chunk_size << ")" << std::endl;
     //std::cout << " `" << _chunked_data << "`" << std::endl;
     if (!_chunked_data.size())
     {
@@ -335,11 +334,13 @@ bool    Request::write_chunked()
     }
     if (_chunk_size > 0)
     {
-        read_chunk = _chunked_data.find("\r\n", data_position);
+        read_chunk = _chunked_data.find("\r\n");
         if (read_chunk == NPOS)
         {
-            len = _chunked_data.size() - data_position;
-            if (write(_fd_in, &_chunked_data.c_str()[data_position], len) == -1)
+            if (_chunked_data[_chunked_data.size() - 1] == '\r')
+                return (true);
+            len = _chunked_data.size();
+            if (write(_fd_in, _chunked_data.c_str(), len) == -1)
             {
                 std::cerr << "Error: Write fd in error 2." << std::endl;
                 _status_code = 500;
@@ -354,6 +355,7 @@ bool    Request::write_chunked()
         else
         {
             _body_size += read_chunk;
+            _chunk_size -= read_chunk;
             if (_body_size > _body_max)
             {
                 _status_code = 400;
@@ -366,7 +368,7 @@ bool    Request::write_chunked()
                 _status_code = 500;
                 return (false);
             }
-            _chunk_size = 0;
+            std::cout << "2_body_size: " << _body_size << ", _chunk_size = " << _chunk_size << std::endl;
             _chunked_data = _chunked_data.substr(read_chunk + 2);
         }
     }
@@ -378,7 +380,8 @@ bool    Request::write_chunked()
             _chunk_size = ft::atoi_base(_chunked_data.substr(start_size, end_size - start_size).c_str(), "0123456789abcdef");
             std::cout << "chunk_size: " << _chunked_data.substr(start_size, end_size - start_size) <<   ":" << _chunk_size << std::endl;
             data_position = end_size + 2;
-            std::cout << "data_position: " << data_position << std::endl;
+            std::cout << "'" << _chunked_data.substr(start_size, 100) << "'" << std::endl; 
+            std::cout << "data_position: " << data_position << "," << _chunked_data.size() << std::endl;
             if (data_position >= _chunked_data.size())
             {
                 std::cout << "data_position >=  _chunked_data.size()" << std::endl;
@@ -523,16 +526,13 @@ void	Request::process_fd_in()
 int     Request::end_request(void)
 {
     std::cout << "end_request: socket=" << _socket << " body size=" << _body_size << " file name=" << _full_file_name << std::endl;
-    if (!_cgi && _fd_in > 0)
+    
+    if (_status_code == 200 && _cgi)
+        _status_code = _cgi->execute();
+    if (_fd_in > 0)
         close(_fd_in);
     _host->new_response_sk(_socket);
     _response.set_status_code(_status_code);
-    if (_status_code == 200 && _cgi)
-        _status_code = _cgi->execute();
-    if (_cgi)
-    {
-        
-    }
     _end = true;
     return (1);
 }
