@@ -24,7 +24,7 @@
 
 # define MEGABYTE 1048576
 # define KILOBYTE 1024
-# define RESPONSE_BUFFER 64
+# define RESPONSE_BUFFER 1000
 # define TIMEOUT 5
 
 # define NPOS std::string::npos

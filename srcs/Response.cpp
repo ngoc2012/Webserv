@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/22 06:59:57 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/22 10:15:47 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ void    Response::init(void)
     _pos = 0;
     _full_file_name = "";
     _fd_out = -1;
+    _end_header = false;
 }
 
 int     Response::write()
@@ -127,10 +128,13 @@ void     Response::write_header()
     if (_request->get_method() == HEAD && _status_code == 200)
         _content_length = 0;
     _header = header.generate();
-    std::cout << "Response Header:\n" << _header << std::endl;
-    if (send(_socket, _header.c_str(), _header.length(), 0) < 0)
+    int     ret = send(_socket, _header.c_str(), _header.length(), 0);
+    std::cout << "Response Header:\n'" << _header << "`" << _header.size() << "|" << ret << std::endl;
+    if (ret < 0)
         end_response();
-    if ((!_request->get_chunked() && !_content_length) || _request->get_method() == HEAD)
+    // if ((!_request->get_chunked() && !_content_length) || _request->get_method() == HEAD)
+    //     end_response();
+    if (!_content_length || _request->get_method() == HEAD)
         end_response();
     //else
     //    std::cout << "Header sent" << std::endl;
@@ -213,7 +217,10 @@ int     Response::write_body()
     
     int ret1 = send(_socket, buffer, ret, 0);
     std::cout << "_body_size: " << _body_size << ", ret = " << ret1 << std::endl;
-    std::cout << "_buffer: `" << std::string(buffer).substr(0, 100) << "`" << std::endl;
+    if (_full_file_name == "tester/YoupiBanane/youpi.bla" && _content_length == 100000)
+        std::cout << "_buffer: `" << buffer << "`" << std::endl;
+    else
+        std::cout << "_buffer: `" << std::string(buffer).substr(0, 100) << "`" << std::endl;
     if (ret1 < 0)
     {
         std::cerr << "Send error ret = " << ret1 << std::endl;
@@ -256,6 +263,7 @@ size_t		Response::get_content_length(void) const {return (_content_length);}
 int         Response::get_fd_out(void) const {return (_fd_out);}
 Host*		Response::get_host(void) const {return (_host);}
 Request*	Response::get_request(void) const {return (_request);}
+bool        Response::get_end_header(void) const {return (_end_header);}
 
 void		Response::set_socket(int s) {_socket = s;}
 void		Response::set_host(Host* h) {_host = h;}

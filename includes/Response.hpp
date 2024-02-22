@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/02 16:42:59 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/22 10:12:13 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ class	Response
 		size_t		    _content_length;
 		size_t		    _body_size;
 		size_t		    _pos;
+        bool            _end_header;
 
         int             _fd_out;
 		std::string	    _full_file_name;
@@ -64,6 +65,7 @@ class	Response
         int             get_fd_out(void) const;
         Host*		    get_host(void) const;
         Request*	    get_request(void) const;
+        bool            get_end_header(void) const;
 
 		void		    set_socket(int);
 		void		    set_host(Host*);

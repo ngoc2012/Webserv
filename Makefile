@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/02/22 06:25:28 by ngoc             ###   ########.fr        #
+#    Updated: 2024/02/22 11:29:05 by ngoc             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,8 +35,8 @@ gits:
 	git push
 others:
 	clear
-	./ubuntu_tester http://127.0.2.1:4242
-	#./ubuntu_tester http://0.0.0.0:8012
+	#./ubuntu_tester http://127.0.2.1:4242
+	./ubuntu_tester http://0.0.0.0:8012
 	#curl -i -X GET http://127.0.2.1:4242
 	#curl -i -X POST http://127.0.2.1:4242/directory/youpi.bla
 	#curl -i -X POST http://0.0.0.0:8012/directory/youpi.bla

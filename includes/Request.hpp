@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/22 06:58:06 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/22 11:40:47 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ class	Request
 		std::string	    _host_name;
 		e_method	    _method;
 		std::string	    _content_type;
+		std::string	    _accept_encoding;
 		size_t		    _content_length;
 		bool		    _close;
 		bool		    _end_header;
@@ -113,8 +114,10 @@ class	Request
         bool		    get_end(void) const;
         bool		    get_end_header(void) const;
         bool		    get_chunked(void) const;
+        std::string	    get_accept_encoding(void) const;
 
         void		    set_fd_in(int);
+        void            set_accept_encoding(std::string);
         //void		    set_end(bool);
 };
 

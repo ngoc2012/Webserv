@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/22 06:58:32 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/22 11:42:04 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,7 @@ void    Request::init(void)
 	_method = NONE;
 	_content_type = "";
 	_content_length = 0;
+	_accept_encoding = "";
 	_chunked = false;
     _body_left = 0;
     _header_size = 0;
@@ -490,6 +491,8 @@ int		        Request::get_fd_in(void) const {return (_fd_in);}
 std::string	    Request::get_session_id(void) const {return (_session_id);}
 bool		    Request::get_end(void) const {return (_end);}
 bool		    Request::get_chunked(void) const {return (_chunked);}
+std::string	    Request::get_accept_encoding(void) const {return (_accept_encoding);}
 
 void		    Request::set_fd_in(int f) {_fd_in = f;}
+void            Request::set_accept_encoding(std::string a) {_accept_encoding = a;}
 //void		    Request::set_end(bool e) {_end = e;}

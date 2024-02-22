@@ -177,18 +177,22 @@ int    Cgi::parse_header()
         std::cerr << "Error: cgi _fd_out using lseek" << std::endl;
         return 500;
     }
-    //std::cout << "Cgi header:'" << std::endl;
+    std::cout << "Cgi header:'" << std::endl;
     while ((ret = read(_fd_out, buffer, BUFFER_SIZE)) > 0 && !header_complete) {
         buffer[ret] = '\0';
-        //std::cout << buffer;
+        //std::cout << "{" << buffer << "}";
         header += buffer;
         pos = header.find("\r\n\r\n");
         if (pos != std::string::npos) {
             header_complete = true;
+            for (size_t i = pos; i < pos + 10 && i < header.size(); i++)
+            {
+                std::cout << '|' << static_cast<int>(header[i]) << std::endl;
+            }
             header = header.substr(0, pos + 4);
         }
     }
-    //std::cout << "`" << std::endl;
+    std::cout << "`" << std::endl;
     
     size_t status_pos = header.find("Status: ");
     if (status_pos != std::string::npos) {
@@ -267,7 +271,6 @@ bool    Cgi::get_envs()
     std::string extension = ft::file_extension(_request->get_full_file_name());
     if (extension == "php")
         envs.push_back("REDIRECT_STATUS=200");
-
     
     if (!(_envs = new char*[envs.size() + 1]))
         return false;
