@@ -54,11 +54,11 @@ std::string	Header::generate(void)
 		str += "Allow: " + _allow + "\r\n";
     if (_status_code == 200)
     {
-        
         str += std::string("Content-Language: en") + "\r\n";
-		Request*	_request = _response->get_request();
-		if (_request->get_cgi() && _extension == "js")
-			str += "Content-Type: application/json\r\n";
+        Request*	request = _response->get_request();
+        Cgi*		cgi = request->get_cgi();
+        if (cgi)
+            str += "Content-Type: " + cgi->get_content_type() + "\r\n";
         else if (_mimes->find(_extension) == _mimes->end())
             str += "Content-Type: plain/text\r\n";
         else
@@ -72,7 +72,7 @@ std::string	Header::generate(void)
     if (_session_id != "")
         str += "Set-Cookies: session_id=" + _session_id + "\r\n";
     str += "Date: " + get_current_time() + "\r\n";
-    str += "server: webserv\r\n\r\n";
+    str += "Server: webserv\r\n\r\n";
     return (str);
 }
 

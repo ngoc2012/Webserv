@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/21 11:28:24 by nbechon          ###   ########.fr       */
+/*   Updated: 2024/02/21 20:49:43 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,8 +177,10 @@ int    Cgi::parse_header()
         std::cerr << "Error: cgi _fd_out using lseek" << std::endl;
         return 500;
     }
+    //std::cout << "Cgi header:'" << std::endl;
     while ((ret = read(_fd_out, buffer, BUFFER_SIZE)) > 0 && !header_complete) {
         buffer[ret] = '\0';
+        //std::cout << buffer;
         header += buffer;
         pos = header.find("\r\n\r\n");
         if (pos != std::string::npos) {
@@ -186,6 +188,8 @@ int    Cgi::parse_header()
             header = header.substr(0, pos + 4);
         }
     }
+    //std::cout << "`" << std::endl;
+    
     size_t status_pos = header.find("Status: ");
     if (status_pos != std::string::npos) {
         size_t code_start = status_pos + strlen("Status: ");
@@ -217,7 +221,7 @@ int    Cgi::parse_header()
         return 500;
     }
     off_t body_start = pos + 4;
-    if (lseek(_fd_out, body_start + 1, SEEK_SET) == -1) {
+    if (lseek(_fd_out, body_start, SEEK_SET) == -1) {
         std::cerr << "Error: failed to position _fd_out at the beginning of the body" << std::endl;
         return 500;
     }
@@ -229,10 +233,11 @@ int    Cgi::parse_header()
         
     }
     _content_length = fileStat.st_size - body_start;
+    std::cout << "Cgi content_length: " << _content_length << std::endl;
     // ret = read(_fd_out, buffer, 4);
     // buffer[ret] = '\0';
     // std::cout << "`" << buffer << "`" << std::endl;
-    return 200;
+    return (_status_code);
 }
 
 bool    Cgi::get_envs()
@@ -279,7 +284,11 @@ bool    Cgi::get_envs()
     return (true);
 }
 
-int         Cgi::get_pid(void) const {return (_pid);}
+int             Cgi::get_pid(void) const {return (_pid);}
+int             Cgi::get_status_code(void) const {return (_status_code);}
+std::string     Cgi::get_status_message(void) const {return (_status_message);}
+std::string     Cgi::get_content_type(void) const {return (_content_type);}
+size_t          Cgi::get_content_length(void) const {return (_content_length);}
 
 void        Cgi::set_request(Request* r) {_request = r;}
 void        Cgi::set_file(std::string f) {_file = f;}

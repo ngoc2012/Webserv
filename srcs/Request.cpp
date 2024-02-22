@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/21 15:17:08 by minh-ngu         ###   ########.fr       */
+/*   Updated: 2024/02/22 06:58:32 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 #include "Location.hpp"
 #include "Request.hpp"
 #include "Header.hpp"
-#include "Cgi.hpp"
+//#include "Cgi.hpp"
 
 #define BUFFER_SIZE 65792
 
@@ -177,7 +177,7 @@ int Request::receive_header(void)
     _buffer[ret] = 0;
     _str_header += _buffer;
     std::cout << "============================================" << std::endl;
-    std::cout << "`" << _str_header << "`" << std::endl;
+    std::cout << "`" << _str_header.substr(0, 200) << "`" << std::endl;
     _header_size = _str_header.find("\r\n\r\n");
     if (_header_size == NPOS)
     {
@@ -200,7 +200,7 @@ int Request::receive_header(void)
     {
         std::memmove(_buffer, body_left.c_str(), _body_left);
         _buffer[_body_left] = 0;
-        std::cout << "Body: `" << _buffer << "`" << std::endl;
+        //std::cout << "Body: `" << _buffer << "`" << std::endl;
     }
     
     std::cout << "End receive header with status code " << _status_code << std::endl;
@@ -315,7 +315,7 @@ static size_t   find_chunk_size(std::string &s, size_t &_chunk_size)
     end = s.find("\r\n", start);
     if (end == NPOS)
         return (NPOS);
-    std::cout << "size:'" << s.substr(start, end - start) << "'" << std::endl;
+    //std::cout << "size:'" << s.substr(start, end - start) << "'" << std::endl;
     size = ft::atoi_base(s.substr(start, end - start).c_str(), "0123456789abcdef");
     if (size == 0 && s.find("\r\n\r\n", start) == NPOS)
         return (NPOS);
@@ -374,7 +374,7 @@ void    Request::write_chunked()
             return ;
         }
         _read_data.erase(0, end_size);
-        std::cout << "After erase: `" << _read_data.substr(0, 100) << "`" << std::endl;
+        //std::cout << "After erase: `" << _read_data.substr(0, 100) << "`" << std::endl;
         read_size = _read_data.size();
     } while (read_size > 0);
 }
@@ -393,19 +393,21 @@ bool	Request::check_location()
     _full_file_name = _location->get_full_file_name(_url,
             _server->get_root(), _method);
     std::cout << _full_file_name << std::endl;
-    struct stat info;
-    if (_method != PUT
-            && stat(_full_file_name.c_str(), &info) != 0)
-    {
-        std::cerr << RED << "Error: File does not exist." << RESET << std::endl;
-        _status_code = 404; // Not found
-        return (false);             
-    }
+    //std::cout << "Cgi: " << _location->get_cgi_pass() << std::endl;
     if (_location->get_cgi_pass() != "")
     {
         _cgi = new Cgi(this);
         _cgi->set_pass(_location->get_cgi_pass());
         _cgi->set_file(_full_file_name);
+    }
+
+    struct stat info;
+    if (!_cgi && _method != PUT
+            && stat(_full_file_name.c_str(), &info) != 0)
+    {
+        std::cerr << RED << "Error: File does not exist." << RESET << std::endl;
+        _status_code = 404; // Not found
+        return (false);             
     }
     return (true);
 }
@@ -487,6 +489,7 @@ Location*	    Request::get_location(void) const {return (_location);}
 int		        Request::get_fd_in(void) const {return (_fd_in);}
 std::string	    Request::get_session_id(void) const {return (_session_id);}
 bool		    Request::get_end(void) const {return (_end);}
+bool		    Request::get_chunked(void) const {return (_chunked);}
 
 void		    Request::set_fd_in(int f) {_fd_in = f;}
 //void		    Request::set_end(bool e) {_end = e;}

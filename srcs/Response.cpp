@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/13 09:06:55 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/22 06:59:57 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,21 +69,31 @@ void     Response::write_header()
     Header	header(this, ft::file_extension(_full_file_name));
     if (_status_code == 405)
         header.set_allow(_request->get_location()->get_methods_str());
-    if (_status_code == 200)
+    Cgi*    cgi = _request->get_cgi();
+    if (cgi)
     {
-        if (_request->get_method() == GET && !_request->get_cgi())
-            get_file_size();
-        else if (_fd_out != -1)
+        if (cgi->get_content_length() > 0)
+            _content_length = cgi->get_content_length();
+    }
+    else
+    {
+        if (_status_code == 200)
         {
-            struct stat fileStat;
-            if (fstat(_fd_out, &fileStat) == -1) {
-                _status_code = 500;
-                std::cerr << "Error getting file information" << std::endl;
+            if (_request->get_method() == GET)
+                get_file_size();
+            else if (_fd_out != -1)
+            {
+                struct stat fileStat;
+                if (fstat(_fd_out, &fileStat) == -1) {
+                    _status_code = 500;
+                    std::cerr << "Error getting file information" << std::endl;
+                }
+                else
+                    _content_length = fileStat.st_size;
             }
-            else
-                _content_length = fileStat.st_size;
         }
     }
+    
     if (_status_code != 200)
     {
         if (_status_code == 301 || _status_code == 302)
@@ -120,7 +130,7 @@ void     Response::write_header()
     std::cout << "Response Header:\n" << _header << std::endl;
     if (send(_socket, _header.c_str(), _header.length(), 0) < 0)
         end_response();
-    if (_request->get_method() == HEAD)
+    if ((!_request->get_chunked() && !_content_length) || _request->get_method() == HEAD)
         end_response();
     //else
     //    std::cout << "Header sent" << std::endl;
@@ -167,7 +177,7 @@ void     Response::get_file_size()
 
 int     Response::write_body()
 {
-    std::cout << "write_body " << std::endl;
+    //std::cout << "write_body " << std::endl;
     if (_body != "")
     {
         size_t     len = _content_length - _pos;
@@ -180,7 +190,7 @@ int     Response::write_body()
             return (end_response());
         if (ret > 0)
             _host->set_sk_timeout(_socket);
-
+        _body_size += ret;
         _pos += len;
         if (_pos >= _content_length)
             return (end_response());
@@ -188,7 +198,7 @@ int     Response::write_body()
     }
     if (_fd_out == -1)
         return (end_response());
-    std::cerr << "Response _fd_out:" << _fd_out << std::endl;
+    //std::cerr << "Response _fd_out:" << _fd_out << std::endl;
     char	buffer[RESPONSE_BUFFER * 1028 + 20];
     int ret = read(_fd_out, buffer, RESPONSE_BUFFER * 1028);
     //std::cout << _request->get_cgi() << std::endl;
@@ -199,14 +209,21 @@ int     Response::write_body()
     }
         
     buffer[ret] = 0;
-    std::cout << ret << ":" << std::string(buffer).substr(0, 100) << std::endl;
-    _body_size += ret;
+    //std::cout << ret << ":" << std::string(buffer).substr(0, 100) << std::endl;
+    
     int ret1 = send(_socket, buffer, ret, 0);
+    std::cout << "_body_size: " << _body_size << ", ret = " << ret1 << std::endl;
+    std::cout << "_buffer: `" << std::string(buffer).substr(0, 100) << "`" << std::endl;
     if (ret1 < 0)
     {
         std::cerr << "Send error ret = " << ret1 << std::endl;
         return (end_response());
     }
+    
+    _host->set_sk_timeout(_socket);
+    _body_size += ret1;
+    if (_body_size >= _content_length)
+        return (end_response());
     return (0);
 }
 

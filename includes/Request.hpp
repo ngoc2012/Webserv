@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/21 11:49:00 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/22 06:58:06 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 #include "RequestHeader.hpp"
 #include "Response.hpp"
+#include "Cgi.hpp"
 
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
@@ -23,7 +24,7 @@ class	Address;
 class	Server;
 class	RequestHeader;
 class	Response;
-class	Cgi;
+//class	Cgi;
 enum    e_method;
 
 class	Request
@@ -111,6 +112,7 @@ class	Request
         std::string	    get_session_id(void) const;
         bool		    get_end(void) const;
         bool		    get_end_header(void) const;
+        bool		    get_chunked(void) const;
 
         void		    set_fd_in(int);
         //void		    set_end(bool);
