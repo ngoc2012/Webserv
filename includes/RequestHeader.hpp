@@ -37,6 +37,7 @@ class	RequestHeader
         size_t          parse_content_length();
         bool            parse_transfer_encoding();
         std::string     parse_connection();
+		std::string     parse_accept_encoding();
 
 		std::map<std::string, std::string>		    parse_cookies();
 

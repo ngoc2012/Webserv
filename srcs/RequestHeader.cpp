@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/06 07:03:17 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/22 17:30:01 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,6 +166,22 @@ bool    RequestHeader::parse_transfer_encoding()
     if (_str->substr(last_pos, 7) == "chunked")
         return (true);
     return (false);
+}
+
+std::string	    RequestHeader::parse_accept_encoding()
+{
+    size_t  last_pos = _str->find("Accept-Encoding:", _pos);
+    if (last_pos == NPOS)
+        return ("");
+    last_pos += 17;
+    size_t  pos = _str->find("\r\n", last_pos);
+    if (pos == NPOS)
+    {
+        std::cerr << "Error: No newline for Accept-Encoding." << std::endl;
+        return ("");
+    }
+    std::string     type = _str->substr(last_pos, pos - last_pos);
+    return (type);
 }
 
 //https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cookie

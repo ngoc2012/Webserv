@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/21 20:49:43 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/22 17:31:00 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -280,7 +280,7 @@ bool    Cgi::get_envs()
     for (std::vector<std::string>::iterator it = envs.begin();
             it != envs.end(); it++)
     {
-        //std::cout << *it << std::endl;
+        std::cout << *it << std::endl;
         _envs[i++] = strdup(it->c_str());
     }
     _envs[i] = 0;

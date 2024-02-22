@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/22 11:42:04 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/22 17:29:13 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -267,6 +267,7 @@ bool	Request::parse_header(void)
         std::cerr << MAGENTA << "Error: Content length bigger than " << _body_max << RESET << std::endl;
         return (false);
     }
+    _accept_encoding = _header.parse_accept_encoding();
     std::cout << "End parse_header with status code " << _status_code << std::endl;
     return (true);
 }
