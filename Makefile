@@ -6,11 +6,11 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/02/22 11:29:05 by ngoc             ###   ########.fr        #
+#    Updated: 2024/02/22 17:38:18 by ngoc             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FILES = main Host Address Server Worker Request RequestHeader Response Header Configuration Location Cgi Listing Sessions ft/split_string ft/is_digit ft/itos ft/match_wildcard ft/file_extension ft/atoi_base ft/itoa_base ft/str_replace ft/to_upper ft/trim_string ft/timestamp
+FILES = main Host Address Server Worker Request Response Header Configuration Location Cgi Listing Sessions ft/split_string ft/is_digit ft/itos ft/match_wildcard ft/file_extension ft/atoi_base ft/itoa_base ft/str_replace ft/to_upper ft/trim_string ft/timestamp
 SRCS = $(addsuffix .cpp, $(addprefix srcs/, $(FILES)))
 INCS = $(wildcard includes/*.hpp)
 OBJS = ${SRCS:.cpp=.o}
@@ -35,8 +35,8 @@ gits:
 	git push
 others:
 	clear
-	#./ubuntu_tester http://127.0.2.1:4242
-	./ubuntu_tester http://0.0.0.0:8012
+	./ubuntu_tester http://127.0.2.1:4242
+	#./ubuntu_tester http://0.0.0.0:8012
 	#curl -i -X GET http://127.0.2.1:4242
 	#curl -i -X POST http://127.0.2.1:4242/directory/youpi.bla
 	#curl -i -X POST http://0.0.0.0:8012/directory/youpi.bla

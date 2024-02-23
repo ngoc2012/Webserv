@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/22 17:31:00 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/22 17:36:29 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ Cgi::Cgi(Request* request): _request(request)
     _pid = -1;
     _tmp_file = "";
     _content_length = 0;
+    _response = _request->get_response();
 }
 Cgi::Cgi(const Cgi& src) { *this = src; }
 Cgi&	Cgi::operator=( Cgi const & src )
@@ -63,13 +64,9 @@ Cgi::~Cgi()
 
 int    Cgi::execute()
 {
-    Response*       response;
-
-    response = _request->get_response();
     if (!get_envs())
     {
         std::cerr << "Error: envs" << std::endl;
-        response->set_status_code(500);
         return 500;
     }
 
@@ -95,7 +92,7 @@ int    Cgi::execute()
         return 500;
     }
     std::cerr << "Cgi _fd_out:" << _fd_out << std::endl;
-    response->set_fd_out(_fd_out);
+    _response->set_fd_out(_fd_out);
 
     _pid = fork();
 
@@ -177,7 +174,7 @@ int    Cgi::parse_header()
         std::cerr << "Error: cgi _fd_out using lseek" << std::endl;
         return 500;
     }
-    std::cout << "Cgi header:'" << std::endl;
+    //std::cout << "Cgi header:'" << std::endl;
     while ((ret = read(_fd_out, buffer, BUFFER_SIZE)) > 0 && !header_complete) {
         buffer[ret] = '\0';
         //std::cout << "{" << buffer << "}";
@@ -185,14 +182,14 @@ int    Cgi::parse_header()
         pos = header.find("\r\n\r\n");
         if (pos != std::string::npos) {
             header_complete = true;
-            for (size_t i = pos; i < pos + 10 && i < header.size(); i++)
-            {
-                std::cout << '|' << static_cast<int>(header[i]) << std::endl;
-            }
+            // for (size_t i = pos; i < pos + 10 && i < header.size(); i++)
+            // {
+            //     std::cout << '|' << static_cast<int>(header[i]) << std::endl;
+            // }
             header = header.substr(0, pos + 4);
         }
     }
-    std::cout << "`" << std::endl;
+    //std::cout << "`" << std::endl;
     
     size_t status_pos = header.find("Status: ");
     if (status_pos != std::string::npos) {
@@ -238,9 +235,9 @@ int    Cgi::parse_header()
     }
     _content_length = fileStat.st_size - body_start;
     std::cout << "Cgi content_length: " << _content_length << std::endl;
-    // ret = read(_fd_out, buffer, 4);
-    // buffer[ret] = '\0';
-    // std::cout << "`" << buffer << "`" << std::endl;
+
+    _response->set_content_length(_content_length);
+    _response->set_content_type(_content_type);
     return (_status_code);
 }
 
@@ -254,6 +251,10 @@ bool    Cgi::get_envs()
         envs.push_back("CONTENT_LENGTH=" + ft::itos((int) _request->get_content_length()));
     }
     envs.push_back("GATEWAY_INTERFACE=CGI/1.1");
+    if (_request->get_accept_encoding() != "")
+        envs.push_back("HTTP_ACCEPT_ENCODING=" + _request->get_accept_encoding());
+    if (_request->get_chunked())
+        envs.push_back("HTTP_TRANSFER_ENCODING=chunked");
     envs.push_back("PATH_INFO=" + _file);
     envs.push_back("PATH_TRANSLATED=" + _file);
     envs.push_back("QUERY_STRING=");

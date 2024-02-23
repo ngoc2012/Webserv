@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/30 16:48:59 by nbechon          ###   ########.fr       */
+/*   Updated: 2024/02/22 17:37:32 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,15 +26,13 @@ Header&	Header::operator=( Header const & src )
 	(void) src;
 	return (*this);
 }
-Header::Header(Response* r, std::string ext) :
-	_response(r),
-	_extension(ext)
+Header::Header(Response* r) :
+	_response(r)
 {
     _host = _response->get_host();
-    _mimes = _host->get_mimes();
     _status_message = _host->get_status_message();
 	_session_id = "";
-	init();
+	//init();
 }
 Header::~Header() { }
 
@@ -52,23 +50,14 @@ std::string	Header::generate(void)
 	str += "\r\n";
 	if (_status_code == 405)
 		str += "Allow: " + _allow + "\r\n";
-    if (_status_code == 200)
+	//str += std::string("Content-Language: en") + "\r\n";
+    if (_response->get_content_type() != "")
     {
-        str += std::string("Content-Language: en") + "\r\n";
-        Request*	request = _response->get_request();
-        Cgi*		cgi = request->get_cgi();
-        if (cgi)
-            str += "Content-Type: " + cgi->get_content_type() + "\r\n";
-        else if (_mimes->find(_extension) == _mimes->end())
-            str += "Content-Type: plain/text\r\n";
-        else
-            str += "Content-Type: " + (*_mimes)[_extension] + "\r\n";
+		str += "Content-Type: " + _response->get_content_type() + "\r\n";
     }
     else
-    	str += "Content-Type: text/html\r\n";
-    if (_response->get_content_length() > 0)
-        str += "Content-Length: " + ft::itos(_response->get_content_length()) + "\r\n";
-    std::cout << "===============" << _session_id << std::endl;
+    	str += "Content-Type: plain/text\r\n";
+    str += "Content-Length: " + ft::itos(_response->get_content_length()) + "\r\n";
     if (_session_id != "")
         str += "Set-Cookies: session_id=" + _session_id + "\r\n";
     str += "Date: " + get_current_time() + "\r\n";
@@ -76,9 +65,9 @@ std::string	Header::generate(void)
     return (str);
 }
 
-void	Header::init(void)
-{
-}
+// void	Header::init(void)
+// {
+// }
 
 std::string	Header::get_current_time(void)
 {

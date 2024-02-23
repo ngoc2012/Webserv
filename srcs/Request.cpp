@@ -12,6 +12,7 @@
 
 #include <unistd.h>
 #include <cstring>  // debug
+#include <sys/stat.h>	// stat, S_ISDIR
 
 #include "Host.hpp"
 #include "Address.hpp"
@@ -19,6 +20,7 @@
 #include "Location.hpp"
 #include "Request.hpp"
 #include "Header.hpp"
+#include "Listing.hpp"
 //#include "Cgi.hpp"
 
 #define BUFFER_SIZE 65792
@@ -41,18 +43,14 @@ Request::Request(int sk, Host* h, Address* a) : _socket(sk), _host(h), _address(
 	_response.set_server(_server);
 	_response.set_request(this);
 
-	_header.set_request(this);
-    _header.set_host(h);
-    _header.set_str(&_str_header);
-
     _body_max = _host->get_client_max_body_size() * MEGABYTE;
     _body_buffer = _host->get_client_body_buffer_size() * KILOBYTE;
     _header_buffer = _host->get_large_client_header_buffer() * KILOBYTE;
     _buffer_size = MAX(_header_buffer, _body_buffer);
     _chunk_size = 0;
-    std::cout << "_body_buffer: " << _body_buffer << std::endl;
-    std::cout << "_header_buffer: " << _header_buffer << std::endl;
-    std::cout << "_buffer_size: " << _buffer_size << std::endl;
+    // std::cout << "_body_buffer: " << _body_buffer << std::endl;
+    // std::cout << "_header_buffer: " << _header_buffer << std::endl;
+    // std::cout << "_buffer_size: " << _buffer_size << std::endl;
     _buffer = new char[_buffer_size + 1];
 
     _cgi = 0;
@@ -92,7 +90,6 @@ void    Request::init(void)
 	_full_file_name = "";
 	_tmp_file = "";
     _end_header = false;
-    //_end_chunked_body = false;
     _start_chunked_body = false;
     _read_data = "";
     _end = false;
@@ -102,7 +99,6 @@ void    Request::init(void)
 
 Request::~Request()
 {
-    //std::cout << "Request Destructor" << std::endl;
     delete[] _buffer;
     clean();
     if (_socket > 0)
@@ -118,15 +114,48 @@ int     Request::read(void)
 
 int     Request::read_header()
 {
-    int ret = receive_header();
-    std::cout << "read_header: " << ret << std::endl;
+    int ret = recv(_socket, _buffer, _header_buffer, 0);
+    std::cout << "receive_header: ret=" << ret << std::endl;
     if (ret <= 0)
         return (ret);
-    if (!_end_header)
-        return (1);
+    _host->set_sk_timeout(_socket);
+    _buffer[ret] = 0;
+    _str_header += _buffer;
+    std::cout << "============================================" << std::endl;
+    std::cout << "`" << _str_header.substr(0, 200) << "`" << std::endl;
+    _header_size = _str_header.find("\r\n\r\n");
+    if (_header_size == NPOS)
+    {
+        if (_str_header.size() > _header_buffer)
+        {
+            ft::timestamp();
+            std::cerr << MAGENTA << "Error: No end header found or header too big.\n" << RESET << std::endl;
+            _status_code = 400;	// Bad Request
+            return (end_request());
+        }
+        return (ret);
+    }
+    _end_header = true;
+    //std::cout << "Request header: " << _header_size << std::endl;
+    _body_left = _str_header.size() - _header_size - 4;
+    std::string body_left = _str_header.substr(_header_size + 4);
+    //std::cout << "Body left: " << _body_left << std::endl;
+    if (_body_left > 0)
+    {
+        std::memmove(_buffer, body_left.c_str(), _body_left);
+        _buffer[_body_left] = 0;
+        //std::cout << "Body: `" << _buffer << "`" << std::endl;
+    }
+    //std::cout << "End receive header with status code " << _status_code << std::endl;
     if (!parse_header())
         return (end_request());
     process_fd_in();
+    write_body_left();
+    return (ret);
+}
+
+void    Request::write_body_left(void)
+{
     std::cout << "_fd_in = " << _fd_in << ", _body_left = " << _body_left << std::endl;
     //std::cout << _body_size << " " << _body_left << " " << _content_length << std::endl;
     if (_fd_in != -1 && _body_left > 0)
@@ -151,69 +180,56 @@ int     Request::read_header()
     if (!_chunked && (!_content_length || _body_size >= _content_length))
     {
         std::cout << "No content length or the header receive has all the data body_left=" << _body_left << ", content_length=" << _content_length << std::endl;
-        return (end_request());
+        end_request();
     }
-        
-    return (ret);
 }
 
-int Request::receive_header(void)
+bool	Request::parse_method_url(std::string str)
 {
-    int ret = recv(_socket, _buffer, _header_buffer, 0);
-    std::cout << "receive_header: ret=" << ret << std::endl;
-    if (ret < 0)
-        return (ret);
-    if (!ret)
+    std::istringstream      iss(str);
+    std::string             tk;
+    std::string             method;
+    int i = 0;
+    while (iss >> tk && i < 4)
     {
-        if (_str_header.size())
-        {
-            std::cerr << MAGENTA << "Error: No end header found." << RESET << std::endl;
-            _status_code = 400;	// Bad Request
-            return (end_request());
-        }
-        else
-            return (ret);
+        if (i == 0)
+            method = tk;
+        if (i == 1)
+            _url = tk;
+        i++;
     }
-    _host->set_sk_timeout(_socket);
-    _buffer[ret] = 0;
-    _str_header += _buffer;
-    std::cout << "============================================" << std::endl;
-    std::cout << "`" << _str_header.substr(0, 200) << "`" << std::endl;
-    _header_size = _str_header.find("\r\n\r\n");
-    if (_header_size == NPOS)
+    if (i > 3)
     {
-        if (_str_header.size() > _header_buffer)
-        {
-            ft::timestamp();
-            std::cerr << MAGENTA << "Error: No end header found or header too big.\n" << RESET << std::endl;
-            _status_code = 400;	// Bad Request
-            return (end_request());
-        }
-        return (ret);
+        std::cerr << RED << "Error: First line header invalid." << RESET << std::endl;
+        return (false);
     }
-    _end_header = true;
-    std::cout << "Request header: " << _header_size << std::endl;
-    _body_left = _str_header.size() - _header_size - 4;
-    std::string body_left = _str_header.substr(_header_size + 4);
-    std::cout << "Body left: " << _body_left << std::endl;
-
-    if (_body_left > 0)
+    if (method == "GET")
+        _method = GET;
+    else if (method == "POST")
+        _method = POST;
+    else if (method == "PUT")
+        _method = PUT;
+    else if (method == "DELETE")
+        _method = DELETE;
+	else if (method == "OPTIONS")
+		_method = OPTIONS;
+    else if (method == "HEAD")
+		_method = HEAD;
+    else
     {
-        std::memmove(_buffer, body_left.c_str(), _body_left);
-        _buffer[_body_left] = 0;
-        //std::cout << "Body: `" << _buffer << "`" << std::endl;
+        std::cerr << RED << "Error: Method unknown : " << method << RESET << std::endl;
+        return (false);
     }
-    
-    std::cout << "End receive header with status code " << _status_code << std::endl;
-    return (ret);
+    return (true);
 }
 
 bool	Request::parse_header(void)
 {
     std::cout << "parse_header" << std::endl;
-    if (!_header.parse_method_url(_url, _method))
+    size_t          end_line = _str_header.find("\r\n");
+    std::string     line = _str_header.substr(0, end_line);
+    if (!parse_method_url(line))
     {
-        ft::timestamp();
         std::cerr << RED << "Error: Method or url error." << RESET << std::endl;
         _status_code = 400;	// Bad Request
         return (false);
@@ -221,10 +237,37 @@ bool	Request::parse_header(void)
     ft::timestamp();
     std::cout << GREEN << _location->get_method_str(_method) << " ";
     std::cout << _url << " ";
-    _host_name = _header.parse_host_name();
+    _str_header.erase(0, end_line + 2);
+    size_t          separator;
+    do
+    {
+        end_line = _str_header.find("\r\n");
+        if (end_line == NPOS)
+            break;
+        line = _str_header.substr(0, end_line);
+        separator = line.find(": ");
+        if (separator != NPOS)
+        {
+            std::string key = line.substr(0, separator);
+            std::string value = line.substr(separator + 2);
+            _fields[key] = value;
+        }
+        //std::cout << "line: '" << line << "'" << std::endl;
+        //std::cout << "end_line: '" << end_line << "'" << std::endl;
+        _str_header.erase(0, end_line + 2);
+    } while (end_line);
+    //std::cout << "_str_header: '" << _str_header << "'" << std::endl;
+    // if (!_header.parse_method_url(_url, _method))
+    // {
+    //     std::cerr << RED << "Error: Method or url error." << RESET << std::endl;
+    //     _status_code = 400;	// Bad Request
+    //     return (false);
+    // }
+   // end_line = _str_header.find("\r\n");
+    
+    _host_name = _fields["Host"];
     if (_host_name == "")
     {
-        ft::timestamp();
         std::cerr << RED << "Error: No host name." << RESET << std::endl;
         _status_code = 400;	// Bad Request
         return (false);
@@ -245,20 +288,22 @@ bool	Request::parse_header(void)
 	_response.set_server(_server);
     check_location();
     std::cout << "Location found: " << _location->get_url() << std::endl;
-    _chunked = _header.parse_transfer_encoding();
+
+    if (_fields["Transfer-Encoding"] == "chunked")
+        _chunked = true;
     std::cout << "_chunked: " << _chunked << std::endl;
-    _content_length = _header.parse_content_length();
+    _content_length = std::atoi(_fields["Content-Length"].c_str());
     //std::cout << "Content-Length: " << _content_length << std::endl;
-    _cookies = _header.parse_cookies();
+    _cookies = parse_cookies(_fields["Cookie"]);
     if (_cookies.find("session_id") != _cookies.end())
         _session_id = _cookies["session_id"];
     if (_cookies.find("sid") != _cookies.end())
         _session_id = _cookies["sid"];
     std::cout << "Session id: " << _session_id << std::endl;
     //std::cout << "Connection: " << _header.parse_connection() << std::endl;
-    if (_header.parse_connection() == "close")
+    if (_fields["Connection"] == "close")
         _close = true;
-    _content_type = _header.parse_content_type();
+    _content_type = _fields["Content-Type"];
     //std::cout << "Content-Type: " << _content_type << std::endl;
     if (_content_length > _body_max)
     {
@@ -267,9 +312,35 @@ bool	Request::parse_header(void)
         std::cerr << MAGENTA << "Error: Content length bigger than " << _body_max << RESET << std::endl;
         return (false);
     }
-    _accept_encoding = _header.parse_accept_encoding();
+    //_accept_encoding = _header.parse_accept_encoding();
     std::cout << "End parse_header with status code " << _status_code << std::endl;
     return (true);
+}
+
+std::map<std::string, std::string>    Request::parse_cookies(std::string& str)
+{
+    if (str == "")
+        return (std::map<std::string, std::string>());
+    std::map<std::string, std::string>  cookies;
+    std::vector<std::string> cookie_pairs = ft::split_string(str, ";");
+
+    for (std::vector<std::string>::iterator it = cookie_pairs.begin();
+         it != cookie_pairs.end(); ++it)
+    {
+        // fonction trim_string pour éliminer les espaces
+        std::string trimmed_cookie = ft::trim_string(*it);
+
+        // séparer le nom et la valeur
+        size_t equal_pos = trimmed_cookie.find('=');
+        if (equal_pos != std::string::npos)
+        {
+            // Extraire le nom et la valeur
+            std::string name = trimmed_cookie.substr(0, equal_pos);
+            std::string value = trimmed_cookie.substr(equal_pos + 1);
+            cookies[name] = value;
+        }
+    }
+    return (cookies);
 }
 
 int     Request::read_body()
@@ -304,7 +375,7 @@ int     Request::read_body()
     return (ret);
 }
 
-static size_t   find_chunk_size(std::string &s, size_t &_chunk_size)
+static size_t   find_chunk_size(std::string &s, size_t &chunk_size)
 {
     size_t  start;
     size_t  end;
@@ -321,7 +392,7 @@ static size_t   find_chunk_size(std::string &s, size_t &_chunk_size)
     size = ft::atoi_base(s.substr(start, end - start).c_str(), "0123456789abcdef");
     if (size == 0 && s.find("\r\n\r\n", start) == NPOS)
         return (NPOS);
-    _chunk_size = size;
+    chunk_size = size;
     return (end + 2);
 }
 
@@ -402,14 +473,36 @@ bool	Request::check_location()
         _cgi->set_pass(_location->get_cgi_pass());
         _cgi->set_file(_full_file_name);
     }
-
-    struct stat info;
-    if (!_cgi && _method != PUT
-            && stat(_full_file_name.c_str(), &info) != 0)
+    if (!_cgi && _method != PUT)
     {
-        std::cerr << RED << "Error: File does not exist." << RESET << std::endl;
-        _status_code = 404; // Not found
-        return (false);             
+        struct stat info;
+        if (stat(_full_file_name.c_str(), &info) != 0)
+        {
+            std::cerr << RED << "Error: File does not exist." << RESET << std::endl;
+            _status_code = 404; // Not found
+            return (false);
+        }
+        if (S_ISDIR(info.st_mode))
+        {
+            _response.set_body(Listing::get_html(&_response));
+            _response.set_content_type("text/html");
+            return (true);
+        }
+        int     fd_out = open(_full_file_name.c_str(), O_RDONLY);
+        if (fd_out == -1)
+        {
+            std::cerr << RED << "Error: fd out open error: " << fd_out << RESET << std::endl;
+            _status_code = 500;
+            return (false);
+        }
+        std::string     extension = ft::file_extension(_full_file_name);
+        std::map<std::string, std::string>*     mimes = _host->get_mimes();
+        if (mimes->find(extension) != mimes->end())
+            _response.set_content_type((*mimes)[extension]);
+        else
+            _response.set_content_type("plain/text");
+        _response.set_fd_out(fd_out);
+        _response.set_content_length(info.st_size); 
     }
     return (true);
 }
@@ -471,6 +564,7 @@ int     Request::end_request(void)
         close(_fd_in);
     _host->new_response_sk(_socket);
     _response.set_status_code(_status_code);
+    _response.header_generate();
     _end = true;
     return (1);
 }

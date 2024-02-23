@@ -23,6 +23,7 @@ class	Cgi
         std::string     _pass;
         std::string     _file;
 		Request*        _request;
+        Response*       _response;
         char**          _envs;
         int             _pid;
         std::string     _tmp_file;

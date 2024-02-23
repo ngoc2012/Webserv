@@ -31,7 +31,7 @@ class	Header
 		Host*		                        _host;
 		Response*				            _response;
 		std::map<int, std::string>*		    _status_message;
-        std::map<std::string, std::string>*	_mimes;
+        
 		std::string				            _allow;
 		std::string				            _extension;
 		std::string				            _session_id;
@@ -39,14 +39,14 @@ class	Header
 
 		std::string			                get_current_time(void);
 		std::string			                file_last_modified_time(std::string);
-		void				                init(void);
+		//void				                init(void);
 
 		Header();
 		Header(const Header&);
 		Header		&operator=(const Header& op);
 
 	public:
-		Header(Response*, std::string);
+		Header(Response*);
 		virtual ~Header();
 
 		std::string			generate(void);

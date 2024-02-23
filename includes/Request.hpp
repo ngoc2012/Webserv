@@ -6,20 +6,18 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/22 11:40:47 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/22 17:47:58 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
-
-#include "RequestHeader.hpp"
+#include "Host.hpp"
 #include "Response.hpp"
 #include "Cgi.hpp"
 
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
-class	Host;
 class	Address;
 class	Server;
 class	RequestHeader;
@@ -34,7 +32,6 @@ class	Request
 		Host*		    _host;
 		Address*		_address;
 		Server*		    _server;
-		RequestHeader	_header;
 		Response	    _response;
 		Location*	    _location;	
         Cgi*            _cgi;
@@ -59,6 +56,7 @@ class	Request
         size_t 		    _body_left;
 		std::map<std::string, std::string>  _cookies;
 		std::string	    _session_id;
+        std::map<std::string, std::string>  _fields;
 
 		int		        _fd_in;
 		std::string	    _full_file_name;
@@ -72,12 +70,13 @@ class	Request
 		int		        _status_code;
 
 		int 		    read_header(void);
-		int			    receive_header(void);
 		bool		    parse_header(void);
+		bool			parse_method_url(std::string str);
         bool	        check_location(void);
 		bool	        check_session(void);
-
+		std::map<std::string, std::string>    parse_cookies(std::string&);
 		void		    process_fd_in(void);
+		void		    write_body_left(void);
         int 	        read_body();
         void 	        write_chunked();
 
