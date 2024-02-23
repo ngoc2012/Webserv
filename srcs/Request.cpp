@@ -43,7 +43,6 @@ Request::Request(int sk, Host* h, Address* a) : _socket(sk), _host(h), _address(
 	_response.set_server(_server);
 	_response.set_request(this);
 
-    _body_max = _host->get_client_max_body_size() * MEGABYTE;
     _body_buffer = _host->get_client_body_buffer_size() * KILOBYTE;
     _header_buffer = _host->get_large_client_header_buffer() * KILOBYTE;
     _buffer_size = MAX(_header_buffer, _body_buffer);
@@ -73,6 +72,7 @@ void    Request::init(void)
 {
     std::cout << "Request init" << std::endl;
     clean();
+    _body_max = _host->get_client_max_body_size() * MEGABYTE;
     _server = 0;
     _cgi = 0;
 	_str_header = "";
@@ -459,7 +459,7 @@ bool	Request::check_location()
         return (false);
     if (_location->get_client_max_body_size() != NPOS)
         _body_max = _location->get_client_max_body_size();
-    std::cout << "Body max: " << _body_max << "|" << _location->get_client_max_body_size() << std::endl;
+    //std::cout << "Body max: " << _body_max << "|" << _location->get_client_max_body_size() << std::endl;
     if (_location->get_redirection())
     {
         _status_code = _location->get_redirection();
