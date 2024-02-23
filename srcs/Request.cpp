@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/22 17:29:13 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/23 08:37:58 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,7 @@ void    Request::init(void)
     _start_chunked_body = false;
     _read_data = "";
     _end = false;
+    _fields.clear();
     std::memset(_buffer, 0, _buffer_size + 1);
 	_status_code = 200;
 }
@@ -151,6 +152,10 @@ int     Request::read_header()
         return (end_request());
     process_fd_in();
     write_body_left();
+    if (_status_code != 200)
+        return (end_request());
+    if (_content_length && (_body_size == _content_length))
+        return (end_request());
     return (ret);
 }
 
@@ -158,30 +163,24 @@ void    Request::write_body_left(void)
 {
     std::cout << "_fd_in = " << _fd_in << ", _body_left = " << _body_left << std::endl;
     //std::cout << _body_size << " " << _body_left << " " << _content_length << std::endl;
-    if (_fd_in != -1 && _body_left > 0)
+    if (_fd_in == -1 || _body_left <= 0)
+        return ;
+    std::cout << "Write body left to fd_in, body_left=" << _body_left << std::endl;
+    if (_chunked)
+        write_chunked();
+    else
     {
-        std::cout << "Write body left to fd_in, body_left=" << _body_left << std::endl;
-        if (_chunked)
-            write_chunked();
-        else
+        // Écrire le contenu de _buffer[] dans le fichier associé à _fd_in
+        ssize_t bytes_written = write(_fd_in, _buffer, _body_left);
+        if (bytes_written == -1)
         {
-            // Écrire le contenu de _buffer[] dans le fichier associé à _fd_in
-            ssize_t bytes_written = write(_fd_in, _buffer, _body_left);
-            if (bytes_written == -1)
-            {
-                std::cerr << "Error: Unable to write to file " << _tmp_file << std::endl;
-                _status_code = 500;
-                end_request();
-            }
-            _body_size = _body_left;
+            std::cerr << "Error: Unable to write to file " << _tmp_file << std::endl;
+            _status_code = 500;
+            end_request();
         }
-        std::memset(_buffer, 0, _body_left);
+        _body_size = _body_left;
     }
-    if (!_chunked && (!_content_length || _body_size >= _content_length))
-    {
-        std::cout << "No content length or the header receive has all the data body_left=" << _body_left << ", content_length=" << _content_length << std::endl;
-        end_request();
-    }
+    std::memset(_buffer, 0, _body_left);
 }
 
 bool	Request::parse_method_url(std::string str)
@@ -307,13 +306,13 @@ bool	Request::parse_header(void)
     //std::cout << "Content-Type: " << _content_type << std::endl;
     if (_content_length > _body_max)
     {
-        _status_code = 400;	// Bad Request
-        ft::timestamp();
-        std::cerr << MAGENTA << "Error: Content length bigger than " << _body_max << RESET << std::endl;
+        _status_code = 413;
         return (false);
     }
     //_accept_encoding = _header.parse_accept_encoding();
-    std::cout << "End parse_header with status code " << _status_code << std::endl;
+    std::cout << "End parse_header with status code " << _status_code << "|" << _chunked << "|" << _content_length << std::endl;
+    if (_status_code != 200 || (!_chunked && !_content_length) || _method == HEAD)
+        return (false);
     return (true);
 }
 
@@ -366,8 +365,8 @@ int     Request::read_body()
         write_chunked();
         return (ret);
     }
-    //std::cout << "_body_size: " << _body_size << std::endl;
     _body_size += ret;
+    std::cout << "_body_size: " << _body_size << std::endl;
     if (ret > 0 && write(_fd_in, _buffer, ret) == -1)
         return (end_request());
     if (_body_size >= _content_length)
@@ -417,8 +416,6 @@ void    Request::write_chunked()
     }
     do
     {
-        //std::cout << "_chunked_data: (" << read_size << "," << _chunk_size << "), body_size = " << _body_size << std::endl;
-        //std::cout << " `" << _read_data.substr(0, 100) << "`" << std::endl;
         if (_chunk_size > 0)
         {
             len = _chunk_size;
@@ -443,6 +440,8 @@ void    Request::write_chunked()
         if (!_chunk_size)
         {
             std::cout << "End chunked body" << std::endl;
+            if (_body_size > _body_max)
+                _status_code = 413;
             end_request();
             return ;
         }
@@ -458,6 +457,9 @@ bool	Request::check_location()
             _server->get_locations(), _method, _status_code);
     if (!_location || _status_code != 200)
         return (false);
+    if (_location->get_client_max_body_size() != NPOS)
+        _body_max = _location->get_client_max_body_size();
+    std::cout << "Body max: " << _body_max << "|" << _location->get_client_max_body_size() << std::endl;
     if (_location->get_redirection())
     {
         _status_code = _location->get_redirection();
@@ -473,7 +475,7 @@ bool	Request::check_location()
         _cgi->set_pass(_location->get_cgi_pass());
         _cgi->set_file(_full_file_name);
     }
-    if (!_cgi && _method != PUT)
+    if (!_cgi && _method != PUT && _method != POST)
     {
         struct stat info;
         if (stat(_full_file_name.c_str(), &info) != 0)
@@ -482,7 +484,7 @@ bool	Request::check_location()
             _status_code = 404; // Not found
             return (false);
         }
-        if (S_ISDIR(info.st_mode))
+        if (S_ISDIR(info.st_mode) && _location->get_autoindex())
         {
             _response.set_body(Listing::get_html(&_response));
             _response.set_content_type("text/html");
@@ -560,6 +562,8 @@ int     Request::end_request(void)
     
     if (_status_code == 200 && _cgi)
         _status_code = _cgi->execute();
+    if (_status_code == 200 && _body_size > _body_max)
+        _status_code = 413;
     if (_fd_in > 0)
         close(_fd_in);
     _host->new_response_sk(_socket);
@@ -587,6 +591,7 @@ std::string	    Request::get_session_id(void) const {return (_session_id);}
 bool		    Request::get_end(void) const {return (_end);}
 bool		    Request::get_chunked(void) const {return (_chunked);}
 std::string	    Request::get_accept_encoding(void) const {return (_accept_encoding);}
+std::map<std::string, std::string>*     Request::get_fields(void) {return (&_fields);}
 
 void		    Request::set_fd_in(int f) {_fd_in = f;}
 void            Request::set_accept_encoding(std::string a) {_accept_encoding = a;}

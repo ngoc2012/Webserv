@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/27 22:20:58 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/23 10:12:30 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class	Location
 		std::vector<std::string>	_index;
 		int							_redirection;
 		std::string			        _link;
+		size_t				        _client_max_body_size;
 
 
 		Location();
@@ -53,6 +54,7 @@ class	Location
         bool                        get_autoindex(void) const;
         int							get_redirection(void) const;
         std::string			        get_link(void) const;
+        size_t				        get_client_max_body_size(void) const;
 
 		void				        insert_methods(e_method);
 		void				        set_alias(std::string);
@@ -61,6 +63,7 @@ class	Location
         void                        set_autoindex(bool);
         void						set_redirection(int);
         void                        set_link(std::string);
+        void				        set_client_max_body_size(size_t);
 };
 
 #endif

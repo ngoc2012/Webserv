@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/22 17:47:58 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/23 08:37:42 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,7 @@ class	Request
         bool		    get_end_header(void) const;
         bool		    get_chunked(void) const;
         std::string	    get_accept_encoding(void) const;
+        std::map<std::string, std::string>*     get_fields(void);
 
         void		    set_fd_in(int);
         void            set_accept_encoding(std::string);

@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/22 17:36:29 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/23 08:48:51 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,8 +109,6 @@ int    Cgi::execute()
         if (dup2(_fd_out, STDOUT_FILENO) == -1)
             return 500;
         close(pip[0]);
-        //std::cout << _pass.c_str() << std::endl;
-        //std::cout << _file.c_str() << std::endl;
         
         char*   argv[3];
         argv[0] = (char*) _pass.c_str();
@@ -174,7 +172,7 @@ int    Cgi::parse_header()
         std::cerr << "Error: cgi _fd_out using lseek" << std::endl;
         return 500;
     }
-    //std::cout << "Cgi header:'" << std::endl;
+    // std::cout << "Cgi header:'" << std::endl;
     while ((ret = read(_fd_out, buffer, BUFFER_SIZE)) > 0 && !header_complete) {
         buffer[ret] = '\0';
         //std::cout << "{" << buffer << "}";
@@ -189,7 +187,7 @@ int    Cgi::parse_header()
             header = header.substr(0, pos + 4);
         }
     }
-    //std::cout << "`" << std::endl;
+    // std::cout << "`" << std::endl;
     
     size_t status_pos = header.find("Status: ");
     if (status_pos != std::string::npos) {
@@ -251,6 +249,15 @@ bool    Cgi::get_envs()
         envs.push_back("CONTENT_LENGTH=" + ft::itos((int) _request->get_content_length()));
     }
     envs.push_back("GATEWAY_INTERFACE=CGI/1.1");
+    std::map<std::string, std::string>*     fields = _request->get_fields();
+	for (std::map<std::string, std::string>::iterator f = fields->begin();
+		f != fields->end(); f++)
+    {
+        if (f->first != "Host" && f->first != "Content-Type" && f->first != "Content-Length")
+            envs.push_back("HTTP_" + ft::to_upper(f->first) + "=" + f->second);
+
+    }
+
     if (_request->get_accept_encoding() != "")
         envs.push_back("HTTP_ACCEPT_ENCODING=" + _request->get_accept_encoding());
     if (_request->get_chunked())

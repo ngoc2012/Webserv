@@ -75,6 +75,8 @@ void     Response::write_header()
         if (!_content_length || _request->get_method() == HEAD)
             end_response();
     }
+    if (_request->get_method() == HEAD)
+        end_response();
 }
 
 void     Response::header_generate()
@@ -142,7 +144,6 @@ void     Response::mess_body(std::string title, std::string body)
     _body += "      <p>" + body + "</p>\n";
     _body += "  </body>\n";
     _body += "</html>\n";
-    _content_length = _body.size();
 }
 
 int     Response::write_body()
@@ -151,7 +152,7 @@ int     Response::write_body()
     //std::cout << "write_body " << std::endl;
     if (_body != "")
     {
-        //std::cout << "write_body " << _pos << " " << len << " " << _body << std::endl;
+        std::cout << "write_body " << _body.size() << "|" << _body << std::endl;
         ret = send(_socket, _body.c_str(), _body.size(), 0);
         if (ret <= 0)
         {

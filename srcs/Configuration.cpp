@@ -256,6 +256,8 @@ bool	Configuration::server_parser(std::string cmd, Server* server, std::vector<s
 
 bool	Configuration::location_parser(std::string cmd, Location* loc, std::vector<std::string>& words)
 {
+	int	n;
+
 	if (cmd.substr(0, 2) != "		")
     {
         std::cerr << "Error: Indentation error" << std::endl;
@@ -314,6 +316,16 @@ bool	Configuration::location_parser(std::string cmd, Location* loc, std::vector<
 			return (true);
 		}
 		loc->set_cgi_pass(words[1]);
+	}
+	else if (words[0] == "client_max_body_size")
+	{
+		n = std::atoi(words[1].c_str());
+		if (!ft::is_digit(words[1]) || n < 0 || n > 10000000)
+        {
+			std::cerr << "Error: body size not valid (0..10000000)." << std::endl;
+			return (true);
+        }
+		loc->set_client_max_body_size(n);
 	}
 	else if (words[0] == "return")
 	{

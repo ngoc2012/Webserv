@@ -61,13 +61,13 @@ std::string Listing::get_listing(const std::string& directory_name, const std::s
         while ((entry = readdir(directory))) {
             if (entry->d_type == DT_REG) {
                 listing_html += "<li><a href='";
-                listing_html += base_path + entry->d_name;
+                listing_html += base_path + "/" + entry->d_name;
                 listing_html += "'>" + std::string(entry->d_name) + "</a></li>\n";
             } else if (entry->d_type == DT_DIR
                     && std::string(entry->d_name) != "."
                     && std::string(entry->d_name) != "..") {
                 std::string folder_path = directory_name + "/" + entry->d_name;
-                listing_html += "<li><a href='" + base_path + entry->d_name +  "/'><strong>";
+                listing_html += "<li><a href='" + base_path + "/" + entry->d_name +  "/'><strong>";
                 listing_html += entry->d_name; 
                 listing_html += "</strong></a></li>\n";
             }
