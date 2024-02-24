@@ -48,6 +48,7 @@
 
 enum	e_method {GET, POST, PUT, DELETE, HEAD, OPTIONS, NONE};
 
+
 namespace ft {
 
 std::vector<std::string>	split_string(const std::string& input, std::string delimiters);

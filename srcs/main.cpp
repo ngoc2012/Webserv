@@ -15,7 +15,6 @@
 #include "Host.hpp"
 #include "Server.hpp"
 #include "Configuration.hpp"
-#include "Worker.hpp"
 
 Host	*g_host;
 
@@ -29,7 +28,7 @@ void	main_signal_handler(int sig)
 
         Worker*     w = g_host->get_workers();
         for (int i = 0; i < g_host->get_n_workers(); i++)
-            pthread_cancel(*(w[i].get_th()));
+            pthread_cancel(w[i].th);
 	}
 	if (sig == SIGPIPE)	{}
 }
@@ -53,7 +52,7 @@ int	main(int argc, char *argv[])
     host.start();
     Worker*     w = host.get_workers();
     for (int i = 0; i < host.get_n_workers(); i++)
-        pthread_join(*(w[i].get_th()), NULL);
+        pthread_join(w[i].th, NULL);
 
     return (0);
 }

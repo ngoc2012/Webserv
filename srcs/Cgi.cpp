@@ -31,6 +31,7 @@
 Cgi::Cgi() {}
 Cgi::Cgi(Request* request): _request(request)
 {
+    _fd_out = -1;
     _envs = 0;
     _pid = -1;
     _tmp_file = "";

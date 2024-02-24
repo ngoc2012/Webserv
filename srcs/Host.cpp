@@ -19,7 +19,6 @@
 #include "Request.hpp"
 #include "Configuration.hpp"
 
-
 Host::Host(const Host& src) { *this = src; }
 
 Host::Host() {
@@ -143,7 +142,7 @@ void*   Host::handleConnectionsHelper(void* instance) {
 void    Host::start_workers() {
     _workers = new Worker[_n_workers];
     for (int i = 0; i < _n_workers; i++)
-        pthread_create(_workers[i].get_th(), NULL, &Host::handleConnectionsHelper, this);
+        pthread_create(&_workers[i].th, NULL, &Host::handleConnectionsHelper, this);
 }
 
 bool	Host::select_available_sk(void)

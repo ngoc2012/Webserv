@@ -11,12 +11,21 @@
 /* ************************************************************************** */
 
 #include <set>
+#include <map>
 
-#include "Worker.hpp"
 #include "webserv.hpp"
 
 #ifndef HOST_HPP
 # define HOST_HPP
+
+class	Host;
+
+struct  Worker {
+    int         id;
+    pthread_t   th;
+    int         workload;  // Workload metric
+    Host*       host;
+};
 
 // Forward declaration
 class	Address;
@@ -24,6 +33,7 @@ class	Server;
 class	Request;
 class	Response;
 class	Configuration;
+struct	Worker;
 
 //https://www.ibm.com/docs/en/ztpf/2020?topic=overview-blocking-nonblocking
 class	Host
