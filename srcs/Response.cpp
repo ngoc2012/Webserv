@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/23 05:48:07 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/25 17:45:33 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <sys/wait.h>
 
 #include "Host.hpp"
+#include "Worker.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
 #include "Request.hpp"
@@ -67,7 +68,7 @@ void     Response::write_header()
     std::cout << "Response Header:\n'" << _header << "`" << _header.size() << "|" << ret << std::endl;
     if (ret <= 0)
         end_response();
-    _host->set_sk_timeout(_socket);
+    _worker->set_sk_timeout(_socket);
     _header.erase(0, ret);
     if (_header == "")
     {
@@ -160,7 +161,7 @@ int     Response::write_body()
                 std::cerr << RED << "Error: Send body." << RESET << std::endl;
             return (end_response());
         }
-        _host->set_sk_timeout(_socket);
+        _worker->set_sk_timeout(_socket);
         _body_size += ret;
         _body.erase(0, ret);
         if (_body == "")
@@ -193,7 +194,7 @@ int     Response::write_body()
             std::cerr << "Send error ret = " << ret1 << std::endl;
         return (end_response());
     }
-    _host->set_sk_timeout(_socket);
+    _worker->set_sk_timeout(_socket);
     _body_size += ret1;
     if (_body_size >= _content_length)
         return (end_response());
@@ -219,7 +220,6 @@ int     Response::end_response(void)
     //_host->close_client_sk(_socket);
     init();
     _request->init();
-    _host->renew_request_sk(_socket);
     return (0);
 }
 
@@ -234,6 +234,7 @@ std::string	    Response::get_content_type(void) const {return (_content_type);}
 
 void		Response::set_socket(int s) {_socket = s;}
 void		Response::set_host(Host* h) {_host = h;}
+void		Response::set_worker(Worker* w) {_worker = w;}
 void		Response::set_server(Server* s) {_server = s;}
 void		Response::set_request(Request* r) {_request = r;}
 void		Response::set_status_code(int e) {_status_code = e;}

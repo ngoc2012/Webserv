@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/23 08:37:58 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/25 17:47:10 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,14 @@
 #include <sys/stat.h>	// stat, S_ISDIR
 
 #include "Host.hpp"
+#include "Worker.hpp"
 #include "Address.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
 #include "Request.hpp"
 #include "Header.hpp"
 #include "Listing.hpp"
-//#include "Cgi.hpp"
+
 
 #define BUFFER_SIZE 65792
 
@@ -35,14 +36,17 @@ Request&	Request::operator=( Request const & src )
 	(void) src;
 	return (*this);
 }
-Request::Request(int sk, Host* h, Address* a) : _socket(sk), _host(h), _address(a)
+Request::Request(int sk, Worker* w, Address* a) : _socket(sk), _worker(w), _address(a)
 {
 	//std::cout << "Request Constructor sk: " << sk << std::endl;
+    _host = _worker->get_host();
+
 	_response.set_socket(sk);
-	_response.set_host(h);
+	_response.set_host(_host);
+    _response.set_host(_host);
 	_response.set_server(_server);
 	_response.set_request(this);
-
+    
     _body_buffer = _host->get_client_body_buffer_size() * KILOBYTE;
     _header_buffer = _host->get_large_client_header_buffer() * KILOBYTE;
     _buffer_size = MAX(_header_buffer, _body_buffer);
@@ -119,7 +123,7 @@ int     Request::read_header()
     std::cout << "receive_header: ret=" << ret << std::endl;
     if (ret <= 0)
         return (ret);
-    _host->set_sk_timeout(_socket);
+    _worker->set_sk_timeout(_socket);
     _buffer[ret] = 0;
     _str_header += _buffer;
     std::cout << "============================================" << std::endl;
@@ -359,7 +363,7 @@ int     Request::read_body()
     }
 	//std::cout << "read_body: " << ret << std::endl;
     _buffer[ret] = 0;
-    _host->set_sk_timeout(_socket);
+    _worker->set_sk_timeout(_socket);
     if (_chunked)
     {
         write_chunked();
@@ -566,7 +570,7 @@ int     Request::end_request(void)
         _status_code = 413;
     if (_fd_in > 0)
         close(_fd_in);
-    _host->new_response_sk(_socket);
+    _worker->new_response_sk(_socket);
     _response.set_status_code(_status_code);
     _response.header_generate();
     _end = true;
@@ -595,4 +599,4 @@ std::map<std::string, std::string>*     Request::get_fields(void) {return (&_fie
 
 void		    Request::set_fd_in(int f) {_fd_in = f;}
 void            Request::set_accept_encoding(std::string a) {_accept_encoding = a;}
-//void		    Request::set_end(bool e) {_end = e;}
+// void		    Request::set_end(bool e) {_end = e;}

@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/23 08:37:42 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/25 17:47:05 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ class	Address;
 class	Server;
 class	RequestHeader;
 class	Response;
-//class	Cgi;
+class	Worker;
 enum    e_method;
 
 class	Request
@@ -30,6 +30,7 @@ class	Request
 	private:
 		int		        _socket;
 		Host*		    _host;
+		Worker*			_worker;
 		Address*		_address;
 		Server*		    _server;
 		Response	    _response;
@@ -46,7 +47,6 @@ class	Request
 		bool		    _close;
 		bool		    _end_header;
 		bool		    _start_chunked_body;
-		//bool		    _end_chunked_body;
 		bool		    _end;
 		std::string	    _read_data;
 		size_t      	_chunk_size;
@@ -89,7 +89,7 @@ class	Request
 		Request(const Request&);
 		Request &operator=(const Request& op);
 	public:
-		Request(int, Host*, Address*);
+		Request(int, Worker*, Address*);
 		virtual ~Request();
 
 		int             read(void);
@@ -118,7 +118,7 @@ class	Request
 
         void		    set_fd_in(int);
         void            set_accept_encoding(std::string);
-        //void		    set_end(bool);
+        // void		    set_end(bool);
 };
 
 #endif

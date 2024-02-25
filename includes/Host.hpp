@@ -68,6 +68,7 @@ class	Host
 		void									new_connections(void);
 		void    								check_sk_ready(void);
 		bool									select_available_sk(void);
+		
 
 		Host(const Host&);
 		Host &operator=(const Host& op);
@@ -77,6 +78,7 @@ class	Host
 		virtual ~Host();
 
 		void    		                    start(void);
+		void  								close_connection(int i);
 
 		int				                    get_max_clients(void) const;
 		std::map<int, Server*>		        get_sk_server(void) const;

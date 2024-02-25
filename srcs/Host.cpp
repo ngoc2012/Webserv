@@ -100,6 +100,10 @@ void	Host::check_sk_ready(void)
         if (FD_ISSET(it->first, &_listen_set))
         {
             int new_sk = it->second->accept_client_sk();
+            if (new_sk > _max_sk)
+                _max_sk = new_sk;
+            FD_SET(new_sk, &_master_read_set);
+            FD_SET(new_sk, &_master_write_set);
             if (new_sk > 0)
             {
                 for (int i = 0; i < _n_workers - 1; i++)
@@ -128,11 +132,13 @@ void	Host::check_sk_ready(void)
         _workers[i].update_sets();
 }
 
-void  	Host::add_sk_2_master_read_set(int new_sk)
+void  	Host::close_connection(int i)
 {
-	if (new_sk > _max_sk)
-		_max_sk = new_sk;
-	FD_SET(new_sk, &_master_read_set);
+	FD_CLR(i, &_master_read_set);
+	FD_CLR(i, &_master_write_set);
+    if (i == _max_sk)
+		while (!FD_ISSET(_max_sk, &_master_read_set))
+			_max_sk -= 1;
 }
 
 void	Host::start_server(void)

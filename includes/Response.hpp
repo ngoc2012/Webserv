@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/23 05:47:06 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/25 17:45:03 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # define RESPONSE_HPP
 
 class	Host;
+class	Worker;
 class	Server;
 class	Location;
 class	Request;
@@ -28,6 +29,7 @@ class	Response
 	private:
 		int		        _socket;
 		Host*		    _host;
+		Worker*		    _worker;
 		Server*		    _server;
 		Request*	    _request;
 
@@ -76,6 +78,7 @@ class	Response
 
 		void		    set_socket(int);
 		void		    set_host(Host*);
+        void		    set_worker(Worker*);
 		void		    set_server(Server*);
 		void		    set_request(Request*);
         void		    set_status_code(int);

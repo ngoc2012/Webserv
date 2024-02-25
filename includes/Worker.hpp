@@ -48,7 +48,7 @@ class	Worker
 		std::map<int, time_t>		_sk_timeout;
 		std::map<int, Address*>		_sk_address;
 
-		pthread_mutex_t		_workload_mutex;
+		// pthread_mutex_t		_workload_mutex;
 		pthread_mutex_t		_set_mutex;
 		
 		void  		add_sk_2_master_read_set(int);
