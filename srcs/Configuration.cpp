@@ -194,9 +194,9 @@ bool	Configuration::host_parser(std::string cmd, Host* host, std::vector<std::st
 	else if (words[0] == "workers")
 	{
 		n = std::atoi(words[1].c_str());
-		if (!ft::is_digit(words[1]) || n < 0 || n > 1024)
+		if (!ft::is_digit(words[1]) || n < 1 || n > 100)
         {
-			std::cerr << "Error: number of workers not valid (0..1024)." << std::endl;
+			std::cerr << "Error: number of workers not valid (1..100)." << std::endl;
 			return (true);
         }
 		host->set_n_workers(n);

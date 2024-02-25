@@ -37,7 +37,7 @@ class	Address
         void    push(Server*);
         int     listen_socket(void);
         int	    bind_addr(void);
-        void	accept_client_sk(void);
+        int 	accept_client_sk(void);
 
         std::vector<Server*>    get_servers(void);
         //std::string		    get_ip_address(void) const;

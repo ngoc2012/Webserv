@@ -24,11 +24,11 @@ void	main_signal_handler(int sig)
 	{
         std::cout << "\b\b";
         g_host->set_terminate_flag(true);
-        g_host->waitForTermination();
 
         Worker*     w = g_host->get_workers();
         for (int i = 0; i < g_host->get_n_workers(); i++)
-            pthread_cancel(w[i].th);
+            pthread_join(w[i].th, NULL);
+        pthread_mutex_destroy(g_host->get_terminate_mutex());
 	}
 	if (sig == SIGPIPE)	{}
 }
@@ -50,9 +50,5 @@ int	main(int argc, char *argv[])
         return (1);
     g_host = &host;
     host.start();
-    Worker*     w = host.get_workers();
-    for (int i = 0; i < host.get_n_workers(); i++)
-        pthread_join(w[i].th, NULL);
-
     return (0);
 }
