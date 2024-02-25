@@ -189,7 +189,7 @@ void	Host::check_sk_ready(void)
         {
             //std::cout << "Read set sk = " << it->first << std::endl;
             //_sk_request[it->first]->read();
-            FD_CLR(it->first, &_read_set);
+            //FD_CLR(it->first, &_read_set);
             if (_sk_request[it->first]->read() <= 0)
             {
                 FD_CLR(it->first, &_master_read_set);
@@ -198,7 +198,7 @@ void	Host::check_sk_ready(void)
         }
         else if (FD_ISSET(it->first, &_write_set))
         {
-            FD_CLR(it->first, &_write_set);
+            //FD_CLR(it->first, &_write_set);
             //std::cout << "Write set sk = " << it->first << std::endl;
             _sk_request[it->first]->get_response()->write();
         }
