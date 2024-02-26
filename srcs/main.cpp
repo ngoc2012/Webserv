@@ -36,9 +36,11 @@ void	main_signal_handler(int sig)
 
 int	main(int argc, char *argv[])
 {
-    if (argc > 2)
-        return (printf("Error: too many arguments.\n"), 0);
-    (void)argv;
+    if (argc != 2)
+    {
+        std::cerr << RED << "Use: ./webserv .conf" << RESET << std::endl;
+        return (1);
+    }
     struct sigaction	act;
     act.sa_flags = SA_RESTART;
     act.sa_handler = main_signal_handler;
@@ -47,7 +49,7 @@ int	main(int argc, char *argv[])
     sigaction(SIGPIPE, &act, NULL);
 
     Host	host;
-    if (!Configuration::parser(&host, ".conf"))
+    if (!Configuration::parser(&host, argv[1]))
         return (1);
     g_host = &host;
     host.start();

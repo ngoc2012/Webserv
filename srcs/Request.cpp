@@ -439,7 +439,6 @@ bool	Request::check_location()
         return (false);
     if (_location->get_client_max_body_size() != NPOS)
         _body_max = _location->get_client_max_body_size();
-    //std::cout << "Body max: " << _body_max << "|" << _location->get_client_max_body_size() << std::endl;
     if (_location->get_redirection())
     {
         _status_code = _location->get_redirection();
@@ -447,8 +446,6 @@ bool	Request::check_location()
     }
     _full_file_name = _location->get_full_file_name(_url,
             _server->get_root(), _method);
-    // std::cout << _full_file_name << std::endl;
-    //std::cout << "Cgi: " << _location->get_cgi_pass() << std::endl;
     if (_location->get_cgi_pass() != "")
     {
         _cgi = new Cgi(this);
