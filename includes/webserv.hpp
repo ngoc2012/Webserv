@@ -62,6 +62,7 @@ std::string                 str_replace(std::string src, std::string find, std::
 std::string                 to_upper(std::string s);
 std::string                 trim_string(const std::string& str);
 void	                    timestamp(void);
+void                        print_loading_bar(int progress, int total, int barWidth);
 
 }
 

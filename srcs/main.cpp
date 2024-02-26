@@ -26,10 +26,10 @@ void	main_signal_handler(int sig)
         std::cout << "\b\b";
         g_host->set_terminate_flag(true);
 
-        Worker*     w = g_host->get_workers();
-        for (int i = 0; i < g_host->get_n_workers(); i++)
-            pthread_join(*(w[i].get_th()), NULL);
-        pthread_mutex_destroy(g_host->get_terminate_mutex());
+        // Worker*     w = g_host->get_workers();
+        // for (int i = 0; i < g_host->get_n_workers(); i++)
+        //     pthread_join(*(w[i].get_th()), NULL);
+        // pthread_mutex_destroy(g_host->get_terminate_mutex());
 	}
 	if (sig == SIGPIPE)	{}
 }

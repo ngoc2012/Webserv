@@ -71,7 +71,7 @@ int    Cgi::execute()
         return 500;
     }
 
-    std::cout << "Cgi execute" << std::endl;
+    // std::cout << "Cgi execute" << std::endl;
     
     int pip[2];
     
@@ -92,7 +92,7 @@ int    Cgi::execute()
         std::cerr << "Error: CGI fd_out open error." << std::endl;
         return 500;
     }
-    std::cerr << "Cgi _fd_out:" << _fd_out << std::endl;
+    // std::cerr << "Cgi _fd_out:" << _fd_out << std::endl;
     _response->set_fd_out(_fd_out);
 
     _pid = fork();
@@ -135,7 +135,7 @@ int    Cgi::execute()
                 std::cerr << "Error: using lseek" << std::endl;
                 return 500;
             }
-            std::cout << "fd_in: " << fd_in << std::endl;
+            // std::cout << "fd_in: " << fd_in << std::endl;
             while ((bytesRead = read(fd_in, buffer, BUFFER_SIZE)) > 0)
             {
                 buffer[bytesRead] = 0;
@@ -155,7 +155,7 @@ int    Cgi::execute()
             return 500;
         if (WIFEXITED(status) && WEXITSTATUS(status))
             return 502;
-        std::cout << "Cgi output: " << status << std::endl;
+        // std::cout << "Cgi output: " << status << std::endl;
         return parse_header();
     }
 }
@@ -233,7 +233,7 @@ int    Cgi::parse_header()
         
     }
     _content_length = fileStat.st_size - body_start;
-    std::cout << "Cgi content_length: " << _content_length << std::endl;
+    // std::cout << "Cgi content_length: " << _content_length << std::endl;
 
     _response->set_content_length(_content_length);
     _response->set_content_type(_content_type);

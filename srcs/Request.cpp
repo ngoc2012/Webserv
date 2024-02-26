@@ -163,10 +163,10 @@ int     Request::read_header()
 
 void    Request::write_body_left(void)
 {
-    std::cout << "_fd_in = " << _fd_in << ", _body_left = " << _body_left << std::endl;
+    // std::cout << "_fd_in = " << _fd_in << ", _body_left = " << _body_left << std::endl;
     if (_fd_in == -1 || _body_left <= 0)
         return ;
-    std::cout << "Write body left to fd_in, body_left=" << _body_left << std::endl;
+    // std::cout << "Write body left to fd_in, body_left=" << _body_left << std::endl;
     if (_chunked)
         write_chunked();
     else
@@ -277,7 +277,6 @@ bool	Request::parse_header(void)
 	_response.set_server(_server);
     check_location();
     // std::cout << "Location found: " << _location->get_url() << std::endl;
-
     if (_fields["Transfer-Encoding"] == "chunked")
         _chunked = true;
     _content_length = std::atoi(_fields["Content-Length"].c_str());
@@ -347,7 +346,7 @@ int     Request::read_body()
         return (ret);
     }
     _body_size += ret;
-    //std::cout << "_body_size: " << _body_size << std::endl;
+    std::cout << "_body_size: " << _body_size << std::endl;
     if (ret > 0 && write(_fd_in, _buffer, ret) == -1)
         return (end_request());
     if (_body_size >= _content_length)
@@ -420,7 +419,7 @@ void    Request::write_chunked()
             return ;
         if (!_chunk_size)
         {
-            std::cout << "End chunked body" << std::endl;
+            // std::cout << "End chunked body" << std::endl;
             if (_body_size > _body_max)
                 _status_code = 413;
             end_request();
@@ -461,7 +460,7 @@ bool	Request::check_location()
         struct stat info;
         if (stat(_full_file_name.c_str(), &info) != 0)
         {
-            std::cerr << RED << "Error: File does not exist." << RESET << std::endl;
+            std::cerr << RED << "Error: File " << _full_file_name << " does not exist." << RESET << std::endl;
             _status_code = 404; // Not found
             return (false);
         }

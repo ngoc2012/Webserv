@@ -181,11 +181,16 @@ int     Response::write_body()
     if (ret1 <= 0)
     {
         if (ret1 == -1)
-            std::cerr << "Send error ret = " << ret1 << std::endl;
+        {
+            std::cerr << RED << "Error: Can not send to socket " << _socket << "." << RESET << std::endl;
+        }
+            
         return (end_response());
     }
     _worker->set_sk_timeout(_socket);
     _body_size += ret1;
+    if (_content_length)
+        ft::print_loading_bar(_body_size, _content_length, 50);
     if (_body_size >= _content_length)
         return (end_response());
     return (0);
@@ -205,7 +210,7 @@ int     Response::end_response(void)
     std::cout << _status_code << " ";
     std::cout << "Request: " << _request->get_body_size() << "b, ";
     std::cout << "Response: " << _body_size << "b ";
-    std::cout << "[worker: " << _worker->get_id() << "]" << RESET << std::endl;
+    std::cout << "[worker: " << _worker->get_id() << "] ";
     std::cout << "[socket: " << _socket << "]" << RESET << std::endl;
     init();
     _request->init();

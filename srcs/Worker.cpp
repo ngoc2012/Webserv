@@ -123,7 +123,6 @@ void	Worker::close_client_sk(int i)
 
 void	Worker::set_sk_timeout(int i)
 {
-    //std::cout << "set_sk_timeout " << i << "|" << &_sk_timeout << std::endl;
     _sk_timeout[i] = time(0);
 }
 

@@ -77,6 +77,9 @@ void	Host::start(void)
 			break;
 		check_sk_ready();
 	} while (!_end);
+    for (int i = 0; i < _n_workers; i++)
+        pthread_join(*(_workers[i].get_th()), NULL);
+    pthread_mutex_destroy(&_terminate_mutex);
 }
 
 bool	Host::select_available_sk(void)
