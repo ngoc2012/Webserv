@@ -26,7 +26,8 @@ Worker::Worker()
     _id = -1;
     _workload = 0;
     _timeout = TIMEOUT;
-    // pthread_mutex_init(&_workload_mutex, NULL);
+    _terminate_flag = false;
+    pthread_mutex_init(&_terminate_mutex, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
     FD_ZERO(&_tmp_read_set);
     FD_ZERO(&_tmp_write_set);
@@ -39,16 +40,18 @@ Worker::~Worker()
     for (std::map<int, Request*>::iterator it = _sk_request.begin();
             it != _sk_request.end(); ++it)
         delete (it->second);
+    pthread_mutex_destroy(&_terminate_mutex);
 }
 
 void	Worker::routine(void)
 {
+    // if (!_sk_request.size())
+    //     usleep(1000);
     std::map<int, Request*>::iterator next;
     for (std::map<int, Request*>::iterator it = _sk_request.begin(), next = it;
         it != _sk_request.end(); it = next)
     {
         next++;
-        //std::cout << it->first << ":" << time(0) << ":" << _sk_timeout[it->first] << ":" << _timeout << std::endl;
         if (static_cast<double>(time(0) - _sk_timeout[it->first]) > _timeout)
         {
             ft::timestamp();
@@ -61,15 +64,12 @@ void	Worker::routine(void)
         if (FD_ISSET(it->first, &_read_set) && !_sk_request[it->first]->get_end())
         {
             pthread_mutex_unlock(&_set_mutex);
-            //std::cout << "Read set sk = " << it->first << std::endl;
-            //_sk_request[it->first]->read();
             if (_sk_request[it->first]->read() <= 0)
                 close_client_sk(it->first);
         }
         else if (FD_ISSET(it->first, &_write_set) && _sk_request[it->first]->get_end())
         {
             pthread_mutex_unlock(&_set_mutex);
-            //std::cout << "Write set sk = " << it->first << std::endl;
             _sk_request[it->first]->get_response()->write();
         }
         else
@@ -115,7 +115,6 @@ void	Worker::new_connection(int new_sk, Address* a)
 void	Worker::close_client_sk(int i)
 {
     _workload -= 2;
-    //std::cout << "close_client_sk " << i << std::endl;
     _host->close_connection(i);
 	delete (_sk_request[i]);
 	_sk_request.erase(i);
@@ -127,17 +126,20 @@ void	Worker::set_sk_timeout(int i)
 }
 
 pthread_t*   Worker::get_th(void) {return (&_th);}
-
 int          Worker::get_id(void) const {return (_id);}
 Host*        Worker::get_host(void) const {return (_host);}
-int          Worker::get_workload(void) {
-    // pthread_mutex_lock(&_workload_mutex);
-    int w = _workload;
-    // pthread_mutex_unlock(&_workload_mutex);
-    return (w);
-}
+int          Worker::get_workload(void) {return (_workload);}
+pthread_mutex_t*    Worker::get_terminate_mutex(void) {return (&_terminate_mutex);}
+bool				Worker::get_terminate_flag(void) const {return (_terminate_flag);}
 
 void         Worker::set_id(int s) {_id = s;}
 void         Worker::set_workload(int s) {_workload = s;}
 void         Worker::set_host(Host* h) {_host = h;}
 void	     Worker::set_timeout(int t) {_timeout = t;}
+void	     Worker::set_terminate_mutex(pthread_mutex_t m) {_terminate_mutex = m;}
+void	     Worker::set_terminate_flag(bool f)
+{
+    pthread_mutex_lock(&_terminate_mutex);
+    _terminate_flag = f;
+    pthread_mutex_unlock(&_terminate_mutex);
+}

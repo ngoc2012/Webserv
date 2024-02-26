@@ -33,7 +33,6 @@ class	Worker
 		int         _id;
 		int         _workload;  // Workload metric
 		pthread_t   _th;
-        //int         _sk;
 	
 		double		_timeout;
 		Host*       _host;
@@ -44,14 +43,14 @@ class	Worker
 		fd_set      _tmp_write_set;		// Set of active write fd
 		fd_set      _read_set;		    // Set of active read fd
 		fd_set      _write_set;		    // Set of active write fd
+		volatile bool		_terminate_flag;
 
 		std::map<int, Request*>		_sk_request;
 		std::map<int, time_t>		_sk_timeout;
 		std::map<int, Address*>		_sk_address;
 
-		// pthread_mutex_t		_workload_mutex;
 		pthread_mutex_t		_set_mutex;
-
+		pthread_mutex_t		_terminate_mutex;
 
 		Worker(const Worker&);
 		Worker	&operator=(const Worker& op);
@@ -71,17 +70,18 @@ class	Worker
 		void		update_sets(void);
 
         pthread_t*  get_th(void);
-        int         get_sk(void) const;
         int         get_id(void) const;
         int         get_workload(void);
         Host*       get_host(void) const;
-        
+        pthread_mutex_t*	get_terminate_mutex(void);
+		bool				get_terminate_flag(void) const;
 
-        void        set_sk(int);
         void        set_id(int);
         void        set_workload(int);
         void        set_host(Host*);
         void		set_timeout(int);
+		void		set_terminate_mutex(pthread_mutex_t);
+		void		set_terminate_flag(bool);
 };
 
 #endif

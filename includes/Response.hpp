@@ -39,11 +39,9 @@ class	Response
 		std::string	    _content_type;
 		size_t		    _content_length;
 		size_t		    _body_size;
-		size_t		    _pos;
         bool            _end_header;
 
         int             _fd_out;
-		// std::string	    _full_file_name;
 
         void	        write_header(void);
         void	        get_file_size(void);
@@ -51,7 +49,6 @@ class	Response
 		void			set_session_id(Header&);
         void	        mess_body(std::string, std::string);
 
-		void		    process_fd_out(void);
         int 	        write_body(void);
 		void            init(void);
 		int 		    end_response(void);

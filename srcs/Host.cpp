@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/24 10:15:59 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/26 22:36:58 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,6 @@ Host::Host()
     _parser_error = false;
     _workers = 0;
     _n_workers = 1;
-    _terminate_flag = false;
-    pthread_mutex_init(&_terminate_mutex, NULL);
     _max_sk = -1;
     _timeout = TIMEOUT;
     mimes();
@@ -79,7 +77,7 @@ void	Host::start(void)
 	} while (!_end);
     for (int i = 0; i < _n_workers; i++)
         pthread_join(*(_workers[i].get_th()), NULL);
-    pthread_mutex_destroy(&_terminate_mutex);
+    
 }
 
 bool	Host::select_available_sk(void)
@@ -94,7 +92,6 @@ bool	Host::select_available_sk(void)
 
 void	Host::check_sk_ready(void)
 {
-    //std::cout << "check_sk_ready" << std::endl;
     int     new_sk;
     for (std::map<int, Address*>::iterator it = _sk_address.begin();
         it != _sk_address.end(); it++)
@@ -105,16 +102,11 @@ void	Host::check_sk_ready(void)
                 _max_sk = new_sk;
             FD_SET(new_sk, &_master_read_set);
             FD_SET(new_sk, &_master_write_set);
-            // std::cout << "new sk: " << new_sk << std::endl;
             if (new_sk > 0)
             {
-                // for (int i = 0; i < _n_workers; i++)
-                //     std::cout << _workers[i].get_workload() << " ";
-                // std::cout << std::endl;
                 int i = 0;
                 while (i < _n_workers - 1 && _workers[i].get_workload() > _workers[i + 1].get_workload())
                     i++;
-                //std::cout << "new sk: " << new_sk << ", worker:" << i << std::endl;
                 _sk_worker[new_sk] = &_workers[i];
                 _workers[i].new_connection(new_sk, it->second);
             }
@@ -160,7 +152,6 @@ void	Host::start_server(void)
 		}
 		else
 		{
-            //std::cerr << "Error: Listening -> Address " << ad->first << " closed." << std::endl;
 			delete (ad->second);
 			_str_address.erase(ad++);
 		}
@@ -170,18 +161,18 @@ void	Host::start_server(void)
 static void*   start_worker(void* instance) {
     Worker*             worker = static_cast<Worker*>(instance);
     Host*               host = worker->get_host();
-    pthread_mutex_t*    terminate_mutex = host->get_terminate_mutex();
+    pthread_mutex_t*    terminate_mutex = worker->get_terminate_mutex();
     std::cout << "worker: " << worker->get_id() << std::endl;
     
     while (true) {
         pthread_mutex_lock(terminate_mutex);
-        if (host->get_terminate_flag()) {
+        if (worker->get_terminate_flag()) {
             pthread_mutex_unlock(terminate_mutex);
             break;
         }
         pthread_mutex_unlock(terminate_mutex);
         worker->routine();
-        usleep(1000);
+        usleep(2 * host->get_n_workers());
     }
     std::cout << "worker " << worker->get_id() << " end" << std::endl;
     pthread_exit(NULL);
@@ -207,6 +198,15 @@ bool    Host::start_workers() {
 
 void    Host::status_message(void)
 {
+    /*
+HTTP/1.1 301 Moved Permanently
+Location: https://example.com/new-location
+HTTP/1.1 302 Found
+Location: https://example.com/temporary-location
+HTTP/1.1 303 See Other
+Location: https://example.com/see-other-location
+
+*/
 	_status_message[100] = "Continue";
 	_status_message[200] = "OK";
 	_status_message[201] = "Created";
@@ -466,25 +466,14 @@ std::set<std::string>*	            Host::get_set_mimes(void) {return (&_set_mime
 std::map<int, std::string>*  		Host::get_status_message(void) {return (&_status_message);}
 Worker*				                Host::get_workers(void) const {return (_workers);}
 int 				                Host::get_n_workers(void) const {return (_n_workers);}
-bool								Host::get_terminate_flag(void) const {return (_terminate_flag);}
-pthread_mutex_t*					Host::get_terminate_mutex(void) {return (&_terminate_mutex);}
-pthread_cond_t*						Host::get_terminate_cond(void) {return (&_terminate_cond);}
 size_t								Host::get_large_client_header_buffer(void) const {return (_large_client_header_buffer);}
 int		                            Host::get_timeout(void) const {return (_timeout);}
 
 void			Host::set_client_max_body_size(size_t n) {_client_max_body_size = n;}
 void			Host::set_client_body_buffer_size(size_t n) {_client_body_buffer_size = n;}
 void			Host::set_parser_error(bool e) {_parser_error = e;}
-//void		    Host::set_servers(std::vector<Server*> s) {_servers = s;}
 void		    Host::set_str_address(std::map<std::string, Address*> a) {_str_address = a;}
 void	        Host::set_n_workers(int w) {_n_workers = w;}
-void	        Host::set_terminate_mutex(pthread_mutex_t m) {_terminate_mutex = m;}
-void	        Host::set_terminate_flag(bool f)
-{
-    pthread_mutex_lock(&_terminate_mutex);
-    _terminate_flag = f;
-    pthread_mutex_unlock(&_terminate_mutex);
-}
 void	        Host::set_large_client_header_buffer(size_t l) {_large_client_header_buffer = l;}
 void	        Host::set_timeout(int t) {_timeout = t;}
 void	        Host::set_end(bool t) {_end = t;}

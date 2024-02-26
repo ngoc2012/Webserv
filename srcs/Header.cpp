@@ -32,7 +32,6 @@ Header::Header(Response* r) :
     _host = _response->get_host();
     _status_message = _host->get_status_message();
 	_session_id = "";
-	//init();
 }
 Header::~Header() { }
 
@@ -50,7 +49,6 @@ std::string	Header::generate(void)
 	str += "\r\n";
 	if (_status_code == 405)
 		str += "Allow: " + _allow + "\r\n";
-	//str += std::string("Content-Language: en") + "\r\n";
     if (_response->get_content_type() != "")
     {
 		str += "Content-Type: " + _response->get_content_type() + "\r\n";
@@ -64,10 +62,6 @@ std::string	Header::generate(void)
     str += "Server: webserv\r\n\r\n";
     return (str);
 }
-
-// void	Header::init(void)
-// {
-// }
 
 std::string	Header::get_current_time(void)
 {

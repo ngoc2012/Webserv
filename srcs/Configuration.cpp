@@ -66,7 +66,6 @@ bool    Configuration::add_server(Host* host, Server* new_server, std::map<std::
 
 bool    Configuration::parser(Host* host, const char* conf)
 {
-    //std::vector<Server*>                servers;
     std::map<std::string, Address*>		address;
 
 	enum e_part {LOCATION, HOST, SERVER, P_NONE};
@@ -86,7 +85,6 @@ bool    Configuration::parser(Host* host, const char* conf)
 	while (std::getline(conf_file, line))
 	{
 		std::string		s = remove_comments(line);
-		//std::cout << "|" << s << "|" << std::endl;
 		std::vector<std::string>	words = ft::split_string(s, std::string(" 	"));
 		i++;
 		if (words.size() == 0)
@@ -378,7 +376,6 @@ bool	Configuration::listen(Server* s, std::vector<std::string> words)
 	s->set_address(words[1]);
 	s->set_ip_address(address[0]);
 	s->set_port(std::atoi(address[1].c_str()));
-	//std::cout << s->get_ip_address() << ":" << s->get_port() << std::endl;
 	return (true);
 }
 

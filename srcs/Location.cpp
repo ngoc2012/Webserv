@@ -35,7 +35,6 @@ Location::Location(std::string u): _url(u)
 }
 Location::~Location() {}
 
-
 Location*	Location::find_location(std::string url, std::vector<Location*> locations, e_method method, int &status_code)
 {
     Location*   loc = 0;
@@ -44,7 +43,6 @@ Location*	Location::find_location(std::string url, std::vector<Location*> locati
 	for (std::vector<Location*>::iterator it = locations.begin();
 		it != locations.end(); ++it)
 	{
-        ///std::cout << url << ":" << (*it)->get_url() << std::endl;
 		if ((*it)->compare_url(url, (*it)->get_url()))
 		{
 			if ((*it)->find_method(method))
@@ -56,7 +54,7 @@ Location*	Location::find_location(std::string url, std::vector<Location*> locati
 			else if (!found)
             {
                 loc = *it;
-				status_code = 405; // Method not allowed
+				status_code = 405;
             }
             
 		}
@@ -64,7 +62,7 @@ Location*	Location::find_location(std::string url, std::vector<Location*> locati
     if (!loc)
     {
         std::cerr << RED << "Error: Location not found." << RESET << std::endl;
-        status_code = 404; // Not found
+        status_code = 404;
     }
         
     return (loc);
@@ -72,7 +70,6 @@ Location*	Location::find_location(std::string url, std::vector<Location*> locati
 
 bool	Location::compare_url(std::string url, std::string l_url)
 {
-	//std::cout << url << "==" << l_url << std::endl;
 	if (url == l_url)
 		return (true);
     if (_url.size() < url.size() && _url == url.substr(0, _url.size()))
@@ -164,11 +161,6 @@ std::string	Location::get_method_str(e_method e) {
     }
     return ("");
 }
-
-// bool    Location::verifieExtension(const std::string& nomFichier) {
-//     std::string extension = nomFichier.substr(nomFichier.length() - 5);
-//     return (extension == "*.bla");
-// }
 
 void        Location::push_back_index(std::string s) { _index.push_back(s); }
 

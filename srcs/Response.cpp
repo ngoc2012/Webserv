@@ -46,8 +46,7 @@ void    Response::init(void)
     _content_type = "";
     _content_length = 0;
     _body_size = 0;
-    _pos = 0;
-    // _full_file_name = "";
+    // _pos = 0;
     _fd_out = -1;
     _end_header = false;
 }
@@ -63,10 +62,7 @@ int     Response::write()
 
 void     Response::write_header()
 {
-    // std::cout << "write_header" << std::endl;
     int     ret = send(_socket, _header.c_str(), _header.length(), 0);
-    // std::cout << "Response Header:\n'" << _header << "`" << _header.size() << "|" << ret << std::endl;
-    // std::cout << "Response _socket:" << _socket << std::endl;
     if (ret <= 0)
         end_response();
     _worker->set_sk_timeout(_socket);
@@ -83,7 +79,6 @@ void     Response::write_header()
 
 void     Response::header_generate()
 {
-    // _full_file_name = _request->get_full_file_name();
     Header	header(this);
     if (_status_code == 405)
         header.set_allow(_request->get_location()->get_methods_str());
@@ -152,7 +147,6 @@ int     Response::write_body()
     int     ret;
     if (_body != "")
     {
-        // std::cout << "write_body " << _body.size() << "|" << _body << std::endl;
         ret = send(_socket, _body.c_str(), _body.size(), 0);
         if (ret <= 0)
         {
@@ -189,7 +183,7 @@ int     Response::write_body()
     }
     _worker->set_sk_timeout(_socket);
     _body_size += ret1;
-    if (_content_length)
+    if (_content_length > 1000000)
         ft::print_loading_bar(_body_size, _content_length, 50);
     if (_body_size >= _content_length)
         return (end_response());

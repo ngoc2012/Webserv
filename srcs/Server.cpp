@@ -44,7 +44,6 @@ Server::~Server()
 	for (std::vector<Location*>::iterator it = _locations.begin();
 			it != _locations.end(); ++it)
 		delete(*it);
-	//std::cout << "Destruction server: " << _ip_address << ":" << _port << std::endl;
 	if (_socket > 0)
 	{
 		std::cout << "~Server: Close socket " << _socket << std::endl;

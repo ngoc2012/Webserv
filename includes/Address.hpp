@@ -40,11 +40,6 @@ class	Address
         int 	accept_client_sk(void);
 
         std::vector<Server*>    get_servers(void);
-        //std::string		    get_ip_address(void) const;
-        //short unsigned int	get_port(void) const;
-
-        //void                  set_ip_address(std::string);
-        //void	            set_port(short unsigned int);
 };
 
 #endif
