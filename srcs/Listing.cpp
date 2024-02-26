@@ -17,22 +17,17 @@
 
 #include "Listing.hpp"
 
-Listing::Listing() {
-	std::cout << "Listing Default constructor" << std::endl;
-}
+Listing::Listing() {}
 
-Listing::Listing(const Listing& src) { 
-	*this = src;
-}
+Listing::Listing(const Listing& src) { *this = src; }
 
-Listing&	Listing::operator=( Listing const & src ){
+Listing&	Listing::operator=( Listing const & src )
+{
 	(void) src;
 	return (*this);
 }
 
-Listing::~Listing() {
-
-}
+Listing::~Listing() {}
 
 std::string Listing::get_listing(const std::string& directory_name, const std::string& base_path) {
     std::string listing_html = "<!DOCTYPE html>\n\
@@ -76,7 +71,6 @@ std::string Listing::get_listing(const std::string& directory_name, const std::s
     } else {
         listing_html += "Impossible d'ouvrir le répertoire.";
     }
-
     listing_html += "</ul>\n</body>\n</html>";
     return listing_html;
 }

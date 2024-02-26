@@ -17,7 +17,7 @@
 #include <unistd.h>	// close
 #include <stdlib.h>
 #include <netinet/in.h>
-#include <errno.h>
+// #include <errno.h>
 #include <fcntl.h>	// fcntl
 #include <cstdio>	// perror
 #include <cstring>	// memcpy

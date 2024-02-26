@@ -67,7 +67,6 @@ int	    Address::bind_addr()
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(_port);
 	addr.sin_addr.s_addr = inet_addr(_ip_address.c_str());
-    //std::cout << _ip_address << ":" << _port << std::endl;
 	if (bind(_listen_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0)
 	{
 		ft::timestamp();
@@ -87,24 +86,19 @@ int	    Address::bind_addr()
 }
 
 //Accept all the new connections, create a new socket and add to the master set
-void	Address::accept_client_sk(void)
+int		Address::accept_client_sk(void)
 {
-	std::cout << "Listening socket is readable " << _listen_socket << std::endl;
 	int	new_sk;
-	//do
-	//{
-		new_sk = accept(_listen_socket, NULL, NULL);
-		if (new_sk < 0)
-		{
-			ft::timestamp();
-			std::cerr << "Error: accept function." << std::endl;
-			//break;
-		}
-		fcntl(new_sk, F_SETFL, O_NONBLOCK);
+	new_sk = accept(_listen_socket, NULL, NULL);
+	if (new_sk < 0)
+	{
 		ft::timestamp();
-		std::cout << "accept_client_sk " << new_sk << std::endl;
-		_host->new_request_sk(new_sk, this);
-	//} while (new_sk != -1);
+		std::cerr << "Error: accept function." << std::endl;
+		return (new_sk);
+		//break;
+	}
+	fcntl(new_sk, F_SETFL, O_NONBLOCK);
+	return (new_sk);
 }
 
 std::vector<Server*>    Address::get_servers(void) {return (_servers);}

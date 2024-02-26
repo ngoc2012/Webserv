@@ -12,8 +12,6 @@
 
 #include <sys/types.h>
 #include <sys/wait.h>
-
-
 #include <cstring>
 #include <unistd.h>
 
@@ -62,7 +60,6 @@ Cgi::~Cgi()
         std::cerr << MAGENTA << "Error: Can not delete file " << _tmp_file << RESET << std::endl;
 }
 
-
 int    Cgi::execute()
 {
     if (!get_envs())
@@ -70,9 +67,6 @@ int    Cgi::execute()
         std::cerr << "Error: envs" << std::endl;
         return 500;
     }
-
-    std::cout << "Cgi execute" << std::endl;
-    
     int pip[2];
     
     if (pipe(pip) == -1) {
@@ -92,7 +86,6 @@ int    Cgi::execute()
         std::cerr << "Error: CGI fd_out open error." << std::endl;
         return 500;
     }
-    std::cerr << "Cgi _fd_out:" << _fd_out << std::endl;
     _response->set_fd_out(_fd_out);
 
     _pid = fork();
@@ -115,10 +108,7 @@ int    Cgi::execute()
         argv[0] = (char*) _pass.c_str();
         argv[1] = (char*) _file.c_str();
         argv[2] = 0;
-        //execve(argv[0], argv, _envs);
         execve(argv[0], argv, _envs);
-        //execlp("cat", "cat", nullptr);
-        
         std::cerr << "Execution error" << std::endl;
         return (500);
     }
@@ -135,18 +125,15 @@ int    Cgi::execute()
                 std::cerr << "Error: using lseek" << std::endl;
                 return 500;
             }
-            std::cout << "fd_in: " << fd_in << std::endl;
             while ((bytesRead = read(fd_in, buffer, BUFFER_SIZE)) > 0)
             {
                 buffer[bytesRead] = 0;
-                //std::cout << buffer;
                 if (write(pip[1], buffer, bytesRead) == -1)
                 {
                     std::cerr << "Error: write pipe in" << std::endl;
                     return 500;
                 }
             }
-            //std::cout << std::endl;
             close(fd_in);
         }
         close(pip[1]);
@@ -155,7 +142,6 @@ int    Cgi::execute()
             return 500;
         if (WIFEXITED(status) && WEXITSTATUS(status))
             return 502;
-        std::cout << "Cgi output: " << status << std::endl;
         return parse_header();
     }
 }
@@ -173,22 +159,16 @@ int    Cgi::parse_header()
         std::cerr << "Error: cgi _fd_out using lseek" << std::endl;
         return 500;
     }
-    // std::cout << "Cgi header:'" << std::endl;
     while ((ret = read(_fd_out, buffer, BUFFER_SIZE)) > 0 && !header_complete) {
         buffer[ret] = '\0';
-        //std::cout << "{" << buffer << "}";
         header += buffer;
         pos = header.find("\r\n\r\n");
-        if (pos != std::string::npos) {
+        if (pos != std::string::npos)
+        {
             header_complete = true;
-            // for (size_t i = pos; i < pos + 10 && i < header.size(); i++)
-            // {
-            //     std::cout << '|' << static_cast<int>(header[i]) << std::endl;
-            // }
             header = header.substr(0, pos + 4);
         }
     }
-    // std::cout << "`" << std::endl;
     
     size_t status_pos = header.find("Status: ");
     if (status_pos != std::string::npos) {
@@ -233,8 +213,6 @@ int    Cgi::parse_header()
         
     }
     _content_length = fileStat.st_size - body_start;
-    std::cout << "Cgi content_length: " << _content_length << std::endl;
-
     _response->set_content_length(_content_length);
     _response->set_content_type(_content_type);
     return (_status_code);
@@ -242,9 +220,7 @@ int    Cgi::parse_header()
 
 bool    Cgi::get_envs()
 {
-    //std::cout << "Cgi get_envs" << std::endl;
     std::vector<std::string>  envs;
-
     if (_request->get_method() == POST) {
         envs.push_back("CONTENT_TYPE=" + _request->get_content_type());
         envs.push_back("CONTENT_LENGTH=" + ft::itos((int) _request->get_content_length()));
@@ -258,11 +234,6 @@ bool    Cgi::get_envs()
             envs.push_back("HTTP_" + ft::to_upper(f->first) + "=" + f->second);
 
     }
-
-    if (_request->get_accept_encoding() != "")
-        envs.push_back("HTTP_ACCEPT_ENCODING=" + _request->get_accept_encoding());
-    if (_request->get_chunked())
-        envs.push_back("HTTP_TRANSFER_ENCODING=chunked");
     envs.push_back("PATH_INFO=" + _file);
     envs.push_back("PATH_TRANSLATED=" + _file);
     envs.push_back("QUERY_STRING=");
@@ -288,10 +259,7 @@ bool    Cgi::get_envs()
     i = 0;
     for (std::vector<std::string>::iterator it = envs.begin();
             it != envs.end(); it++)
-    {
-        std::cout << *it << std::endl;
         _envs[i++] = strdup(it->c_str());
-    }
     _envs[i] = 0;
     return (true);
 }

@@ -13,6 +13,7 @@
 #include <signal.h>
 
 #include "Host.hpp"
+#include "Worker.hpp"
 #include "Server.hpp"
 #include "Configuration.hpp"
 
@@ -22,37 +23,32 @@ void	main_signal_handler(int sig)
 {
 	if (sig == SIGINT)
 	{
+        g_host->set_end(true);
         std::cout << "\b\b";
-        g_host->set_terminate_flag(true);
-        g_host->waitForTermination();
-
-        Worker*     w = g_host->get_workers();
+        Worker*     workers = g_host->get_workers();
         for (int i = 0; i < g_host->get_n_workers(); i++)
-            pthread_cancel(w[i].th);
+            workers[i].set_terminate_flag(true);
 	}
 	if (sig == SIGPIPE)	{}
 }
 
 int	main(int argc, char *argv[])
 {
-    if (argc > 2)
-        return (printf("Error: too many arguments.\n"), 0);
-    (void)argv;
+    if (argc != 2)
+    {
+        std::cerr << RED << "Use: ./webserv .conf" << RESET << std::endl;
+        return (1);
+    }
     struct sigaction	act;
     act.sa_flags = SA_RESTART;
     act.sa_handler = main_signal_handler;
     sigemptyset(&act.sa_mask);
     sigaction(SIGINT, &act, NULL);
     sigaction(SIGPIPE, &act, NULL);
-
     Host	host;
-    if (!Configuration::parser(&host, ".conf"))
+    if (!Configuration::parser(&host, argv[1]))
         return (1);
     g_host = &host;
     host.start();
-    Worker*     w = host.get_workers();
-    for (int i = 0; i < host.get_n_workers(); i++)
-        pthread_join(w[i].th, NULL);
-
     return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/23 08:37:42 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/25 17:47:05 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ class	Address;
 class	Server;
 class	RequestHeader;
 class	Response;
-//class	Cgi;
+class	Worker;
 enum    e_method;
 
 class	Request
@@ -30,6 +30,7 @@ class	Request
 	private:
 		int		        _socket;
 		Host*		    _host;
+		Worker*			_worker;
 		Address*		_address;
 		Server*		    _server;
 		Response	    _response;
@@ -41,17 +42,14 @@ class	Request
 		std::string	    _host_name;
 		e_method	    _method;
 		std::string	    _content_type;
-		std::string	    _accept_encoding;
 		size_t		    _content_length;
 		bool		    _close;
 		bool		    _end_header;
 		bool		    _start_chunked_body;
-		//bool		    _end_chunked_body;
 		bool		    _end;
 		std::string	    _read_data;
 		size_t      	_chunk_size;
 		bool		    _chunked;
-		size_t			_header_size;
 		size_t		    _body_size;
         size_t 		    _body_left;
 		std::map<std::string, std::string>  _cookies;
@@ -73,7 +71,6 @@ class	Request
 		bool		    parse_header(void);
 		bool			parse_method_url(std::string str);
         bool	        check_location(void);
-		bool	        check_session(void);
 		std::map<std::string, std::string>    parse_cookies(std::string&);
 		void		    process_fd_in(void);
 		void		    write_body_left(void);
@@ -81,15 +78,13 @@ class	Request
         void 	        write_chunked();
 
 		int             end_request(void);
-        void            envs(void);
-        void            exec(void);
 		void            clean(void);
 
 		Request();
 		Request(const Request&);
 		Request &operator=(const Request& op);
 	public:
-		Request(int, Host*, Address*);
+		Request(int, Worker*, Address*);
 		virtual ~Request();
 
 		int             read(void);
@@ -113,12 +108,9 @@ class	Request
         bool		    get_end(void) const;
         bool		    get_end_header(void) const;
         bool		    get_chunked(void) const;
-        std::string	    get_accept_encoding(void) const;
         std::map<std::string, std::string>*     get_fields(void);
 
         void		    set_fd_in(int);
-        void            set_accept_encoding(std::string);
-        //void		    set_end(bool);
 };
 
 #endif
