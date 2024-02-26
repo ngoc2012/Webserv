@@ -47,7 +47,7 @@ void    Response::init(void)
     _content_length = 0;
     _body_size = 0;
     _pos = 0;
-    _full_file_name = "";
+    // _full_file_name = "";
     _fd_out = -1;
     _end_header = false;
 }
@@ -63,9 +63,10 @@ int     Response::write()
 
 void     Response::write_header()
 {
-    std::cout << "write_header" << std::endl;
+    // std::cout << "write_header" << std::endl;
     int     ret = send(_socket, _header.c_str(), _header.length(), 0);
-    std::cout << "Response Header:\n'" << _header << "`" << _header.size() << "|" << ret << std::endl;
+    // std::cout << "Response Header:\n'" << _header << "`" << _header.size() << "|" << ret << std::endl;
+    // std::cout << "Response _socket:" << _socket << std::endl;
     if (ret <= 0)
         end_response();
     _worker->set_sk_timeout(_socket);
@@ -82,8 +83,7 @@ void     Response::write_header()
 
 void     Response::header_generate()
 {
-    _full_file_name = _request->get_full_file_name();
-    //std::cout << "write_header " << _full_file_name << std::endl;
+    // _full_file_name = _request->get_full_file_name();
     Header	header(this);
     if (_status_code == 405)
         header.set_allow(_request->get_location()->get_methods_str());
@@ -150,10 +150,9 @@ void     Response::mess_body(std::string title, std::string body)
 int     Response::write_body()
 {
     int     ret;
-    //std::cout << "write_body " << std::endl;
     if (_body != "")
     {
-        std::cout << "write_body " << _body.size() << "|" << _body << std::endl;
+        // std::cout << "write_body " << _body.size() << "|" << _body << std::endl;
         ret = send(_socket, _body.c_str(), _body.size(), 0);
         if (ret <= 0)
         {
@@ -170,24 +169,15 @@ int     Response::write_body()
     }
     if (_fd_out == -1)
         return (end_response());
-    //std::cerr << "Response _fd_out:" << _fd_out << std::endl;
     char	buffer[RESPONSE_BUFFER * 1028 + 20];
     ret = read(_fd_out, buffer, RESPONSE_BUFFER * 1028);
-    //std::cout << _request->get_cgi() << std::endl;
     if (ret <= 0)
     {
         if (ret == -1)
             std::cerr << RED << "Error: Read fd_out." << RESET << std::endl;
         return (end_response());
     }
-    //buffer[ret] = 0;
-    //std::cout << ret << ":" << std::string(buffer).substr(0, 100) << std::endl;
     int     ret1 = send(_socket, buffer, ret, 0);
-    //std::cout << "_body_size: " << _body_size << ", ret = " << ret1 << std::endl;
-    // if (_full_file_name == "tester/YoupiBanane/youpi.bla" && _content_length == 100000)
-    //     std::cout << "_buffer: `" << buffer << "`" << std::endl;
-    // else
-    //     std::cout << "_buffer: `" << std::string(buffer).substr(0, 100) << "`" << std::endl;
     if (ret1 <= 0)
     {
         if (ret1 == -1)
@@ -203,21 +193,20 @@ int     Response::write_body()
 
 int     Response::end_response(void)
 {
-    //std::cout << "end_response " << _socket << " " << _full_file_name << std::endl;
     if (_fd_out > 0)
         close(_fd_out);
-    //_write_queue = false;
     ft::timestamp();
     if (_status_code == 200)
         std::cout << GREEN;
     else
         std::cout << RED;
-    std::cout << _status_code << " ";
+    std::cout << _request->get_location()->get_method_str(_request->get_method()) << " ";
     std::cout << _request->get_url() << " ";
-    std::cout << _request->get_location()->get_method_str(_request->get_method()) << RESET << std::endl;
-    std::cout << "Response _body_size: " << _body_size << std::endl;
-    //usleep(5);
-    //_host->close_client_sk(_socket);
+    std::cout << _status_code << " ";
+    std::cout << "Request: " << _request->get_body_size() << "b, ";
+    std::cout << "Response: " << _body_size << "b ";
+    std::cout << "[worker: " << _worker->get_id() << "]" << RESET << std::endl;
+    std::cout << "[socket: " << _socket << "]" << RESET << std::endl;
     init();
     _request->init();
     return (0);
@@ -229,7 +218,6 @@ Host*		    Response::get_host(void) const {return (_host);}
 Request*	    Response::get_request(void) const {return (_request);}
 bool            Response::get_end_header(void) const {return (_end_header);}
 size_t		    Response::get_content_length(void) const {return (_content_length);}
-//std::string*	Response::get_body(void) {return (&_body);};
 std::string	    Response::get_content_type(void) const {return (_content_type);}
 
 void		Response::set_socket(int s) {_socket = s;}

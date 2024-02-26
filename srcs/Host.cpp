@@ -22,7 +22,9 @@
 
 Host::Host(const Host& src) { *this = src; }
 
-Host::Host() {
+Host::Host()
+{
+    _end = false;
     _max_clients = 128;
     _client_max_body_size = 1024;
     _client_body_buffer_size = 128;
@@ -32,10 +34,8 @@ Host::Host() {
     _n_workers = 1;
     _terminate_flag = false;
     pthread_mutex_init(&_terminate_mutex, NULL);
-
-    // pthread_mutex_init(&_set_mutex, NULL);
-
     _max_sk = -1;
+    _timeout = TIMEOUT;
     mimes();
     status_message();
 }
@@ -48,13 +48,11 @@ Host&	Host::operator=( Host const & src )
 
 Host::~Host()
 {
-    
     for (std::map<std::string, Address*>::iterator it = _str_address.begin();
             it != _str_address.end(); ++it)
         delete (it->second);
     if (_workers)
         delete [] _workers;
-    
     ft::timestamp();
     std::cout << "End server" << std::endl;
 }
@@ -64,57 +62,58 @@ void	Host::start(void)
 	if (_parser_error)
 		return ;
 	FD_ZERO(&_listen_set);
+	FD_ZERO(&_master_read_set);
+	FD_ZERO(&_master_write_set);
 	start_server();
-    if (!start_workers())
-        return ;
+	if (!start_workers())
+		return ;
 	if (!_sk_address.size())
 		return ;
 	do
 	{
 		memcpy(&_read_set, &_master_read_set, sizeof(_master_read_set));
 		memcpy(&_write_set, &_master_write_set, sizeof(_master_write_set));
-        if (select_available_sk() == false)
+		if (select_available_sk() == false)
 			break;
 		check_sk_ready();
-	} while (true);
+	} while (!_end);
 }
 
 bool	Host::select_available_sk(void)
 {
-    // timeval timeout;
-
-    // timeout.tv_sec = 1;
-    // timeout.tv_usec = 0;
-
-	int sk = select(_max_sk + 1, &_read_set, &_write_set, NULL, NULL);
-	if (sk < 0)
-		return (false);
-	return (true);
+    int sk = -1;
+    if (!_end)
+        sk = select(_max_sk + 1, &_read_set, &_write_set, NULL, NULL);
+    if (sk < 0)
+        return (false);
+    return (true);
 }
 
 void	Host::check_sk_ready(void)
 {
+    //std::cout << "check_sk_ready" << std::endl;
     int     new_sk;
     for (std::map<int, Address*>::iterator it = _sk_address.begin();
         it != _sk_address.end(); it++)
-        if (FD_ISSET(it->first, &_listen_set))
+        if (FD_ISSET(it->first, &_read_set))
         {
-            int new_sk = it->second->accept_client_sk();
+            new_sk = it->second->accept_client_sk();
             if (new_sk > _max_sk)
                 _max_sk = new_sk;
             FD_SET(new_sk, &_master_read_set);
             FD_SET(new_sk, &_master_write_set);
+            // std::cout << "new sk: " << new_sk << std::endl;
             if (new_sk > 0)
             {
-                for (int i = 0; i < _n_workers - 1; i++)
-                {
-                    if (_workers[i].get_workload() < _workers[i + 1].get_workload())
-                    {
-                        _sk_worker[new_sk] = &_workers[i];
-                        _workers[i].new_connection(new_sk, it->second);
-                        break;
-                    }
-                }
+                // for (int i = 0; i < _n_workers; i++)
+                //     std::cout << _workers[i].get_workload() << " ";
+                // std::cout << std::endl;
+                int i = 0;
+                while (i < _n_workers - 1 && _workers[i].get_workload() > _workers[i + 1].get_workload())
+                    i++;
+                //std::cout << "new sk: " << new_sk << ", worker:" << i << std::endl;
+                _sk_worker[new_sk] = &_workers[i];
+                _workers[i].new_connection(new_sk, it->second);
             }
         }
 
@@ -152,7 +151,7 @@ void	Host::start_server(void)
 		{
 			if (listen_sk > _max_sk)
                 _max_sk = listen_sk;
-            FD_SET(listen_sk, &_master_read_set);   // Start before workers => no mutex needed
+            FD_SET(listen_sk, &_master_read_set);
             _sk_address[listen_sk] = ad->second;
 			++ad;
 		}
@@ -178,6 +177,7 @@ static void*   start_worker(void* instance) {
             break;
         }
         pthread_mutex_unlock(terminate_mutex);
+        worker->routine();
         usleep(1000);
     }
     std::cout << "worker " << worker->get_id() << " end" << std::endl;
@@ -192,6 +192,7 @@ bool    Host::start_workers() {
         _workers[i].set_id(i);
         _workers[i].set_host(this);
         _workers[i].set_workload(0);
+        _workers[i].set_timeout(_timeout);
         if (pthread_create(_workers[i].get_th(), NULL, start_worker, &_workers[i]))
         {
             std::cerr << "Error creating select thread" << std::endl;
@@ -466,6 +467,7 @@ bool								Host::get_terminate_flag(void) const {return (_terminate_flag);}
 pthread_mutex_t*					Host::get_terminate_mutex(void) {return (&_terminate_mutex);}
 pthread_cond_t*						Host::get_terminate_cond(void) {return (&_terminate_cond);}
 size_t								Host::get_large_client_header_buffer(void) const {return (_large_client_header_buffer);}
+int		                            Host::get_timeout(void) const {return (_timeout);}
 
 void			Host::set_client_max_body_size(size_t n) {_client_max_body_size = n;}
 void			Host::set_client_body_buffer_size(size_t n) {_client_body_buffer_size = n;}
@@ -481,3 +483,5 @@ void	        Host::set_terminate_flag(bool f)
     pthread_mutex_unlock(&_terminate_mutex);
 }
 void	        Host::set_large_client_header_buffer(size_t l) {_large_client_header_buffer = l;}
+void	        Host::set_timeout(int t) {_timeout = t;}
+void	        Host::set_end(bool t) {_end = t;}

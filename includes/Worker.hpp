@@ -29,18 +29,19 @@ class	Configuration;
 class	Worker
 {
 	private:
-        pthread_t   _th;
-        int         _sk;
+        
 		int         _id;
 		int         _workload;  // Workload metric
+		pthread_t   _th;
+        //int         _sk;
 	
 		double		_timeout;
 		Host*       _host;
 		int			_sk_ready;
 		int			_max_sk;		    // Max of all fd
 		
-		fd_set      _tmp_read_set;		    // Set of active read fd
-		fd_set      _tmp_write_set;		    // Set of active write fd
+		fd_set      _tmp_read_set;		// Set of active read fd
+		fd_set      _tmp_write_set;		// Set of active write fd
 		fd_set      _read_set;		    // Set of active read fd
 		fd_set      _write_set;		    // Set of active write fd
 
@@ -50,8 +51,6 @@ class	Worker
 
 		// pthread_mutex_t		_workload_mutex;
 		pthread_mutex_t		_set_mutex;
-		
-		void  		add_sk_2_master_read_set(int);
 
 
 		Worker(const Worker&);
@@ -61,11 +60,9 @@ class	Worker
 		Worker();
 		virtual ~Worker();
 
-		void    	start(void);
+		void    	routine(void);
 
 		void		new_connection(int, Address*);
-		void		new_response_sk(int);
-		void		renew_request_sk(int);
 		void		close_client_sk(int);
 		void		set_sk_timeout(int);
 		void		set_empty_sets(void);
@@ -78,7 +75,7 @@ class	Worker
         int         get_id(void) const;
         int         get_workload(void);
         Host*       get_host(void) const;
-        int			get_timeout(void) const;
+        
 
         void        set_sk(int);
         void        set_id(int);

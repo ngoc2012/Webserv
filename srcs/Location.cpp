@@ -111,7 +111,6 @@ std::string	Location::get_full_file_name(std::string url, std::string root, e_me
             i = _url.size();
         file_name += url.substr(i);
     }
-    std::cout << "_autoindex = " << _autoindex << std::endl;
     if (_autoindex || e == PUT || e == POST)
         return (file_name);
     struct stat	info;

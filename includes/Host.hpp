@@ -34,15 +34,17 @@ class	Host
 		size_t				                    _client_max_body_size;
 		size_t				                    _client_body_buffer_size;
 		size_t									_large_client_header_buffer;
-
+	
 		bool				                    _parser_error;
 
+		bool									_end;
 		int				                        _n_workers;
 		Worker*				                    _workers;
 		volatile bool							_terminate_flag;
 		pthread_mutex_t							_terminate_mutex;
 		pthread_mutex_t							_set_mutex;
 		pthread_cond_t							_terminate_cond;
+		double									_timeout;
 
 		int										_max_sk;		    // Max of all fd
 		fd_set              		            _listen_set;
@@ -95,6 +97,7 @@ class	Host
         pthread_mutex_t*					get_terminate_mutex(void);
         pthread_cond_t*						get_terminate_cond(void);
         size_t								get_large_client_header_buffer(void) const;
+		int									get_timeout(void) const;
 
 		void	set_client_max_body_size(size_t);
 		void	set_client_body_buffer_size(size_t);
@@ -104,6 +107,8 @@ class	Host
         void	set_terminate_flag(bool);
         void	set_terminate_mutex(pthread_mutex_t);
         void	set_large_client_header_buffer(size_t);
+		void	set_timeout(int);
+		void	set_end(bool);
 };
 
 #endif

@@ -89,7 +89,7 @@ int	    Address::bind_addr()
 //Accept all the new connections, create a new socket and add to the master set
 int		Address::accept_client_sk(void)
 {
-	std::cout << "Listening socket is readable " << _listen_socket << std::endl;
+	// std::cout << "Listening socket is readable " << _listen_socket << std::endl;
 	int	new_sk;
 	//do
 	//{
@@ -102,8 +102,8 @@ int		Address::accept_client_sk(void)
 			//break;
 		}
 		fcntl(new_sk, F_SETFL, O_NONBLOCK);
-		ft::timestamp();
-		std::cout << "accept_client_sk " << new_sk << std::endl;
+		// ft::timestamp();
+		// std::cout << "accept_client_sk " << new_sk << std::endl;
 		return (new_sk);
 	//} while (new_sk != -1);
 }

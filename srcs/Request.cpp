@@ -43,7 +43,7 @@ Request::Request(int sk, Worker* w, Address* a) : _socket(sk), _worker(w), _addr
 
 	_response.set_socket(sk);
 	_response.set_host(_host);
-    _response.set_host(_host);
+    _response.set_worker(_worker);
 	_response.set_server(_server);
 	_response.set_request(this);
     
@@ -74,7 +74,7 @@ void    Request::clean(void)
 
 void    Request::init(void)
 {
-    std::cout << "Request init" << std::endl;
+    // std::cout << "Request init with worker: " << _worker->get_id() << std::endl;
     clean();
     _body_max = _host->get_client_max_body_size() * MEGABYTE;
     _server = 0;
@@ -120,14 +120,14 @@ int     Request::read(void)
 int     Request::read_header()
 {
     int ret = recv(_socket, _buffer, _header_buffer, 0);
-    std::cout << "receive_header: ret=" << ret << std::endl;
+    // std::cout << "receive_header: ret=" << ret << std::endl;
     if (ret <= 0)
         return (ret);
     _worker->set_sk_timeout(_socket);
     _buffer[ret] = 0;
     _str_header += _buffer;
-    std::cout << "============================================" << std::endl;
-    std::cout << "`" << _str_header.substr(0, 200) << "`" << std::endl;
+    // std::cout << "============================================" << std::endl;
+    // std::cout << "`" << _str_header.substr(0, 200) << "`" << std::endl;
     _header_size = _str_header.find("\r\n\r\n");
     if (_header_size == NPOS)
     {
@@ -149,9 +149,7 @@ int     Request::read_header()
     {
         std::memmove(_buffer, body_left.c_str(), _body_left);
         _buffer[_body_left] = 0;
-        //std::cout << "Body: `" << _buffer << "`" << std::endl;
     }
-    //std::cout << "End receive header with status code " << _status_code << std::endl;
     if (!parse_header())
         return (end_request());
     process_fd_in();
@@ -166,7 +164,6 @@ int     Request::read_header()
 void    Request::write_body_left(void)
 {
     std::cout << "_fd_in = " << _fd_in << ", _body_left = " << _body_left << std::endl;
-    //std::cout << _body_size << " " << _body_left << " " << _content_length << std::endl;
     if (_fd_in == -1 || _body_left <= 0)
         return ;
     std::cout << "Write body left to fd_in, body_left=" << _body_left << std::endl;
@@ -174,7 +171,6 @@ void    Request::write_body_left(void)
         write_chunked();
     else
     {
-        // Écrire le contenu de _buffer[] dans le fichier associé à _fd_in
         ssize_t bytes_written = write(_fd_in, _buffer, _body_left);
         if (bytes_written == -1)
         {
@@ -228,7 +224,6 @@ bool	Request::parse_method_url(std::string str)
 
 bool	Request::parse_header(void)
 {
-    std::cout << "parse_header" << std::endl;
     size_t          end_line = _str_header.find("\r\n");
     std::string     line = _str_header.substr(0, end_line);
     if (!parse_method_url(line))
@@ -255,19 +250,8 @@ bool	Request::parse_header(void)
             std::string value = line.substr(separator + 2);
             _fields[key] = value;
         }
-        //std::cout << "line: '" << line << "'" << std::endl;
-        //std::cout << "end_line: '" << end_line << "'" << std::endl;
         _str_header.erase(0, end_line + 2);
     } while (end_line);
-    //std::cout << "_str_header: '" << _str_header << "'" << std::endl;
-    // if (!_header.parse_method_url(_url, _method))
-    // {
-    //     std::cerr << RED << "Error: Method or url error." << RESET << std::endl;
-    //     _status_code = 400;	// Bad Request
-    //     return (false);
-    // }
-   // end_line = _str_header.find("\r\n");
-    
     _host_name = _fields["Host"];
     if (_host_name == "")
     {
@@ -275,7 +259,9 @@ bool	Request::parse_header(void)
         _status_code = 400;	// Bad Request
         return (false);
     }
-    std::cout << _host_name << RESET << std::endl;
+    std::cout << _host_name << " ";
+    std::cout << "[worker: " << _worker->get_id() << "] ";
+    std::cout << "[socket: " << _socket << "]" << RESET << std::endl;
     std::vector<Server*>        servers = _address->get_servers();
     std::vector<std::string>    server_names;
     _server = servers[0];
@@ -290,31 +276,25 @@ bool	Request::parse_header(void)
     }
 	_response.set_server(_server);
     check_location();
-    std::cout << "Location found: " << _location->get_url() << std::endl;
+    // std::cout << "Location found: " << _location->get_url() << std::endl;
 
     if (_fields["Transfer-Encoding"] == "chunked")
         _chunked = true;
-    std::cout << "_chunked: " << _chunked << std::endl;
     _content_length = std::atoi(_fields["Content-Length"].c_str());
-    //std::cout << "Content-Length: " << _content_length << std::endl;
     _cookies = parse_cookies(_fields["Cookie"]);
     if (_cookies.find("session_id") != _cookies.end())
         _session_id = _cookies["session_id"];
     if (_cookies.find("sid") != _cookies.end())
         _session_id = _cookies["sid"];
-    std::cout << "Session id: " << _session_id << std::endl;
-    //std::cout << "Connection: " << _header.parse_connection() << std::endl;
+    // std::cout << "Session id: " << _session_id << std::endl;
     if (_fields["Connection"] == "close")
         _close = true;
     _content_type = _fields["Content-Type"];
-    //std::cout << "Content-Type: " << _content_type << std::endl;
     if (_content_length > _body_max)
     {
         _status_code = 413;
         return (false);
     }
-    //_accept_encoding = _header.parse_accept_encoding();
-    std::cout << "End parse_header with status code " << _status_code << "|" << _chunked << "|" << _content_length << std::endl;
     if (_status_code != 200 || (!_chunked && !_content_length) || _method == HEAD)
         return (false);
     return (true);
@@ -349,8 +329,6 @@ std::map<std::string, std::string>    Request::parse_cookies(std::string& str)
 int     Request::read_body()
 {
     int     ret;
-
-    //std::cout << "Read body start" << std::endl;
     ret = recv(_socket, _buffer, _body_buffer, 0);
     if (!ret)
         return (ret);
@@ -361,7 +339,6 @@ int     Request::read_body()
         _status_code = 400;
         return (end_request());
     }
-	//std::cout << "read_body: " << ret << std::endl;
     _buffer[ret] = 0;
     _worker->set_sk_timeout(_socket);
     if (_chunked)
@@ -370,7 +347,7 @@ int     Request::read_body()
         return (ret);
     }
     _body_size += ret;
-    std::cout << "_body_size: " << _body_size << std::endl;
+    //std::cout << "_body_size: " << _body_size << std::endl;
     if (ret > 0 && write(_fd_in, _buffer, ret) == -1)
         return (end_request());
     if (_body_size >= _content_length)
@@ -471,7 +448,7 @@ bool	Request::check_location()
     }
     _full_file_name = _location->get_full_file_name(_url,
             _server->get_root(), _method);
-    std::cout << _full_file_name << std::endl;
+    // std::cout << _full_file_name << std::endl;
     //std::cout << "Cgi: " << _location->get_cgi_pass() << std::endl;
     if (_location->get_cgi_pass() != "")
     {
@@ -562,18 +539,16 @@ void	Request::process_fd_in()
 
 int     Request::end_request(void)
 {
-    std::cout << "end_request: socket=" << _socket << " body size=" << _body_size << " file name=" << _full_file_name << std::endl;
-    
+    // std::cout << "end_request: socket=" << _socket << " body size=" << _body_size << " file name=" << _full_file_name << std::endl;
     if (_status_code == 200 && _cgi)
         _status_code = _cgi->execute();
     if (_status_code == 200 && _body_size > _body_max)
         _status_code = 413;
     if (_fd_in > 0)
         close(_fd_in);
-    _worker->new_response_sk(_socket);
+    _end = true;
     _response.set_status_code(_status_code);
     _response.header_generate();
-    _end = true;
     return (1);
 }
 
@@ -599,4 +574,3 @@ std::map<std::string, std::string>*     Request::get_fields(void) {return (&_fie
 
 void		    Request::set_fd_in(int f) {_fd_in = f;}
 void            Request::set_accept_encoding(std::string a) {_accept_encoding = a;}
-// void		    Request::set_end(bool e) {_end = e;}

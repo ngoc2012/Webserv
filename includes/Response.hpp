@@ -43,15 +43,13 @@ class	Response
         bool            _end_header;
 
         int             _fd_out;
-		std::string	    _full_file_name;
-        //bool            _write_queue;
+		// std::string	    _full_file_name;
 
         void	        write_header(void);
         void	        get_file_size(void);
 		void			body_generate(void);
 		void			set_session_id(Header&);
         void	        mess_body(std::string, std::string);
-		//void	        redir_body(std::string, std::string);
 
 		void		    process_fd_out(void);
         int 	        write_body(void);
@@ -73,7 +71,6 @@ class	Response
         Request*	    get_request(void) const;
         bool            get_end_header(void) const;
 		size_t		    get_content_length(void) const;
-		//std::string*	get_body(void);
         std::string	    get_content_type(void) const;
 
 		void		    set_socket(int);

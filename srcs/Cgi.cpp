@@ -288,10 +288,7 @@ bool    Cgi::get_envs()
     i = 0;
     for (std::vector<std::string>::iterator it = envs.begin();
             it != envs.end(); it++)
-    {
-        std::cout << *it << std::endl;
         _envs[i++] = strdup(it->c_str());
-    }
     _envs[i] = 0;
     return (true);
 }
