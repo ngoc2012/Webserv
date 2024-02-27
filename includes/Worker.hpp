@@ -34,7 +34,7 @@ class	Worker
 		int         _workload;  // Workload metric
 		pthread_t   _th;
 	
-		double		_timeout;
+		// double		`_timeout;
 		Host*       _host;
 		int			_sk_ready;
 		int			_max_sk;		    // Max of all fd
@@ -79,7 +79,7 @@ class	Worker
         void        set_id(int);
         void        set_workload(int);
         void        set_host(Host*);
-        void		set_timeout(int);
+        // void		set_timeout(int);
 		void		set_terminate_mutex(pthread_mutex_t);
 		void		set_terminate_flag(bool);
 };

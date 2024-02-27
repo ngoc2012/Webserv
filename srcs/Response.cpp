@@ -82,6 +82,8 @@ void     Response::header_generate()
     Header	header(this);
     if (_status_code == 405)
         header.set_allow(_request->get_location()->get_methods_str());
+    if (_status_code != 200 || (_status_code == 200 && _request->get_method() == DELETE))
+        _content_type = "text/html";
     body_generate();
     if (_request->get_method() == HEAD && _status_code == 200)
         _content_length = 0;
@@ -201,7 +203,7 @@ int     Response::end_response(void)
     else
         std::cout << RED;
     std::cout << _request->get_location()->get_method_str(_request->get_method()) << " ";
-    std::cout << _request->get_url() << " ";
+    std::cout << _request->get_location()->get_url() << " ";
     std::cout << _status_code << " ";
     std::cout << "Request: " << _request->get_body_size() << "b, ";
     std::cout << "Response: " << _body_size << "b ";

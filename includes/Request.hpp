@@ -64,6 +64,7 @@ class	Request
 		size_t			_buffer_size;
 		size_t			_header_buffer;
         std::string     _tmp_file;
+		int				_timeout;
 
 		int		        _status_code;
 
@@ -108,6 +109,7 @@ class	Request
         bool		    get_end(void) const;
         bool		    get_end_header(void) const;
         bool		    get_chunked(void) const;
+		int				get_timeout(void) const;
         std::map<std::string, std::string>*     get_fields(void);
 
         void		    set_fd_in(int);

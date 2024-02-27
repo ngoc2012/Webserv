@@ -21,6 +21,7 @@ Server::Server()
 	_socket = -1;
 	_host = 0;
 	_root = "";
+	_timeout = TIMEOUT;
 }
 Server::Server(const Server& src) { *this = src; }
 Server&	Server::operator=( Server const & src )
@@ -38,6 +39,7 @@ Server::Server(Host* host): _host(host)
 	_port = 4242;
 	_socket = -1;
 	_root = "";
+	_timeout = _host->get_timeout();
 }
 Server::~Server()
 {
@@ -59,8 +61,9 @@ short unsigned int	        Server::get_port(void) const {return (_port);}
 int			                Server::get_socket(void) const {return (_socket);}
 Host*			            Server::get_host(void) const {return (_host);}
 std::string		            Server::get_root(void) const {return (_root);}
-std::vector<std::string>    Server::get_server_names(void) const {return (_server_names);}
+std::set<std::string>*   	Server::get_server_names(void) {return (&_server_names);}
 std::vector<Location*>	    Server::get_locations(void) const {return (_locations);}
+int		                    Server::get_timeout(void) const {return (_timeout);}
 
 void			Server::set_socket(int i) {_socket = i;}
 void			Server::set_address(std::string a) {_address = a;}
@@ -68,5 +71,6 @@ void			Server::set_ip_address(std::string ip) {_ip_address = ip;}
 void			Server::set_port(short unsigned int p) {_port = p;}
 void			Server::set_root(std::string r) {_root = r;}
 void			Server::set_host(Host* h) {_host = h;}
-void			Server::set_server_name(std::string s) {_server_names.push_back(s);}
+void			Server::set_server_name(std::string s) {_server_names.insert(s);}
 Sessions*		Server::get_sessions(void) {return (&_sessions);}
+void	        Server::set_timeout(int t) {_timeout = t;}

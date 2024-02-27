@@ -226,6 +226,8 @@ bool	Configuration::host_parser(std::string cmd, Host* host, std::vector<std::st
 
 bool	Configuration::server_parser(std::string cmd, Server* server, std::vector<std::string>&words)
 {
+	int	n;
+
 	if (cmd[0] != '	')
 		return (true);
 	if (words[0] == "listen")
@@ -246,6 +248,16 @@ bool	Configuration::server_parser(std::string cmd, Server* server, std::vector<s
 			return (true);
 		}
 		server->set_root(words[1]);
+	}
+	else if (words[0] == "timeout")
+	{
+		n = std::atoi(words[1].c_str());
+		if (!ft::is_digit(words[1]) || n < 0 || n > 100)
+        {
+			std::cerr << "Error: timeout value not valid (0..100)." << std::endl;
+			return (true);
+        }
+		server->set_timeout(n);
 	}
 	else
 		return (true);

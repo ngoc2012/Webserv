@@ -79,16 +79,22 @@ void	Host::start(void)
 			break;
 		check_sk_ready();
 	} while (!_end);
+    // for (int i = 0; i < _n_workers; i++)
+    //     _workers[i].set_terminate_flag(true);
     for (int i = 0; i < _n_workers; i++)
         pthread_join(*(_workers[i].get_th()), NULL);
-    
 }
 
 bool	Host::select_available_sk(void)
 {
+    struct timeval tv;
+
+    tv.tv_sec = 0;
+    tv.tv_usec = 1000;
+
     int sk = -1;
     if (!_end)
-        sk = select(_max_sk + 1, &_read_set, &_write_set, NULL, NULL);
+        sk = select(_max_sk + 1, &_read_set, &_write_set, NULL, &tv);
     if (sk < 0)
         return (false);
     return (true);
@@ -192,7 +198,7 @@ bool    Host::start_workers() {
         _workers[i].set_id(i);
         _workers[i].set_host(this);
         _workers[i].set_workload(0);
-        _workers[i].set_timeout(_timeout);
+        // _workers[i].set_timeout(_timeout);
         if (pthread_create(_workers[i].get_th(), NULL, start_worker, &_workers[i]))
         {
             std::cerr << "Error creating select thread" << std::endl;

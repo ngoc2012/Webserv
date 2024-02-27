@@ -25,7 +25,6 @@ Worker::Worker()
 {
     _id = -1;
     _workload = 0;
-    _timeout = TIMEOUT;
     _terminate_flag = false;
     pthread_mutex_init(&_terminate_mutex, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
@@ -50,7 +49,7 @@ void	Worker::routine(void)
         it != _sk_request.end(); it = next)
     {
         next++;
-        if (static_cast<double>(time(0) - _sk_timeout[it->first]) > _timeout)
+        if (static_cast<double>(time(0) - _sk_timeout[it->first]) > it->second->get_timeout())
         {
             ft::timestamp();
             std::cout << MAGENTA << "Time Out " << it->first << RESET << std::endl;
@@ -133,7 +132,7 @@ bool				Worker::get_terminate_flag(void) const {return (_terminate_flag);}
 void         Worker::set_id(int s) {_id = s;}
 void         Worker::set_workload(int s) {_workload = s;}
 void         Worker::set_host(Host* h) {_host = h;}
-void	     Worker::set_timeout(int t) {_timeout = t;}
+// void	     Worker::set_timeout(int t) {_timeout = t;}
 void	     Worker::set_terminate_mutex(pthread_mutex_t m) {_terminate_mutex = m;}
 void	     Worker::set_terminate_flag(bool f)
 {

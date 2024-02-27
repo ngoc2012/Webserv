@@ -42,10 +42,11 @@ class	Server
 		short unsigned int	        _port;
 		std::string		            _address;
 		int			                _socket;
-        std::vector<std::string>	_server_names;
+        std::set<std::string>		_server_names;
 		std::string	        	    _root;
 		std::vector<Location*>	    _locations;
 		Sessions					_sessions;
+		int							_timeout;
 
 		Server(const Server&);
 		Server			&operator=(const Server& op);
@@ -61,10 +62,11 @@ class	Server
 		int			                get_socket(void) const;
 		Host*			            get_host(void) const;
 		std::string		            get_root(void) const;
-        std::vector<std::string>    get_server_names(void) const;
+        std::set<std::string>*   	get_server_names(void);
 		std::vector<Location*>	    get_locations(void) const;	
 		std::string		            get_address(void) const;
         Sessions*					get_sessions(void);
+		int							get_timeout(void) const;
 
 		void			set_socket(int);
 		void			set_ip_address(std::string);
@@ -73,6 +75,7 @@ class	Server
 		void			set_host(Host*);
 		void			set_root(std::string);
 		void			set_server_name(std::string);
+		void			set_timeout(int);
 };
 
 #endif

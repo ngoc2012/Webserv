@@ -17,6 +17,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <set>
 #include <fstream>
 
 #ifndef WEBSERV_HPP
