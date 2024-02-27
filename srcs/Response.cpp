@@ -196,6 +196,8 @@ int     Response::end_response(void)
     ft::timestamp();
     if (_status_code == 200)
         std::cout << GREEN;
+    else if (_status_code > 300 && _status_code < 400)
+        std::cout << MAGENTA;
     else
         std::cout << RED;
     std::cout << _request->get_location()->get_method_str(_request->get_method()) << " ";

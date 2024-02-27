@@ -331,7 +331,7 @@ bool	Configuration::location_parser(std::string cmd, Location* loc, std::vector<
     	{
        		int status_code = atoi(words[1].c_str());
 
-        	if (status_code == 301 || status_code == 302)
+        	if (status_code == 301 || status_code == 302 || status_code == 303 || status_code == 307 || status_code == 308)
             {
             	loc->set_redirection(status_code);
             	loc->set_link(words[2]);
