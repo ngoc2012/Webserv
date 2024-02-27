@@ -26,6 +26,7 @@ class	Cgi
         Response*       _response;
         char**          _envs;
         int             _pid;
+        int             _pipe[2];
         std::string     _tmp_file;
         int             _fd_out;
         int             _status_code;

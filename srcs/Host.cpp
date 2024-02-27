@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/26 22:36:58 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/26 23:08:46 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,10 @@
 #include "Response.hpp"
 #include "Request.hpp"
 #include "Configuration.hpp"
+
+#define T1 1
+#define T2 0
+#define T3 10
 
 Host::Host(const Host& src) { *this = src; }
 
@@ -159,6 +163,8 @@ void	Host::start_server(void)
 }
 
 static void*   start_worker(void* instance) {
+    if (!instance)
+        return NULL;
     Worker*             worker = static_cast<Worker*>(instance);
     Host*               host = worker->get_host();
     pthread_mutex_t*    terminate_mutex = worker->get_terminate_mutex();
@@ -172,7 +178,7 @@ static void*   start_worker(void* instance) {
         }
         pthread_mutex_unlock(terminate_mutex);
         worker->routine();
-        usleep(2 * host->get_n_workers());
+        usleep(host->get_n_workers() * T1 + T2);
     }
     std::cout << "worker " << worker->get_id() << " end" << std::endl;
     pthread_exit(NULL);
@@ -192,6 +198,7 @@ bool    Host::start_workers() {
             std::cerr << "Error creating select thread" << std::endl;
             return (false);
         }
+        usleep(T3);
     }
     return (true);
 }

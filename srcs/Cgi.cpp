@@ -34,6 +34,8 @@ Cgi::Cgi(Request* request): _request(request)
     _pid = -1;
     _tmp_file = "";
     _content_length = 0;
+    _pipe[0] = -1;
+    _pipe[1] = -1;
     _response = _request->get_response();
 }
 Cgi::Cgi(const Cgi& src) { *this = src; }
@@ -58,6 +60,10 @@ Cgi::~Cgi()
     }
     if (_tmp_file != "" && std::remove(_tmp_file.c_str()))
         std::cerr << MAGENTA << "Error: Can not delete file " << _tmp_file << RESET << std::endl;
+    if (_pipe[0] != -1)
+        close(_pipe[0]);
+    if (_pipe[1] != -1)
+        close(_pipe[1]);
 }
 
 int    Cgi::execute()
@@ -67,9 +73,7 @@ int    Cgi::execute()
         std::cerr << "Error: envs" << std::endl;
         return 500;
     }
-    int pip[2];
-    
-    if (pipe(pip) == -1) {
+    if (pipe(_pipe) == -1) {
         std::cerr << "Error: pipe" << std::endl;
         perror("pipe");
         return 500;
@@ -97,12 +101,12 @@ int    Cgi::execute()
     }
     else if (!_pid)
     {
-        close(pip[1]);
-        if (dup2(pip[0], STDIN_FILENO) == -1)
+        close(_pipe[1]);
+        if (dup2(_pipe[0], STDIN_FILENO) == -1)
             return (-1);
         if (dup2(_fd_out, STDOUT_FILENO) == -1)
             return 500;
-        close(pip[0]);
+        close(_pipe[0]);
         
         char*   argv[3];
         argv[0] = (char*) _pass.c_str();
@@ -117,7 +121,7 @@ int    Cgi::execute()
         char    buffer[BUFFER_SIZE + 1];
         ssize_t bytesRead;
 
-        close(pip[0]);
+        close(_pipe[0]);
         int     fd_in = _request->get_fd_in();
         if (fd_in != -1)
         {
@@ -128,7 +132,7 @@ int    Cgi::execute()
             while ((bytesRead = read(fd_in, buffer, BUFFER_SIZE)) > 0)
             {
                 buffer[bytesRead] = 0;
-                if (write(pip[1], buffer, bytesRead) == -1)
+                if (write(_pipe[1], buffer, bytesRead) == -1)
                 {
                     std::cerr << "Error: write pipe in" << std::endl;
                     return 500;
@@ -136,7 +140,7 @@ int    Cgi::execute()
             }
             close(fd_in);
         }
-        close(pip[1]);
+        close(_pipe[1]);
         int     status;
         if (waitpid(_pid, &status, 0) == -1)
             return 500;

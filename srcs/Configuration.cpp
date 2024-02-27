@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/05 11:27:14 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/26 22:49:16 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,7 +192,7 @@ bool	Configuration::host_parser(std::string cmd, Host* host, std::vector<std::st
 	else if (words[0] == "workers")
 	{
 		n = std::atoi(words[1].c_str());
-		if (!ft::is_digit(words[1]) || n < 1 || n > 100)
+		if (!ft::is_digit(words[1]) || n < 1 || n > 200)
         {
 			std::cerr << "Error: number of workers not valid (1..100)." << std::endl;
 			return (true);
