@@ -95,12 +95,11 @@ void	 Response::body_generate(void)
 {
     if (_status_code != 200)
     {
-        if (_status_code == 301 || _status_code == 302)
+        // Redirection
+        if (_status_code > 300 && _status_code < 400)
+            return ;
+        else
         {
-            mess_body(ft::itos(_status_code) + " Redirection",
-                   "This page has moved. If you are not redirected, <a href=\""
-                   + _request->get_location()->get_link() + "\">click here</a>.");
-        } else {
             std::string mess = (*_host->get_status_message())[_status_code];
             mess_body(ft::itos(_status_code) + " " + mess, mess);
         }

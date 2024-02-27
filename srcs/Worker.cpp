@@ -45,8 +45,6 @@ Worker::~Worker()
 
 void	Worker::routine(void)
 {
-    // if (!_sk_request.size())
-    //     usleep(1000);
     std::map<int, Request*>::iterator next;
     for (std::map<int, Request*>::iterator it = _sk_request.begin(), next = it;
         it != _sk_request.end(); it = next)

@@ -212,12 +212,20 @@ HTTP/1.1 302 Found
 Location: https://example.com/temporary-location
 HTTP/1.1 303 See Other
 Location: https://example.com/see-other-location
-
+HTTP/1.1 307 Temporary Redirect
+Location: https://example.com/temporary-redirect-location
+HTTP/1.1 308 Permanent Redirect
+Location: https://example.com/permanent-redirect-location
 */
 	_status_message[100] = "Continue";
 	_status_message[200] = "OK";
 	_status_message[201] = "Created";
 	_status_message[204] = "No Content";
+    _status_message[301] = "Moved Permanently";
+    _status_message[302] = "Found"; // Moved Temporarily
+    _status_message[303] = "See Other";
+    _status_message[307] = "Temporary Redirect";
+    _status_message[308] = "Permanent Redirect";
 	_status_message[400] = "Bad Request";
 	_status_message[403] = "Forbidden";
 	_status_message[404] = "Not Found";

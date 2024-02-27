@@ -262,6 +262,9 @@ bool	Request::parse_header(void)
     }
 	_response.set_server(_server);
     check_location();
+    // Redirection
+    if (_status_code != 200)
+        return (false);
     if (_fields["Transfer-Encoding"] == "chunked")
         _chunked = true;
     _content_length = std::atoi(_fields["Content-Length"].c_str());
@@ -489,14 +492,18 @@ void	Request::process_fd_in()
             _fd_in = open(_tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0664);
             if (_fd_in == -1)
             {
-                std::cerr << "Error: POST method, fd in open error." << std::endl;
+                std::cerr << RED << "Error: Can not open file" << _tmp_file << "." << RESET << std::endl;
                 _status_code = 500;
                 end_request();
             }
             break;
         case DELETE:
             if (std::remove(_full_file_name.c_str()))
-                std::cerr << "Error: Can not delete file " << _tmp_file << std::endl;
+            {
+                _status_code = 500;
+                std::cerr << RED << "Error: Can not delete file " << _full_file_name << "." << RESET << std::endl;
+                end_request();
+            }
             break;
         case NONE:
             break;
