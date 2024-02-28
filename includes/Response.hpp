@@ -43,7 +43,7 @@ class	Response
 
         int             _fd_out;
 
-        void	        write_header(void);
+        int		        write_header(void);
         void	        get_file_size(void);
 		void			body_generate(void);
 		void			set_session_id(Header&);
@@ -51,7 +51,7 @@ class	Response
 
         int 	        write_body(void);
 		void            init(void);
-		int 		    end_response(void);
+		int 		    end_response(int);
 
 		Response(const Response&);
 		Response	&operator=(const Response& op);

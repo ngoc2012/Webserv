@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/25 17:45:33 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/28 15:16:09 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,6 @@ void    Response::init(void)
     _content_type = "";
     _content_length = 0;
     _body_size = 0;
-    // _pos = 0;
     _fd_out = -1;
     _end_header = false;
 }
@@ -54,27 +53,34 @@ void    Response::init(void)
 int     Response::write()
 {
     if (!_end_header)
-        write_header();
+        return (write_header());
     else
-        write_body();
+        return (write_body());
     return (0);
 }
 
-void     Response::write_header()
+int     Response::write_header()
 {
     int     ret = send(_socket, _header.c_str(), _header.length(), 0);
     if (ret <= 0)
-        end_response();
+    {
+        if (!ret && !_end_header)
+            std::cerr << RED << "Error: Send response header interrupted." << RESET << std::endl;
+        if (ret == -1)
+            std::cerr << RED << "Error: Send header error." << RESET << std::endl;
+        return (end_response(ret));
+    }
     _worker->set_sk_timeout(_socket);
     _header.erase(0, ret);
     if (_header == "")
     {
         _end_header = true;
         if (!_content_length || _request->get_method() == HEAD)
-            end_response();
+            return (end_response(ret));
     }
     if (_request->get_method() == HEAD)
-        end_response();
+        return (end_response(ret));
+    return (ret);
 }
 
 void     Response::header_generate()
@@ -155,50 +161,57 @@ int     Response::write_body()
         ret = send(_socket, _body.c_str(), _body.size(), 0);
         if (ret <= 0)
         {
+            if (!ret && _body.size())
+                std::cerr << RED << "Error: Send response body interrupted." << RESET << std::endl;
             if (ret == -1)
-                std::cerr << RED << "Error: Send body." << RESET << std::endl;
-            return (end_response());
+                std::cerr << RED << "Error: Send body error." << RESET << std::endl;
+            return (end_response(ret));
         }
         _worker->set_sk_timeout(_socket);
         _body_size += ret;
         _body.erase(0, ret);
         if (_body == "")
-            return (end_response());
-        return (0);
+            return (end_response(ret));
+        return (ret);
     }
     if (_fd_out == -1)
-        return (end_response());
+    {
+        std::cerr << RED << "Error: No file content to send." << RESET << std::endl;
+        return (end_response(-1));
+    }
     char	buffer[RESPONSE_BUFFER * 1028 + 20];
     ret = read(_fd_out, buffer, RESPONSE_BUFFER * 1028);
     if (ret <= 0)
     {
         if (ret == -1)
             std::cerr << RED << "Error: Read fd out." << RESET << std::endl;
-        return (end_response());
+        if (!ret)
+            std::cerr << RED << "Error: Nothing more to send." << RESET << std::endl;
+        return (end_response(ret));
     }
     int     ret1 = send(_socket, buffer, ret, 0);
     if (ret1 <= 0)
     {
-        if (ret1 == -1)
-        {
-            std::cerr << RED << "Error: Can not send to socket " << _socket << "." << RESET << std::endl;
-        }
-            
-        return (end_response());
+        if (!ret && ret)
+            std::cerr << RED << "Error: Send response body interrupted." << RESET << std::endl;
+        if (ret == -1)
+            std::cerr << RED << "Error: Send body error." << RESET << std::endl;
+        return (end_response(ret1));
     }
     _worker->set_sk_timeout(_socket);
     _body_size += ret1;
     if (_content_length > 1000000)
         ft::print_loading_bar(_body_size, _content_length, 50);
     if (_body_size >= _content_length)
-        return (end_response());
-    return (0);
+        return (end_response(ret1));
+    return (ret1);
 }
 
-int     Response::end_response(void)
+int     Response::end_response(int ret)
 {
     if (_fd_out > 0)
         close(_fd_out);
+    pthread_mutex_lock(_host->get_cout_mutex());
     ft::timestamp();
     if (_status_code == 200)
         std::cout << GREEN;
@@ -213,9 +226,10 @@ int     Response::end_response(void)
     std::cout << "Response: " << _body_size << "b ";
     std::cout << "[worker: " << _worker->get_id() << "] ";
     std::cout << "[socket: " << _socket << "]" << RESET << std::endl;
+    pthread_mutex_unlock(_host->get_cout_mutex());
     init();
     _request->init();
-    return (0);
+    return (ret);
 }
 
 int		        Response::get_status_code(void) const {return (_status_code);}

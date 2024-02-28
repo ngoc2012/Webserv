@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/02/27 21:33:07 by ngoc             ###   ########.fr        #
+#    Updated: 2024/02/28 09:38:35 by ngoc             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -127,7 +127,7 @@ gits:
 	git commit -m "all"
 	git push
 
-others:
+tester:
 	clear
 	./ubuntu_tester http://127.0.2.1:4242
 	#./ubuntu_tester http://0.0.0.0:8012
@@ -158,4 +158,4 @@ gitd:
 	#git add -A -- :!*.o :!*.swp :!*.env
 	git commit -m "$(M)"
 	git push
-.PHONY: all clean fclean re test pause
+.PHONY: all clean fclean re test pause tester

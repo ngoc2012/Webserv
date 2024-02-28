@@ -30,7 +30,7 @@ void print_loading_bar(int progress, int total, int barWidth = 50)
             std::cout << " ";
         }
     }
-    std::cout << "] " << static_cast<int>(percentage * 100.0) << "%\r";
+    std::cout << "] " << static_cast<int>(percentage * 100.0) << "% (" << progress << "b/" << total << "b)" << "\r";
     std::cout.flush();
 }
 

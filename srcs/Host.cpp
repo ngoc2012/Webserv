@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/26 23:08:46 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/28 15:03:10 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ Host::Host()
     _workers = 0;
     _n_workers = 1;
     _max_sk = -1;
+    pthread_mutex_init(&_cout_mutex, NULL);
     _timeout = TIMEOUT;
     mimes();
     status_message();
@@ -83,6 +84,7 @@ void	Host::start(void)
     //     _workers[i].set_terminate_flag(true);
     for (int i = 0; i < _n_workers; i++)
         pthread_join(*(_workers[i].get_th()), NULL);
+    pthread_mutex_destroy(&_cout_mutex);
 }
 
 bool	Host::select_available_sk(void)
@@ -138,6 +140,7 @@ void	Host::check_sk_ready(void)
 
 void  	Host::close_connection(int i)
 {
+    std::cout << "Close connection " << i << std::endl;
 	FD_CLR(i, &_master_read_set);
 	FD_CLR(i, &_master_write_set);
     if (i == _max_sk)
@@ -198,7 +201,6 @@ bool    Host::start_workers() {
         _workers[i].set_id(i);
         _workers[i].set_host(this);
         _workers[i].set_workload(0);
-        // _workers[i].set_timeout(_timeout);
         if (pthread_create(_workers[i].get_th(), NULL, start_worker, &_workers[i]))
         {
             std::cerr << "Error creating select thread" << std::endl;
@@ -489,6 +491,7 @@ Worker*				                Host::get_workers(void) const {return (_workers);}
 int 				                Host::get_n_workers(void) const {return (_n_workers);}
 size_t								Host::get_large_client_header_buffer(void) const {return (_large_client_header_buffer);}
 int		                            Host::get_timeout(void) const {return (_timeout);}
+pthread_mutex_t*					Host::get_cout_mutex(void) {return (&_cout_mutex);}
 
 void			Host::set_client_max_body_size(size_t n) {_client_max_body_size = n;}
 void			Host::set_client_body_buffer_size(size_t n) {_client_body_buffer_size = n;}
