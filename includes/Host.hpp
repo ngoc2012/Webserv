@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/24 10:15:55 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/28 15:02:48 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,7 @@ class	Host
 		int				                        _n_workers;
 		Worker*				                    _workers;
 		
-		pthread_mutex_t							_set_mutex;
-		pthread_cond_t							_terminate_cond;
+		pthread_mutex_t							_cout_mutex;
 		int										_timeout;
 
 		int										_max_sk;		    // Max of all fd
@@ -87,13 +86,13 @@ class	Host
 		int					                get_n_workers(void) const;
         size_t								get_large_client_header_buffer(void) const;
 		int									get_timeout(void) const;
+        pthread_mutex_t*					get_cout_mutex(void);
 
 		void	set_client_max_body_size(size_t);
 		void	set_client_body_buffer_size(size_t);
 		void	set_parser_error(bool);
         void    set_str_address(std::map<std::string, Address*>);
         void	set_n_workers(int);
-        
         void	set_large_client_header_buffer(size_t);
 		void	set_timeout(int);
 		void	set_end(bool);

@@ -62,13 +62,14 @@ void	Worker::routine(void)
         if (FD_ISSET(it->first, &_read_set) && !_sk_request[it->first]->get_end())
         {
             pthread_mutex_unlock(&_set_mutex);
-            if (_sk_request[it->first]->read() <= 0)
+            if (_sk_request[it->first]->read() < 0)
                 close_client_sk(it->first);
         }
         else if (FD_ISSET(it->first, &_write_set) && _sk_request[it->first]->get_end())
         {
             pthread_mutex_unlock(&_set_mutex);
-            _sk_request[it->first]->get_response()->write();
+            if (_sk_request[it->first]->get_response()->write() < 0)
+                close_client_sk(it->first);
         }
         else
             pthread_mutex_unlock(&_set_mutex);

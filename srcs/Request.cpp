@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/25 17:47:10 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/28 15:17:56 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,9 +219,6 @@ bool	Request::parse_header(void)
         _status_code = 400;
         return (false);
     }
-    ft::timestamp();
-    std::cout << GREEN << _location->get_method_str(_method) << " ";
-    std::cout << _url << " ";
     _str_header.erase(0, end_line + 2);
     size_t          separator;
     do
@@ -246,9 +243,14 @@ bool	Request::parse_header(void)
         _status_code = 400;
         return (false);
     }
+    pthread_mutex_lock(_host->get_cout_mutex());
+    ft::timestamp();
+    std::cout << GREEN << _location->get_method_str(_method) << " ";
+    std::cout << _url << " ";
     std::cout << _host_name << " ";
     std::cout << "[worker: " << _worker->get_id() << "] ";
     std::cout << "[socket: " << _socket << "]" << RESET << std::endl;
+    pthread_mutex_unlock(_host->get_cout_mutex());
     std::vector<Server*>        servers = _address->get_servers();
     std::set<std::string>*      server_names;
     _server = servers[0];
@@ -405,6 +407,7 @@ void    Request::write_chunked()
         {
             // if (_body_size > _body_max)
             //     _status_code = 413;
+            _end = true;
             end_request();
             return ;
         }
@@ -482,7 +485,9 @@ void	Request::process_fd_in()
                     O_CREAT | O_WRONLY | O_TRUNC, 0664);
             if (_fd_in == -1)
             {
+                pthread_mutex_lock(_host->get_cout_mutex());
                 std::cerr << RED << "Error: Can not open file " << _full_file_name << "." << RESET << std::endl;
+                pthread_mutex_unlock(_host->get_cout_mutex());
                 _status_code = 403;
             }
             break;
@@ -494,7 +499,9 @@ void	Request::process_fd_in()
             _fd_in = open(_tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0664);
             if (_fd_in == -1)
             {
+                pthread_mutex_lock(_host->get_cout_mutex());
                 std::cerr << RED << "Error: Can not open file " << _tmp_file << "." << RESET << std::endl;
+                pthread_mutex_unlock(_host->get_cout_mutex());
                 _status_code = 500;
                 end_request();
             }
@@ -503,7 +510,9 @@ void	Request::process_fd_in()
             if (std::remove(_full_file_name.c_str()))
             {
                 _status_code = 500;
+                pthread_mutex_lock(_host->get_cout_mutex());
                 std::cerr << RED << "Error: Can not delete file " << _full_file_name << "." << RESET << std::endl;
+                pthread_mutex_unlock(_host->get_cout_mutex());
                 end_request();
             }
             break;
