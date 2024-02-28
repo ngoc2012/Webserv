@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/28 15:03:10 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/28 15:23:25 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,7 +140,10 @@ void	Host::check_sk_ready(void)
 
 void  	Host::close_connection(int i)
 {
-    std::cout << "Close connection " << i << std::endl;
+    pthread_mutex_lock(&_cout_mutex);
+    ft::timestamp();
+    std::cout << BLUE << "Close connection " << i << RESET << std::endl;
+    pthread_mutex_unlock(&_cout_mutex);
 	FD_CLR(i, &_master_read_set);
 	FD_CLR(i, &_master_write_set);
     if (i == _max_sk)

@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/24 22:39:34 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/28 15:21:10 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,9 +52,10 @@ void	Worker::routine(void)
         double  dt = static_cast<double>((0) - _sk_timeout[it->first]);
         if (dt > it->second->get_timeout())
         {
+            pthread_mutex_lock(_host->get_cout_mutex());
             ft::timestamp();
             std::cout << MAGENTA << "Time Out " << it->first << "(" << dt << ")" << RESET << std::endl;
-            
+            pthread_mutex_unlock(_host->get_cout_mutex());
             close_client_sk(it->first);
             continue;
         }
@@ -134,7 +135,6 @@ bool				Worker::get_terminate_flag(void) const {return (_terminate_flag);}
 void         Worker::set_id(int s) {_id = s;}
 void         Worker::set_workload(int s) {_workload = s;}
 void         Worker::set_host(Host* h) {_host = h;}
-// void	     Worker::set_timeout(int t) {_timeout = t;}
 void	     Worker::set_terminate_mutex(pthread_mutex_t m) {_terminate_mutex = m;}
 void	     Worker::set_terminate_flag(bool f)
 {
