@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/28 15:16:09 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/28 15:22:02 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,6 @@ int     Response::write_header()
 
 void     Response::header_generate()
 {
-    // std::cout << "header_generate" << std::endl;
     Header	header(this);
     if (_status_code == 405)
         header.set_allow(_request->get_location()->get_methods_str());
@@ -102,7 +101,6 @@ void     Response::header_generate()
 
 void	 Response::body_generate(void)
 {
-    // std::cout << "Body generate" << std::endl;
     if (_status_code != 200)
     {
         // Redirection
