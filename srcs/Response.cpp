@@ -134,6 +134,8 @@ void     Response::set_session_id(Header& header)
 
 void     Response::mess_body(std::string title, std::string body)
 {
+    if (_body != "")
+        return ;
     _body += "<!DOCTYPE html>\n";
     _body += "<html>\n";
     _body += "  <head>\n";
