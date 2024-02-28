@@ -258,10 +258,6 @@ bool	Request::parse_header(void)
         server_names = (*sv)->get_server_names();
         if (server_names->find(_host_name) != server_names->end())
             _server = *sv;
-        // for (std::vector<std::string>::iterator it = server_names.begin() + 1;
-        //         it != server_names.end(); ++it)
-        //     if (_host_name == *it)
-                
     }
 	_response.set_server(_server);
     _timeout = _server->get_timeout();
@@ -518,7 +514,6 @@ void	Request::process_fd_in()
 
 int     Request::end_request(void)
 {
-    // std::cout << "end_request" << std::endl;
     if (_status_code == 200 && _cgi)
         _status_code = _cgi->execute();
     if (_status_code == 200 && _body_size > _body_max)
@@ -527,8 +522,6 @@ int     Request::end_request(void)
         close(_fd_in);
     _end = true;
     _response.set_status_code(_status_code);
-    // if (*(_response.get_header()) == "")
-    //     _response.header_generate();
     _response.header_generate();
     return (1);
 }
