@@ -43,7 +43,7 @@ class	Host
 		
 		pthread_mutex_t							_set_mutex;
 		pthread_cond_t							_terminate_cond;
-		double									_timeout;
+		int										_timeout;
 
 		int										_max_sk;		    // Max of all fd
 		fd_set              		            _listen_set;

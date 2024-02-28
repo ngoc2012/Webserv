@@ -79,9 +79,12 @@ void     Response::write_header()
 
 void     Response::header_generate()
 {
+    // std::cout << "header_generate" << std::endl;
     Header	header(this);
     if (_status_code == 405)
         header.set_allow(_request->get_location()->get_methods_str());
+    if (_status_code != 200 || (_status_code == 200 && _request->get_method() == DELETE))
+        _content_type = "text/html";
     body_generate();
     if (_request->get_method() == HEAD && _status_code == 200)
         _content_length = 0;
@@ -93,14 +96,14 @@ void     Response::header_generate()
 
 void	 Response::body_generate(void)
 {
+    // std::cout << "Body generate" << std::endl;
     if (_status_code != 200)
     {
-        if (_status_code == 301 || _status_code == 302)
+        // Redirection
+        if (_status_code > 300 && _status_code < 400)
+            return ;
+        else
         {
-            mess_body(ft::itos(_status_code) + " Redirection",
-                   "This page has moved. If you are not redirected, <a href=\""
-                   + _request->get_location()->get_link() + "\">click here</a>.");
-        } else {
             std::string mess = (*_host->get_status_message())[_status_code];
             mess_body(ft::itos(_status_code) + " " + mess, mess);
         }
@@ -131,6 +134,8 @@ void     Response::set_session_id(Header& header)
 
 void     Response::mess_body(std::string title, std::string body)
 {
+    if (_body != "")
+        return ;
     _body += "<!DOCTYPE html>\n";
     _body += "<html>\n";
     _body += "  <head>\n";
@@ -168,7 +173,7 @@ int     Response::write_body()
     if (ret <= 0)
     {
         if (ret == -1)
-            std::cerr << RED << "Error: Read fd_out." << RESET << std::endl;
+            std::cerr << RED << "Error: Read fd out." << RESET << std::endl;
         return (end_response());
     }
     int     ret1 = send(_socket, buffer, ret, 0);
@@ -197,10 +202,12 @@ int     Response::end_response(void)
     ft::timestamp();
     if (_status_code == 200)
         std::cout << GREEN;
+    else if (_status_code > 300 && _status_code < 400)
+        std::cout << MAGENTA;
     else
         std::cout << RED;
     std::cout << _request->get_location()->get_method_str(_request->get_method()) << " ";
-    std::cout << _request->get_url() << " ";
+    std::cout << _request->get_location()->get_url() << " ";
     std::cout << _status_code << " ";
     std::cout << "Request: " << _request->get_body_size() << "b, ";
     std::cout << "Response: " << _body_size << "b ";
@@ -218,6 +225,7 @@ Request*	    Response::get_request(void) const {return (_request);}
 bool            Response::get_end_header(void) const {return (_end_header);}
 size_t		    Response::get_content_length(void) const {return (_content_length);}
 std::string	    Response::get_content_type(void) const {return (_content_type);}
+std::string*	Response::get_header(void) {return (&_header);}
 
 void		Response::set_socket(int s) {_socket = s;}
 void		Response::set_host(Host* h) {_host = h;}

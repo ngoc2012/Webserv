@@ -92,6 +92,7 @@ void    Request::init(void)
     _fields.clear();
     std::memset(_buffer, 0, _buffer_size + 1);
 	_status_code = 200;
+    _timeout = _host->get_timeout();
 }
 
 Request::~Request()
@@ -249,19 +250,25 @@ bool	Request::parse_header(void)
     std::cout << "[worker: " << _worker->get_id() << "] ";
     std::cout << "[socket: " << _socket << "]" << RESET << std::endl;
     std::vector<Server*>        servers = _address->get_servers();
-    std::vector<std::string>    server_names;
+    std::set<std::string>*      server_names;
     _server = servers[0];
     for (std::vector<Server*>::iterator sv = servers.begin() + 1;
             sv != servers.end(); ++sv)
     {
         server_names = (*sv)->get_server_names();
-        for (std::vector<std::string>::iterator it = server_names.begin() + 1;
-                it != server_names.end(); ++it)
-            if (_host_name == *it)
-                _server = *sv;
+        if (server_names->find(_host_name) != server_names->end())
+            _server = *sv;
+        // for (std::vector<std::string>::iterator it = server_names.begin() + 1;
+        //         it != server_names.end(); ++it)
+        //     if (_host_name == *it)
+                
     }
 	_response.set_server(_server);
+    _timeout = _server->get_timeout();
     check_location();
+    // Redirection
+    if (_status_code != 200)
+        return (false);
     if (_fields["Transfer-Encoding"] == "chunked")
         _chunked = true;
     _content_length = std::atoi(_fields["Content-Length"].c_str());
@@ -315,7 +322,7 @@ int     Request::read_body()
     if (ret < 0)
     {
         ft::timestamp();
-        std::cerr << MAGENTA << "Error: recv error" << RESET << std::endl;
+        std::cerr << RED << "Error: recv error" << RESET << std::endl;
         _status_code = 400;
         return (end_request());
     }
@@ -327,7 +334,8 @@ int     Request::read_body()
         return (ret);
     }
     _body_size += ret;
-    std::cout << "_body_size: " << _body_size << std::endl;
+    if (_content_length > 1000000)
+        ft::print_loading_bar(_body_size, _content_length, 50);
     if (ret > 0 && write(_fd_in, _buffer, ret) == -1)
         return (end_request());
     if (_body_size >= _content_length)
@@ -387,6 +395,7 @@ void    Request::write_chunked()
                 return ;
             }
             _body_size += len;
+            ft::print_size(_body_size);
             _chunk_size -= len;
             read_size -= len;
             _read_data.erase(0, len);
@@ -398,8 +407,8 @@ void    Request::write_chunked()
             return ;
         if (!_chunk_size)
         {
-            if (_body_size > _body_max)
-                _status_code = 413;
+            // if (_body_size > _body_max)
+            //     _status_code = 413;
             end_request();
             return ;
         }
@@ -477,8 +486,8 @@ void	Request::process_fd_in()
                     O_CREAT | O_WRONLY | O_TRUNC, 0664);
             if (_fd_in == -1)
             {
-                std::cerr << "Error: PUT method, fd in open error." << std::endl;
-                _status_code = 500;
+                std::cerr << RED << "Error: Can not open file " << _full_file_name << "." << RESET << std::endl;
+                _status_code = 403;
             }
             break;
         case POST:
@@ -489,14 +498,18 @@ void	Request::process_fd_in()
             _fd_in = open(_tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0664);
             if (_fd_in == -1)
             {
-                std::cerr << "Error: POST method, fd in open error." << std::endl;
+                std::cerr << RED << "Error: Can not open file " << _tmp_file << "." << RESET << std::endl;
                 _status_code = 500;
                 end_request();
             }
             break;
         case DELETE:
             if (std::remove(_full_file_name.c_str()))
-                std::cerr << "Error: Can not delete file " << _tmp_file << std::endl;
+            {
+                _status_code = 500;
+                std::cerr << RED << "Error: Can not delete file " << _full_file_name << "." << RESET << std::endl;
+                end_request();
+            }
             break;
         case NONE:
             break;
@@ -505,6 +518,7 @@ void	Request::process_fd_in()
 
 int     Request::end_request(void)
 {
+    // std::cout << "end_request" << std::endl;
     if (_status_code == 200 && _cgi)
         _status_code = _cgi->execute();
     if (_status_code == 200 && _body_size > _body_max)
@@ -513,6 +527,8 @@ int     Request::end_request(void)
         close(_fd_in);
     _end = true;
     _response.set_status_code(_status_code);
+    // if (*(_response.get_header()) == "")
+    //     _response.header_generate();
     _response.header_generate();
     return (1);
 }
@@ -527,13 +543,15 @@ int		        Request::get_status_code(void) const {return (_status_code);}
 std::string	    Request::get_content_type(void) const {return (_content_type);}
 size_t		    Request::get_content_length(void) const {return (_content_length);}
 size_t		    Request::get_body_size(void) const {return (_body_size);}
-std::string	    Request::get_str_header(void) const {return (_str_header);}
+std::string*	Request::get_str_header(void) {return (&_str_header);}
 std::string	    Request::get_full_file_name(void) const {return (_full_file_name);}
 Location*	    Request::get_location(void) const {return (_location);}
 int		        Request::get_fd_in(void) const {return (_fd_in);}
 std::string	    Request::get_session_id(void) const {return (_session_id);}
 bool		    Request::get_end(void) const {return (_end);}
 bool		    Request::get_chunked(void) const {return (_chunked);}
+int		        Request::get_timeout(void) const {return (_timeout);}
 std::map<std::string, std::string>*     Request::get_fields(void) {return (&_fields);}
+
 
 void		    Request::set_fd_in(int f) {_fd_in = f;}

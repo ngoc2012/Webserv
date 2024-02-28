@@ -25,7 +25,6 @@ Worker::Worker()
 {
     _id = -1;
     _workload = 0;
-    _timeout = TIMEOUT;
     _terminate_flag = false;
     pthread_mutex_init(&_terminate_mutex, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
@@ -45,17 +44,16 @@ Worker::~Worker()
 
 void	Worker::routine(void)
 {
-    // if (!_sk_request.size())
-    //     usleep(1000);
     std::map<int, Request*>::iterator next;
     for (std::map<int, Request*>::iterator it = _sk_request.begin(), next = it;
         it != _sk_request.end(); it = next)
     {
         next++;
-        if (static_cast<double>(time(0) - _sk_timeout[it->first]) > _timeout)
+        double  dt = static_cast<double>((0) - _sk_timeout[it->first]);
+        if (dt > it->second->get_timeout())
         {
             ft::timestamp();
-            std::cout << MAGENTA << "Time Out " << it->first << RESET << std::endl;
+            std::cout << MAGENTA << "Time Out " << it->first << "(" << dt << ")" << RESET << std::endl;
             
             close_client_sk(it->first);
             continue;
@@ -135,7 +133,7 @@ bool				Worker::get_terminate_flag(void) const {return (_terminate_flag);}
 void         Worker::set_id(int s) {_id = s;}
 void         Worker::set_workload(int s) {_workload = s;}
 void         Worker::set_host(Host* h) {_host = h;}
-void	     Worker::set_timeout(int t) {_timeout = t;}
+// void	     Worker::set_timeout(int t) {_timeout = t;}
 void	     Worker::set_terminate_mutex(pthread_mutex_t m) {_terminate_mutex = m;}
 void	     Worker::set_terminate_flag(bool f)
 {

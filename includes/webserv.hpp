@@ -17,6 +17,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <set>
 #include <fstream>
 
 #ifndef WEBSERV_HPP
@@ -63,7 +64,7 @@ std::string                 to_upper(std::string s);
 std::string                 trim_string(const std::string& str);
 void	                    timestamp(void);
 void                        print_loading_bar(int progress, int total, int barWidth);
-
+void                        print_size(size_t size);
 }
 
 #endif

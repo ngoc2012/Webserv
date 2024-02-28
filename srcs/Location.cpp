@@ -45,7 +45,7 @@ Location*	Location::find_location(std::string url, std::vector<Location*> locati
 	{
 		if ((*it)->compare_url(url, (*it)->get_url()))
 		{
-			if ((*it)->find_method(method))
+			if ((*it)->find_method(method) || (*it)->get_redirection())
             {
                 loc = *it;
                 found = true;

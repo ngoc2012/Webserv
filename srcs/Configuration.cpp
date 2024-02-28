@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/05 11:27:14 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/26 22:49:16 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,7 +192,7 @@ bool	Configuration::host_parser(std::string cmd, Host* host, std::vector<std::st
 	else if (words[0] == "workers")
 	{
 		n = std::atoi(words[1].c_str());
-		if (!ft::is_digit(words[1]) || n < 1 || n > 100)
+		if (!ft::is_digit(words[1]) || n < 1 || n > 200)
         {
 			std::cerr << "Error: number of workers not valid (1..100)." << std::endl;
 			return (true);
@@ -226,6 +226,8 @@ bool	Configuration::host_parser(std::string cmd, Host* host, std::vector<std::st
 
 bool	Configuration::server_parser(std::string cmd, Server* server, std::vector<std::string>&words)
 {
+	int	n;
+
 	if (cmd[0] != '	')
 		return (true);
 	if (words[0] == "listen")
@@ -246,6 +248,16 @@ bool	Configuration::server_parser(std::string cmd, Server* server, std::vector<s
 			return (true);
 		}
 		server->set_root(words[1]);
+	}
+	else if (words[0] == "timeout")
+	{
+		n = std::atoi(words[1].c_str());
+		if (!ft::is_digit(words[1]) || n < 0 || n > 100)
+        {
+			std::cerr << "Error: timeout value not valid (0..100)." << std::endl;
+			return (true);
+        }
+		server->set_timeout(n);
 	}
 	else
 		return (true);
@@ -331,7 +343,7 @@ bool	Configuration::location_parser(std::string cmd, Location* loc, std::vector<
     	{
        		int status_code = atoi(words[1].c_str());
 
-        	if (status_code == 301 || status_code == 302)
+        	if (status_code == 301 || status_code == 302 || status_code == 303 || status_code == 307 || status_code == 308)
             {
             	loc->set_redirection(status_code);
             	loc->set_link(words[2]);

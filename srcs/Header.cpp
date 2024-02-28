@@ -47,14 +47,17 @@ std::string	Header::generate(void)
 	else
 		str += (*_status_message)[_status_code];
 	str += "\r\n";
+	if (_status_code > 300 && _status_code < 400)
+		str += "Location: " + _response->get_request()->get_location()->get_link() + "\r\n";
 	if (_status_code == 405)
 		str += "Allow: " + _allow + "\r\n";
-    if (_response->get_content_type() != "")
-    {
-		str += "Content-Type: " + _response->get_content_type() + "\r\n";
-    }
-    else
-    	str += "Content-Type: plain/text\r\n";
+	if (_response->get_content_length())
+	{
+		if (_response->get_content_type() != "")
+			str += "Content-Type: " + _response->get_content_type() + "\r\n";
+		else
+			str += "Content-Type: plain/text\r\n";
+	}
     str += "Content-Length: " + ft::itos(_response->get_content_length()) + "\r\n";
     if (_session_id != "")
         str += "Set-Cookies: session_id=" + _session_id + "\r\n";

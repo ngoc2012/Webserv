@@ -14,7 +14,6 @@
 
 #include "Host.hpp"
 #include "Worker.hpp"
-#include "Server.hpp"
 #include "Configuration.hpp"
 
 Host	*g_host;

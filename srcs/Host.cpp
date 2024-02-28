@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/26 22:36:58 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/26 23:08:46 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,10 @@
 #include "Response.hpp"
 #include "Request.hpp"
 #include "Configuration.hpp"
+
+#define T1 1
+#define T2 0
+#define T3 10
 
 Host::Host(const Host& src) { *this = src; }
 
@@ -75,16 +79,22 @@ void	Host::start(void)
 			break;
 		check_sk_ready();
 	} while (!_end);
+    // for (int i = 0; i < _n_workers; i++)
+    //     _workers[i].set_terminate_flag(true);
     for (int i = 0; i < _n_workers; i++)
         pthread_join(*(_workers[i].get_th()), NULL);
-    
 }
 
 bool	Host::select_available_sk(void)
 {
+    struct timeval tv;
+
+    tv.tv_sec = 0;
+    tv.tv_usec = 1000;
+
     int sk = -1;
     if (!_end)
-        sk = select(_max_sk + 1, &_read_set, &_write_set, NULL, NULL);
+        sk = select(_max_sk + 1, &_read_set, &_write_set, NULL, &tv);
     if (sk < 0)
         return (false);
     return (true);
@@ -159,6 +169,8 @@ void	Host::start_server(void)
 }
 
 static void*   start_worker(void* instance) {
+    if (!instance)
+        return NULL;
     Worker*             worker = static_cast<Worker*>(instance);
     Host*               host = worker->get_host();
     pthread_mutex_t*    terminate_mutex = worker->get_terminate_mutex();
@@ -172,7 +184,7 @@ static void*   start_worker(void* instance) {
         }
         pthread_mutex_unlock(terminate_mutex);
         worker->routine();
-        usleep(2 * host->get_n_workers());
+        usleep(host->get_n_workers() * T1 + T2);
     }
     std::cout << "worker " << worker->get_id() << " end" << std::endl;
     pthread_exit(NULL);
@@ -186,12 +198,13 @@ bool    Host::start_workers() {
         _workers[i].set_id(i);
         _workers[i].set_host(this);
         _workers[i].set_workload(0);
-        _workers[i].set_timeout(_timeout);
+        // _workers[i].set_timeout(_timeout);
         if (pthread_create(_workers[i].get_th(), NULL, start_worker, &_workers[i]))
         {
             std::cerr << "Error creating select thread" << std::endl;
             return (false);
         }
+        usleep(T3);
     }
     return (true);
 }
@@ -205,12 +218,20 @@ HTTP/1.1 302 Found
 Location: https://example.com/temporary-location
 HTTP/1.1 303 See Other
 Location: https://example.com/see-other-location
-
+HTTP/1.1 307 Temporary Redirect
+Location: https://example.com/temporary-redirect-location
+HTTP/1.1 308 Permanent Redirect
+Location: https://example.com/permanent-redirect-location
 */
 	_status_message[100] = "Continue";
 	_status_message[200] = "OK";
 	_status_message[201] = "Created";
 	_status_message[204] = "No Content";
+    _status_message[301] = "Moved Permanently";
+    _status_message[302] = "Found"; // Moved Temporarily
+    _status_message[303] = "See Other";
+    _status_message[307] = "Temporary Redirect";
+    _status_message[308] = "Permanent Redirect";
 	_status_message[400] = "Bad Request";
 	_status_message[403] = "Forbidden";
 	_status_message[404] = "Not Found";
