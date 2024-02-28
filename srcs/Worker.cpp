@@ -49,10 +49,11 @@ void	Worker::routine(void)
         it != _sk_request.end(); it = next)
     {
         next++;
-        if (static_cast<double>(time(0) - _sk_timeout[it->first]) > it->second->get_timeout())
+        double  dt = static_cast<double>((0) - _sk_timeout[it->first]);
+        if (dt > it->second->get_timeout())
         {
             ft::timestamp();
-            std::cout << MAGENTA << "Time Out " << it->first << RESET << std::endl;
+            std::cout << MAGENTA << "Time Out " << it->first << "(" << dt << ")" << RESET << std::endl;
             
             close_client_sk(it->first);
             continue;

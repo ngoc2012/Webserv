@@ -101,7 +101,7 @@ class	Request
         std::string	    get_content_type(void) const;
         size_t		    get_content_length(void) const;
         size_t		    get_body_size(void) const;
-        std::string	    get_str_header(void) const;
+        std::string*	get_str_header(void);
         std::string	    get_full_file_name(void) const;
         Location*	    get_location(void) const;	
         int		        get_fd_in(void) const;

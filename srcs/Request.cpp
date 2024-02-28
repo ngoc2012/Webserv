@@ -395,6 +395,7 @@ void    Request::write_chunked()
                 return ;
             }
             _body_size += len;
+            ft::print_size(_body_size);
             _chunk_size -= len;
             read_size -= len;
             _read_data.erase(0, len);
@@ -406,8 +407,8 @@ void    Request::write_chunked()
             return ;
         if (!_chunk_size)
         {
-            if (_body_size > _body_max)
-                _status_code = 413;
+            // if (_body_size > _body_max)
+            //     _status_code = 413;
             end_request();
             return ;
         }
@@ -517,6 +518,7 @@ void	Request::process_fd_in()
 
 int     Request::end_request(void)
 {
+    // std::cout << "end_request" << std::endl;
     if (_status_code == 200 && _cgi)
         _status_code = _cgi->execute();
     if (_status_code == 200 && _body_size > _body_max)
@@ -525,6 +527,8 @@ int     Request::end_request(void)
         close(_fd_in);
     _end = true;
     _response.set_status_code(_status_code);
+    // if (*(_response.get_header()) == "")
+    //     _response.header_generate();
     _response.header_generate();
     return (1);
 }
@@ -539,7 +543,7 @@ int		        Request::get_status_code(void) const {return (_status_code);}
 std::string	    Request::get_content_type(void) const {return (_content_type);}
 size_t		    Request::get_content_length(void) const {return (_content_length);}
 size_t		    Request::get_body_size(void) const {return (_body_size);}
-std::string	    Request::get_str_header(void) const {return (_str_header);}
+std::string*	Request::get_str_header(void) {return (&_str_header);}
 std::string	    Request::get_full_file_name(void) const {return (_full_file_name);}
 Location*	    Request::get_location(void) const {return (_location);}
 int		        Request::get_fd_in(void) const {return (_fd_in);}

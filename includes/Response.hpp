@@ -69,6 +69,7 @@ class	Response
         bool            get_end_header(void) const;
 		size_t		    get_content_length(void) const;
         std::string	    get_content_type(void) const;
+		std::string*	get_header(void);
 
 		void		    set_socket(int);
 		void		    set_host(Host*);

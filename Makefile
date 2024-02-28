@@ -6,11 +6,11 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/02/27 19:32:19 by ngoc             ###   ########.fr        #
+#    Updated: 2024/02/27 21:33:07 by ngoc             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FILES = main Host Worker Address Server Request Response Header Configuration Location Cgi Listing Sessions ft/split_string ft/is_digit ft/itos ft/match_wildcard ft/file_extension ft/atoi_base ft/itoa_base ft/str_replace ft/to_upper ft/trim_string ft/timestamp ft/print_loading_bar
+FILES = main Host Worker Address Server Request Response Header Configuration Location Cgi Listing Sessions ft/split_string ft/is_digit ft/itos ft/match_wildcard ft/file_extension ft/atoi_base ft/itoa_base ft/str_replace ft/to_upper ft/trim_string ft/timestamp ft/print_loading_bar ft/print_size
 SRCS = $(addsuffix .cpp, $(addprefix srcs/, $(FILES)))
 INCS = $(wildcard includes/*.hpp)
 OBJS = ${SRCS:.cpp=.o}
@@ -93,11 +93,19 @@ subjects:
 	@echo "============================================================================"
 	@echo "Setup the server_names or not."
 	@echo "Without server name"
-	-curl -H "Host: minh-ngu.com" http://127.0.3.1:8080
+	-curl -X GET http://127.0.3.1:8080
+	@echo "****************************************************************************"
+	@read -p "Press enter to continue..." continue
+	-curl -H "Host: loic.com" http://127.0.3.1:8080
+	@echo "****************************************************************************"
 	@read -p "Press enter to continue..." continue
 	-curl -H "Host: minh-ngu.42.fr" http://127.0.3.1:8080
+	@echo "****************************************************************************"
 	@read -p "Press enter to continue..." continue
-	-curl -X GET http://127.0.3.1:8080
+	-curl -H "Host: nathan.fr" http://127.0.3.1:8080
+	@echo "****************************************************************************"
+	@read -p "Press enter to continue..." continue
+	-curl -H "Host: minh-ngu.com" http://127.0.3.1:8080
 	@read -p "Press enter to continue..." continue
 	@echo "============================================================================"
 	@echo "Limit client body size."
