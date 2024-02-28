@@ -159,10 +159,12 @@ int     Response::write_body()
         ret = send(_socket, _body.c_str(), _body.size(), 0);
         if (ret <= 0)
         {
+            pthread_mutex_lock(_host->get_cout_mutex());
             if (!ret && _body.size())
                 std::cerr << RED << "Error: Send response body interrupted." << RESET << std::endl;
             if (ret == -1)
                 std::cerr << RED << "Error: Send body error." << RESET << std::endl;
+            pthread_mutex_unlock(_host->get_cout_mutex());
             return (end_response(ret));
         }
         _worker->set_sk_timeout(_socket);
@@ -181,19 +183,23 @@ int     Response::write_body()
     ret = read(_fd_out, buffer, RESPONSE_BUFFER * 1028);
     if (ret <= 0)
     {
+        pthread_mutex_lock(_host->get_cout_mutex());
         if (ret == -1)
             std::cerr << RED << "Error: Read fd out." << RESET << std::endl;
         if (!ret)
             std::cerr << RED << "Error: Nothing more to send." << RESET << std::endl;
+        pthread_mutex_unlock(_host->get_cout_mutex());
         return (end_response(ret));
     }
     int     ret1 = send(_socket, buffer, ret, 0);
     if (ret1 <= 0)
     {
+        pthread_mutex_lock(_host->get_cout_mutex());
         if (!ret && ret)
             std::cerr << RED << "Error: Send response body interrupted." << RESET << std::endl;
         if (ret == -1)
             std::cerr << RED << "Error: Send body error." << RESET << std::endl;
+        pthread_mutex_unlock(_host->get_cout_mutex());
         return (end_response(ret1));
     }
     _worker->set_sk_timeout(_socket);
@@ -222,8 +228,8 @@ int     Response::end_response(int ret)
     std::cout << _status_code << " ";
     std::cout << "Request: " << _request->get_body_size() << "b, ";
     std::cout << "Response: " << _body_size << "b ";
-    std::cout << "[worker: " << _worker->get_id() << "] ";
-    std::cout << "[socket: " << _socket << "]" << RESET << std::endl;
+    std::cout << "[wk: " << _worker->get_id() << "] ";
+    std::cout << "[sk: " << _socket << "]" << RESET << std::endl;
     pthread_mutex_unlock(_host->get_cout_mutex());
     init();
     _request->init();

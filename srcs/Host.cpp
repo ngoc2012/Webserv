@@ -216,18 +216,6 @@ bool    Host::start_workers() {
 
 void    Host::status_message(void)
 {
-    /*
-HTTP/1.1 301 Moved Permanently
-Location: https://example.com/new-location
-HTTP/1.1 302 Found
-Location: https://example.com/temporary-location
-HTTP/1.1 303 See Other
-Location: https://example.com/see-other-location
-HTTP/1.1 307 Temporary Redirect
-Location: https://example.com/temporary-redirect-location
-HTTP/1.1 308 Permanent Redirect
-Location: https://example.com/permanent-redirect-location
-*/
 	_status_message[100] = "Continue";
 	_status_message[200] = "OK";
 	_status_message[201] = "Created";
@@ -242,6 +230,7 @@ Location: https://example.com/permanent-redirect-location
 	_status_message[404] = "Not Found";
 	_status_message[405] = "Method Not Allowed";
 	_status_message[413] = "Payload Too Large";
+    _status_message[499] = "Client Closed Request";
 	_status_message[500] = "Internal Server Error";
 }
 

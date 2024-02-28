@@ -40,6 +40,7 @@ Worker::~Worker()
             it != _sk_request.end(); ++it)
         delete (it->second);
     pthread_mutex_destroy(&_terminate_mutex);
+    pthread_cond_destroy(&_set_ready);
 }
 
 void	Worker::routine(void)
@@ -49,7 +50,7 @@ void	Worker::routine(void)
         it != _sk_request.end(); it = next)
     {
         next++;
-        double  dt = static_cast<double>((0) - _sk_timeout[it->first]);
+        double  dt = static_cast<double>(time(0) - _sk_timeout[it->first]);
         if (dt > it->second->get_timeout())
         {
             pthread_mutex_lock(_host->get_cout_mutex());
@@ -64,13 +65,21 @@ void	Worker::routine(void)
         {
             pthread_mutex_unlock(&_set_mutex);
             if (_sk_request[it->first]->read() < 0)
+            {
+                std::cout << "read close" << std::endl;
                 close_client_sk(it->first);
+            }
+                // close_client_sk(it->first);
         }
         else if (FD_ISSET(it->first, &_write_set) && _sk_request[it->first]->get_end())
         {
             pthread_mutex_unlock(&_set_mutex);
             if (_sk_request[it->first]->get_response()->write() < 0)
+            {
+                std::cout << "write close" << std::endl;
                 close_client_sk(it->first);
+            }
+                // close_client_sk(it->first);
         }
         else
             pthread_mutex_unlock(&_set_mutex);

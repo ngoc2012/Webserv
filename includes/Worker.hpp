@@ -51,6 +51,7 @@ class	Worker
 
 		pthread_mutex_t		_set_mutex;
 		pthread_mutex_t		_terminate_mutex;
+		pthread_cond_t		_set_ready;
 
 		Worker(const Worker&);
 		Worker	&operator=(const Worker& op);

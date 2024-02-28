@@ -78,7 +78,7 @@ class	Request
         int 	        read_body();
         void 	        write_chunked();
 
-		int             end_request(void);
+		int             end_request(int);
 		void            clean(void);
 
 		Request();

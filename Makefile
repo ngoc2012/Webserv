@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/02/28 09:38:35 by ngoc             ###   ########.fr        #
+#    Updated: 2024/02/28 17:29:35 by ngoc             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -114,6 +114,10 @@ subjects:
 	-curl -i -X POST -H "Transfer-Encoding: chunked" --data-raw "$$(dd if=/dev/urandom bs=120 count=1 status=none | base64 | tr -d '\n' | head -c 120)" http://127.0.2.1:4242/post_body
 	@read -p "Press enter to continue..." continue
 	@echo "Turn on or off directory listing."
+	@echo "=> Check http://127.0.0.1:4141/index_files"
+	@echo "=> Check http://127.0.0.1:4141/index_files0"
+	@echo "=> Check http://127.0.0.1:4141/put_test"
+	@echo "=> Check http://127.0.0.1:4141/put_test0"
 	@echo "Execute CGI based on certain file extension (for example .php). Make it work with POST and GET methods."
 
 test:
@@ -137,7 +141,7 @@ tester:
 	#curl -i -X POST -H "Transfer-Encoding: chunked" --data-raw "$$(dd if=/dev/urandom bs=20000 count=1 status=none | base64 | tr -d '\n' | head -c 20000)" http://127.0.2.1:4242/directory/youpi.bla
 js:	
 	#curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/hello.py
-	curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/hello.php
+	#curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/hello.php
 	#curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/wait.php
 
 M:=

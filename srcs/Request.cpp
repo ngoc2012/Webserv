@@ -114,8 +114,23 @@ int     Request::read_header()
 {
     size_t			_header_size;
     int ret = recv(_socket, _buffer, _header_buffer, 0);
-    if (ret <= 0)
+    if (!ret && !_end_header)
+    {
+        ft::timestamp();
+        std::cerr << RED << "Error: Receive request header interrupted." << RESET << std::endl;
+        _status_code = 400;
+        return (end_request(ret));
+    }
+    else if (!ret)
         return (ret);
+    if (ret < 0)
+    {
+        std::cout << "Header:\n" << _str_header << _str_header.find("\r\n\r\n") << std::endl;
+        ft::timestamp();
+        std::cerr << RED << "Error: Receive request header error." << ret << RESET << std::endl;
+        _status_code = 400;
+        return (end_request(ret));
+    }
     _worker->set_sk_timeout(_socket);
     _buffer[ret] = 0;
     _str_header += _buffer;
@@ -127,7 +142,7 @@ int     Request::read_header()
             ft::timestamp();
             std::cerr << MAGENTA << "Error: No end header found or header too big.\n" << RESET << std::endl;
             _status_code = 400;
-            return (end_request());
+            return (end_request(1));
         }
         return (ret);
     }
@@ -140,13 +155,13 @@ int     Request::read_header()
         _buffer[_body_left] = 0;
     }
     if (!parse_header())
-        return (end_request());
+        return (end_request(1));
     process_fd_in();
     write_body_left();
-    if (_status_code != 200)
-        return (end_request());
+    if (_status_code != 200 || _end)
+        return (end_request(1));
     if (_content_length && (_body_size == _content_length))
-        return (end_request());
+        return (end_request(1));
     return (ret);
 }
 
@@ -163,7 +178,7 @@ void    Request::write_body_left(void)
         {
             std::cerr << "Error: Unable to write to file " << _tmp_file << std::endl;
             _status_code = 500;
-            end_request();
+            end_request(1);
         }
         _body_size = _body_left;
     }
@@ -243,14 +258,6 @@ bool	Request::parse_header(void)
         _status_code = 400;
         return (false);
     }
-    pthread_mutex_lock(_host->get_cout_mutex());
-    ft::timestamp();
-    std::cout << GREEN << _location->get_method_str(_method) << " ";
-    std::cout << _url << " ";
-    std::cout << _host_name << " ";
-    std::cout << "[worker: " << _worker->get_id() << "] ";
-    std::cout << "[socket: " << _socket << "]" << RESET << std::endl;
-    pthread_mutex_unlock(_host->get_cout_mutex());
     std::vector<Server*>        servers = _address->get_servers();
     std::set<std::string>*      server_names;
     _server = servers[0];
@@ -263,13 +270,24 @@ bool	Request::parse_header(void)
     }
 	_response.set_server(_server);
     _timeout = _server->get_timeout();
+    pthread_mutex_lock(_host->get_cout_mutex());
+    ft::timestamp();
+    std::cout << GREEN << _location->get_method_str(_method) << " ";
+    std::cout << _url << " ";
+    std::cout << _host_name << " ";
+    std::cout << "[to: " << _timeout << "] ";
+    std::cout << "[wk: " << _worker->get_id() << "] ";
+    std::cout << "[sk: " << _socket << "]" << RESET << std::endl;
+    pthread_mutex_unlock(_host->get_cout_mutex());
     check_location();
     // Redirection
     if (_status_code != 200)
         return (false);
     if (_fields["Transfer-Encoding"] == "chunked")
         _chunked = true;
+    std::cout << "_chunked = " << _chunked << std::endl;
     _content_length = std::atoi(_fields["Content-Length"].c_str());
+    std::cout << "_content_length = " << _content_length << std::endl;
     _cookies = parse_cookies(_fields["Cookie"]);
     if (_cookies.find("session_id") != _cookies.end())
         _session_id = _cookies["session_id"];
@@ -315,14 +333,21 @@ int     Request::read_body()
 {
     int     ret;
     ret = recv(_socket, _buffer, _body_buffer, 0);
-    if (!ret)
+    if (!ret && !_end)
+    {
+        ft::timestamp();
+        std::cerr << RED << "Error: Receive request body interrupted." << RESET << std::endl;
+        _status_code = 400;
+        return (end_request(ret));
+    }
+    else if (!ret)
         return (ret);
     if (ret < 0)
     {
         ft::timestamp();
-        std::cerr << RED << "Error: recv error" << RESET << std::endl;
+        std::cerr << RED << "Error: Receive request body error." << RESET << std::endl;
         _status_code = 400;
-        return (end_request());
+        return (end_request(ret));
     }
     _buffer[ret] = 0;
     _worker->set_sk_timeout(_socket);
@@ -335,9 +360,9 @@ int     Request::read_body()
     if (_content_length > 1000000)
         ft::print_loading_bar(_body_size, _content_length, 50);
     if (ret > 0 && write(_fd_in, _buffer, ret) == -1)
-        return (end_request());
+        return (end_request(ret));
     if (_body_size >= _content_length)
-        return (end_request());
+        return (end_request(ret));
     return (ret);
 }
 
@@ -405,10 +430,9 @@ void    Request::write_chunked()
             return ;
         if (!_chunk_size)
         {
-            // if (_body_size > _body_max)
-            //     _status_code = 413;
             _end = true;
-            end_request();
+            std::cout << "End of chunk" << std::endl;
+            end_request(1);
             return ;
         }
         _read_data.erase(0, end_size);
@@ -503,7 +527,7 @@ void	Request::process_fd_in()
                 std::cerr << RED << "Error: Can not open file " << _tmp_file << "." << RESET << std::endl;
                 pthread_mutex_unlock(_host->get_cout_mutex());
                 _status_code = 500;
-                end_request();
+                end_request(1);
             }
             break;
         case DELETE:
@@ -513,7 +537,7 @@ void	Request::process_fd_in()
                 pthread_mutex_lock(_host->get_cout_mutex());
                 std::cerr << RED << "Error: Can not delete file " << _full_file_name << "." << RESET << std::endl;
                 pthread_mutex_unlock(_host->get_cout_mutex());
-                end_request();
+                end_request(1);
             }
             break;
         case NONE:
@@ -521,8 +545,9 @@ void	Request::process_fd_in()
     }
 }
 
-int     Request::end_request(void)
+int     Request::end_request(int ret)
 {
+    std::cout << "end request" << std::endl;
     if (_status_code == 200 && _cgi)
         _status_code = _cgi->execute();
     if (_status_code == 200 && _body_size > _body_max)
@@ -532,7 +557,7 @@ int     Request::end_request(void)
     _end = true;
     _response.set_status_code(_status_code);
     _response.header_generate();
-    return (1);
+    return (ret);
 }
 
 Host*		    Request::get_host(void) const {return (_host);}
