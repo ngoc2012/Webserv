@@ -14,10 +14,12 @@
 
 Sessions::Sessions(void)
 {
+	pthread_mutex_init(&_sessions_mutex, NULL);
 }
 
 Sessions::~Sessions(void)
 {
+	pthread_mutex_destroy(&_sessions_mutex);
 }
 
 std::string Sessions::create_token(void)
@@ -93,3 +95,5 @@ time_t Sessions::get_time_t(int sec, int min, int hour, int day, int month, int 
 	result = mktime(&tm);
 	return (result);
 }
+
+pthread_mutex_t*			Sessions::get_sessions_mutex(void) {return (&_sessions_mutex);}

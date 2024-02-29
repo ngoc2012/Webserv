@@ -113,6 +113,8 @@ void	 Response::body_generate(void)
 
 void     Response::set_session_id(Header& header)
 {
+    pthread_mutex_t*    mutex = _server->get_sessions()->get_sessions_mutex();
+    pthread_mutex_lock(mutex);
     std::string sid = _request->get_session_id();
     if (sid != "")
     {
@@ -129,6 +131,7 @@ void     Response::set_session_id(Header& header)
             header.set_session_id(sid);
         }
     }
+    pthread_mutex_unlock(mutex);
 }
 
 void     Response::mess_body(std::string title, std::string body)

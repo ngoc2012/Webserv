@@ -101,7 +101,7 @@ int    Cgi::execute()
     }
     else if (!_pid)
     {
-        _response->get_host()->set_end(true);
+        //_response->get_host()->set_end(true);
         close(_pipe[1]);
         if (dup2(_pipe[0], STDIN_FILENO) == -1)
             return (-1);

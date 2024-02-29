@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/29 22:23:05 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/01 00:02:24 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ Worker::Worker()
     pthread_mutex_init(&_set_mutex, NULL);
     pthread_mutex_init(&_workload_mutex, NULL);
     pthread_mutex_init(&_sk_size_mutex, NULL);
+    pthread_mutex_init(&_timeout_mutex, NULL);
     pthread_cond_init(&_cond_set_updated, NULL);
     FD_ZERO(&_tmp_read_set);
     FD_ZERO(&_tmp_write_set);
@@ -47,6 +48,7 @@ Worker::~Worker()
     pthread_mutex_destroy(&_set_mutex);
     pthread_mutex_destroy(&_workload_mutex);
     pthread_mutex_destroy(&_sk_size_mutex);
+    pthread_mutex_destroy(&_timeout_mutex);
     pthread_cond_destroy(&_cond_set_updated);
 }
 
@@ -55,9 +57,13 @@ void	Worker::routine(void)
     Request*    request;
     Response*   response;
 
+    pthread_mutex_lock(&_sk_size_mutex);
+    std::map<int, Request*>     sk_request = _sk_request;
+    pthread_mutex_unlock(&_sk_size_mutex);
+
     std::map<int, Request*>::iterator next;
-    for (std::map<int, Request*>::iterator it = _sk_request.begin(), next = it;
-        it != _sk_request.end(); it = next)
+    for (std::map<int, Request*>::iterator it = sk_request.begin(), next = it;
+        it != sk_request.end(); it = next)
     {
         next++;
         double  dt = static_cast<double>(time(0) - _sk_timeout[it->first]);
@@ -80,7 +86,7 @@ void	Worker::routine(void)
         else if (FD_ISSET(it->first, &_write_set) && request->get_end())
         {
             pthread_mutex_unlock(&_set_mutex);
-            response = _sk_request[it->first]->get_response();
+            response = it->second->get_response();
             response->write();
             if (response->get_end() && request->get_close())
                 close_client_sk(it->first);
@@ -88,6 +94,7 @@ void	Worker::routine(void)
         else
             pthread_mutex_unlock(&_set_mutex);
     }
+    
 }
 
 void	Worker::set_empty_sets(void)
@@ -147,7 +154,9 @@ void	Worker::close_client_sk(int i)
 
 void	Worker::set_sk_timeout(int i)
 {
+    pthread_mutex_lock(&_timeout_mutex);
     _sk_timeout[i] = time(0);
+    pthread_mutex_unlock(&_timeout_mutex);
 }
 
 pthread_t*   Worker::get_th(void) {return (&_th);}

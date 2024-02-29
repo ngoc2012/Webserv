@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/26 11:56:48 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 23:15:50 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 #include <unistd.h>	// close
 #include <stdlib.h>
 #include <netinet/in.h>
-// #include <errno.h>
 #include <fcntl.h>	// fcntl
 #include <cstdio>	// perror
 #include <cstring>	// memcpy
@@ -48,6 +47,8 @@ class	Server
 		Sessions					_sessions;
 		int							_timeout;
 
+		
+
 		Server(const Server&);
 		Server			&operator=(const Server& op);
 		Server();
@@ -67,6 +68,7 @@ class	Server
 		std::string		            get_address(void) const;
         Sessions*					get_sessions(void);
 		int							get_timeout(void) const;
+        
 
 		void			set_socket(int);
 		void			set_ip_address(std::string);

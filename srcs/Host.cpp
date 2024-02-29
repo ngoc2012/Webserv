@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/29 22:48:30 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 23:36:48 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ Host::Host()
     _max_sk = -1;
     pthread_mutex_init(&_cout_mutex, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
+    pthread_mutex_init(&_end_mutex, NULL);
     _timeout = TIMEOUT;
     mimes();
     status_message();
@@ -60,6 +61,7 @@ Host::~Host()
         delete [] _workers;
     pthread_mutex_destroy(&_cout_mutex);
     pthread_mutex_destroy(&_set_mutex);
+    pthread_mutex_destroy(&_end_mutex);
     ft::timestamp();
     std::cout << "End server" << std::endl;
 }
@@ -93,11 +95,8 @@ void	Host::start(void)
             check_sk_ready();
         }
         else
-        {
             pthread_mutex_unlock(&_set_mutex);
-        }
-            
-	} while (!_end);
+	} while (!get_end());
     for (int i = 0; i < _n_workers; i++)
     {
         _workers[i].set_terminate_flag(true);
@@ -240,6 +239,7 @@ static void*   start_worker(void* instance) {
             
         pthread_mutex_lock(terminate_mutex);
         if (worker->get_terminate_flag()) {
+            pthread_mutex_unlock(set_mutex);
             pthread_mutex_unlock(terminate_mutex);
             break;
         }
@@ -549,6 +549,14 @@ int 				                Host::get_n_workers(void) const {return (_n_workers);}
 size_t								Host::get_large_client_header_buffer(void) const {return (_large_client_header_buffer);}
 int		                            Host::get_timeout(void) const {return (_timeout);}
 pthread_mutex_t*					Host::get_cout_mutex(void) {return (&_cout_mutex);}
+pthread_mutex_t*					Host::get_end_mutex(void) {return (&_end_mutex);}
+bool								Host::get_end(void)
+{
+    pthread_mutex_lock(&_end_mutex);
+    bool e = _end;
+    pthread_mutex_unlock(&_end_mutex);
+    return (e);
+}
 
 void			Host::set_client_max_body_size(size_t n) {_client_max_body_size = n;}
 void			Host::set_client_body_buffer_size(size_t n) {_client_body_buffer_size = n;}
@@ -557,4 +565,9 @@ void		    Host::set_str_address(std::map<std::string, Address*> a) {_str_address
 void	        Host::set_n_workers(int w) {_n_workers = w;}
 void	        Host::set_large_client_header_buffer(size_t l) {_large_client_header_buffer = l;}
 void	        Host::set_timeout(int t) {_timeout = t;}
-void	        Host::set_end(bool t) {_end = t;}
+void	        Host::set_end(bool t)
+{
+    pthread_mutex_lock(&_end_mutex);
+    _end = t;
+    pthread_mutex_unlock(&_end_mutex);
+}

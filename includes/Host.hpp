@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/28 15:02:48 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 23:36:54 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ class	Host
 		
 		pthread_mutex_t							_cout_mutex;
 		pthread_mutex_t							_set_mutex;
+		pthread_mutex_t							_end_mutex;
 		int										_timeout;
 
 		int										_max_sk;		    // Max of all fd
@@ -89,6 +90,8 @@ class	Host
         size_t								get_large_client_header_buffer(void) const;
 		int									get_timeout(void) const;
         pthread_mutex_t*					get_cout_mutex(void);
+        pthread_mutex_t*					get_end_mutex(void);
+        bool								get_end(void);
 
 		void	set_client_max_body_size(size_t);
 		void	set_client_body_buffer_size(size_t);

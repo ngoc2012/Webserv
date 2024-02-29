@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/26 11:57:14 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 23:17:44 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ Server::Server(Host* host): _host(host)
 	_socket = -1;
 	_root = "";
 	_timeout = _host->get_timeout();
+    
 }
 Server::~Server()
 {
@@ -53,7 +54,7 @@ Server::~Server()
 	}
 }
 
-void			        Server::insert_location(Location* l) {_locations.push_back(l);}
+void			            Server::insert_location(Location* l) {_locations.push_back(l);}
 
 std::string		            Server::get_address(void) const {return (_address);}
 const char*		            Server::get_ip_address(void) const {return (_ip_address.c_str());}
@@ -64,6 +65,7 @@ std::string		            Server::get_root(void) const {return (_root);}
 std::set<std::string>*   	Server::get_server_names(void) {return (&_server_names);}
 std::vector<Location*>	    Server::get_locations(void) const {return (_locations);}
 int		                    Server::get_timeout(void) const {return (_timeout);}
+
 
 void			Server::set_socket(int i) {_socket = i;}
 void			Server::set_address(std::string a) {_address = a;}

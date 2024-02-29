@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/05 21:21:18 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/29 09:47:39 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 23:33:10 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,9 @@ void	main_signal_handler(int sig)
 	if (sig == SIGINT)
 	{
         g_host->set_end(true);
+        pthread_mutex_lock(g_host->get_cout_mutex());
         std::cout << "\b\b";
-        //Worker*     workers = g_host->get_workers();
-        //for (int i = 0; i < g_host->get_n_workers(); i++)
-        //    workers[i].set_terminate_flag(true);
+        pthread_mutex_unlock(g_host->get_cout_mutex());
 	}
 	if (sig == SIGPIPE)	{}
 }
