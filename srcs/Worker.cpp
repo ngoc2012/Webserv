@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/29 16:45:30 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 21:36:49 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,8 @@ Worker::Worker()
     _set_updated = false;
     pthread_mutex_init(&_terminate_mutex, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
+    pthread_mutex_init(&_workload_mutex, NULL);
+    pthread_mutex_init(&_sk_size_mutex, NULL);
     pthread_cond_init(&_cond_set_updated, NULL);
     FD_ZERO(&_tmp_read_set);
     FD_ZERO(&_tmp_write_set);
@@ -43,6 +45,8 @@ Worker::~Worker()
         delete (it->second);
     pthread_mutex_destroy(&_terminate_mutex);
     pthread_mutex_destroy(&_set_mutex);
+    pthread_mutex_destroy(&_workload_mutex);
+    pthread_mutex_destroy(&_sk_size_mutex);
     pthread_cond_destroy(&_cond_set_updated);
 }
 
@@ -88,7 +92,9 @@ void	Worker::routine(void)
 
 void	Worker::set_empty_sets(void)
 {
+    pthread_mutex_lock(&_workload_mutex);
     _workload = 0;
+    pthread_mutex_unlock(&_workload_mutex);
     FD_ZERO(&_tmp_read_set);
     FD_ZERO(&_tmp_write_set);
     pthread_mutex_lock(&_set_mutex);
@@ -100,15 +106,23 @@ void	Worker::set_empty_sets(void)
 void	Worker::set_sk_tmp_read_set(int sk)
 {
     FD_SET(sk, &_tmp_read_set);
-    if (_sk_request.find(sk) != _sk_request.end() && !_sk_request[sk]->get_end())
+    //if (_sk_request.find(sk) != _sk_request.end() && !_sk_request[sk]->get_end())
+    //{
+        pthread_mutex_lock(&_workload_mutex);
         _workload++;
+        pthread_mutex_unlock(&_workload_mutex);
+    //}
 }
 
 void	Worker::set_sk_tmp_write_set(int sk)
 {
     FD_SET(sk, &_tmp_write_set);
-    if (_sk_request.find(sk) != _sk_request.end() && _sk_request[sk]->get_end())
+    //if (_sk_request.find(sk) != _sk_request.end() && _sk_request[sk]->get_end())
+    //{
+        pthread_mutex_lock(&_workload_mutex);
         _workload++;
+        pthread_mutex_unlock(&_workload_mutex);
+    //}
 }
 
 void	Worker::update_sets(void)
@@ -139,7 +153,13 @@ void	Worker::set_sk_timeout(int i)
 pthread_t*   Worker::get_th(void) {return (&_th);}
 int          Worker::get_id(void) const {return (_id);}
 Host*        Worker::get_host(void) const {return (_host);}
-int          Worker::get_workload(void) {return (_workload);}
+int          Worker::get_workload(void)
+{
+    pthread_mutex_lock(&_workload_mutex);
+    int     w = _workload;
+    pthread_mutex_unlock(&_workload_mutex);
+    return (w);
+}
 pthread_mutex_t*    Worker::get_terminate_mutex(void) {return (&_terminate_mutex);}
 pthread_mutex_t*	Worker::get_set_mutex(void) {return (&_set_mutex);}
 pthread_cond_t*		Worker::get_cond_set_updated(void) {return (&_cond_set_updated);}

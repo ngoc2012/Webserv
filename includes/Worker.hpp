@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/29 16:45:05 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 21:31:59 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,8 @@ class	Worker
 
 		pthread_mutex_t		_set_mutex;
 		pthread_mutex_t		_terminate_mutex;
+		pthread_mutex_t		_workload_mutex;
+		pthread_mutex_t		_sk_size_mutex;
 		pthread_cond_t		_cond_set_updated;
 		bool				_set_updated;
 
