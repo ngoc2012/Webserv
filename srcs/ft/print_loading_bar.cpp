@@ -17,11 +17,13 @@
 
 namespace ft {
 
-void print_loading_bar(int progress, int total, int barWidth = 50)
+void print_loading_bar(int progress, int total, int barWidth, pthread_mutex_t* _cout_mutex)
 {
     float percentage = static_cast<float>(progress) / total;
     int numChars = static_cast<int>(percentage * barWidth);
 
+    if (_cout_mutex)
+        pthread_mutex_lock(_cout_mutex);
     std::cout << "[";
     for (int i = 0; i < barWidth; ++i) {
         if (i < numChars) {
@@ -32,6 +34,8 @@ void print_loading_bar(int progress, int total, int barWidth = 50)
     }
     std::cout << "] " << static_cast<int>(percentage * 100.0) << "% (" << progress << "b/" << total << "b)" << "\r";
     std::cout.flush();
+    if (_cout_mutex)
+        pthread_mutex_unlock(_cout_mutex);
 }
 
 }

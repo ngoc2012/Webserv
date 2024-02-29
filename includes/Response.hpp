@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/25 17:45:03 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 15:15:12 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ class	Response
 		size_t		    _content_length;
 		size_t		    _body_size;
         bool            _end_header;
+		bool            _end;
 
         int             _fd_out;
 
@@ -70,6 +71,7 @@ class	Response
 		size_t		    get_content_length(void) const;
         std::string	    get_content_type(void) const;
 		std::string*	get_header(void);
+        bool            get_end(void) const;
 
 		void		    set_socket(int);
 		void		    set_host(Host*);

@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/28 15:17:56 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 14:35:48 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,7 @@ void    Request::init(void)
     _start_chunked_body = false;
     _read_data = "";
     _end = false;
+    _close = false;
     _fields.clear();
     std::memset(_buffer, 0, _buffer_size + 1);
 	_status_code = 200;
@@ -127,7 +128,7 @@ int     Request::read_header()
             ft::timestamp();
             std::cerr << MAGENTA << "Error: No end header found or header too big.\n" << RESET << std::endl;
             _status_code = 400;
-            return (end_request());
+            return (end_request(1));
         }
         return (ret);
     }
@@ -140,13 +141,13 @@ int     Request::read_header()
         _buffer[_body_left] = 0;
     }
     if (!parse_header())
-        return (end_request());
+        return (end_request(1));
     process_fd_in();
     write_body_left();
-    if (_status_code != 200)
-        return (end_request());
+    if (_status_code != 200 || _end)
+        return (end_request(1));
     if (_content_length && (_body_size == _content_length))
-        return (end_request());
+        return (end_request(1));
     return (ret);
 }
 
@@ -163,7 +164,7 @@ void    Request::write_body_left(void)
         {
             std::cerr << "Error: Unable to write to file " << _tmp_file << std::endl;
             _status_code = 500;
-            end_request();
+            end_request(1);
         }
         _body_size = _body_left;
     }
@@ -243,14 +244,6 @@ bool	Request::parse_header(void)
         _status_code = 400;
         return (false);
     }
-    pthread_mutex_lock(_host->get_cout_mutex());
-    ft::timestamp();
-    std::cout << GREEN << _location->get_method_str(_method) << " ";
-    std::cout << _url << " ";
-    std::cout << _host_name << " ";
-    std::cout << "[worker: " << _worker->get_id() << "] ";
-    std::cout << "[socket: " << _socket << "]" << RESET << std::endl;
-    pthread_mutex_unlock(_host->get_cout_mutex());
     std::vector<Server*>        servers = _address->get_servers();
     std::set<std::string>*      server_names;
     _server = servers[0];
@@ -263,6 +256,15 @@ bool	Request::parse_header(void)
     }
 	_response.set_server(_server);
     _timeout = _server->get_timeout();
+    pthread_mutex_lock(_host->get_cout_mutex());
+    ft::timestamp();
+    std::cout << GREEN << _location->get_method_str(_method) << " ";
+    std::cout << _url << " ";
+    std::cout << _host_name << " ";
+    std::cout << "[to: " << _timeout << "] ";
+    std::cout << "[wk: " << _worker->get_id() << "] ";
+    std::cout << "[sk: " << _socket << "]" << RESET << std::endl;
+    pthread_mutex_unlock(_host->get_cout_mutex());
     check_location();
     // Redirection
     if (_status_code != 200)
@@ -315,15 +317,8 @@ int     Request::read_body()
 {
     int     ret;
     ret = recv(_socket, _buffer, _body_buffer, 0);
-    if (!ret)
+    if (ret <= 0)
         return (ret);
-    if (ret < 0)
-    {
-        ft::timestamp();
-        std::cerr << RED << "Error: recv error" << RESET << std::endl;
-        _status_code = 400;
-        return (end_request());
-    }
     _buffer[ret] = 0;
     _worker->set_sk_timeout(_socket);
     if (_chunked)
@@ -333,11 +328,11 @@ int     Request::read_body()
     }
     _body_size += ret;
     if (_content_length > 1000000)
-        ft::print_loading_bar(_body_size, _content_length, 50);
+        ft::print_loading_bar(_body_size, _content_length, 50, _host->get_cout_mutex());
     if (ret > 0 && write(_fd_in, _buffer, ret) == -1)
-        return (end_request());
+        return (end_request(ret));
     if (_body_size >= _content_length)
-        return (end_request());
+        return (end_request(ret));
     return (ret);
 }
 
@@ -388,12 +383,12 @@ void    Request::write_chunked()
                 len = read_size;
             if (write(_fd_in, _read_data.c_str(), len) == -1)
             {
-                std::cerr << RED << "Error: Chunked data: Write fd in error(1)." << RESET << std::endl;
+                std::cerr << RED << "Error: Chunked data: Write fd in " << _fd_in << " error." << RESET << std::endl;
                 _status_code = 500;
                 return ;
             }
             _body_size += len;
-            ft::print_size(_body_size);
+            ft::print_size(_body_size, _host->get_cout_mutex());
             _chunk_size -= len;
             read_size -= len;
             _read_data.erase(0, len);
@@ -405,10 +400,8 @@ void    Request::write_chunked()
             return ;
         if (!_chunk_size)
         {
-            // if (_body_size > _body_max)
-            //     _status_code = 413;
             _end = true;
-            end_request();
+            end_request(1);
             return ;
         }
         _read_data.erase(0, end_size);
@@ -442,7 +435,7 @@ bool	Request::check_location()
         struct stat info;
         if (stat(_full_file_name.c_str(), &info) != 0)
         {
-            std::cerr << RED << "Error: File " << _full_file_name << " does not exist." << RESET << std::endl;
+            // std::cerr << RED << "Error: File " << _full_file_name << " does not exist." << RESET << std::endl;
             _status_code = 404;
             return (false);
         }
@@ -503,7 +496,7 @@ void	Request::process_fd_in()
                 std::cerr << RED << "Error: Can not open file " << _tmp_file << "." << RESET << std::endl;
                 pthread_mutex_unlock(_host->get_cout_mutex());
                 _status_code = 500;
-                end_request();
+                end_request(1);
             }
             break;
         case DELETE:
@@ -513,7 +506,7 @@ void	Request::process_fd_in()
                 pthread_mutex_lock(_host->get_cout_mutex());
                 std::cerr << RED << "Error: Can not delete file " << _full_file_name << "." << RESET << std::endl;
                 pthread_mutex_unlock(_host->get_cout_mutex());
-                end_request();
+                end_request(1);
             }
             break;
         case NONE:
@@ -521,7 +514,7 @@ void	Request::process_fd_in()
     }
 }
 
-int     Request::end_request(void)
+int     Request::end_request(int ret)
 {
     if (_status_code == 200 && _cgi)
         _status_code = _cgi->execute();
@@ -532,7 +525,7 @@ int     Request::end_request(void)
     _end = true;
     _response.set_status_code(_status_code);
     _response.header_generate();
-    return (1);
+    return (ret);
 }
 
 Host*		    Request::get_host(void) const {return (_host);}
@@ -554,6 +547,6 @@ bool		    Request::get_end(void) const {return (_end);}
 bool		    Request::get_chunked(void) const {return (_chunked);}
 int		        Request::get_timeout(void) const {return (_timeout);}
 std::map<std::string, std::string>*     Request::get_fields(void) {return (&_fields);}
-
+bool		    Request::get_close(void) const {return (_close);}
 
 void		    Request::set_fd_in(int f) {_fd_in = f;}

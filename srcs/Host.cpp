@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/28 15:23:25 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 22:48:30 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,11 @@ Host::Host()
     _large_client_header_buffer = 8;
     _parser_error = false;
     _workers = 0;
+    _start_worker_id = 0;
     _n_workers = 1;
     _max_sk = -1;
     pthread_mutex_init(&_cout_mutex, NULL);
+    pthread_mutex_init(&_set_mutex, NULL);
     _timeout = TIMEOUT;
     mimes();
     status_message();
@@ -56,12 +58,19 @@ Host::~Host()
         delete (it->second);
     if (_workers)
         delete [] _workers;
+    pthread_mutex_destroy(&_cout_mutex);
+    pthread_mutex_destroy(&_set_mutex);
     ft::timestamp();
     std::cout << "End server" << std::endl;
 }
 
 void	Host::start(void)
 {
+    struct timeval tv;
+
+    tv.tv_sec = 0;
+    tv.tv_usec = 1000;
+
 	if (_parser_error)
 		return ;
 	FD_ZERO(&_listen_set);
@@ -74,17 +83,31 @@ void	Host::start(void)
 		return ;
 	do
 	{
+        pthread_mutex_lock(&_set_mutex);
 		memcpy(&_read_set, &_master_read_set, sizeof(_master_read_set));
 		memcpy(&_write_set, &_master_write_set, sizeof(_master_write_set));
-		if (select_available_sk() == false)
-			break;
-		check_sk_ready();
+        
+        if (select(_max_sk + 1, &_read_set, &_write_set, NULL, &tv) != -1)
+        {
+            pthread_mutex_unlock(&_set_mutex);
+            check_sk_ready();
+        }
+        else
+        {
+            pthread_mutex_unlock(&_set_mutex);
+        }
+            
 	} while (!_end);
-    // for (int i = 0; i < _n_workers; i++)
-    //     _workers[i].set_terminate_flag(true);
+    for (int i = 0; i < _n_workers; i++)
+    {
+        _workers[i].set_terminate_flag(true);
+        pthread_mutex_lock(_workers[i].get_set_mutex());
+        _workers[i].set_set_updated(true);
+        pthread_cond_signal(_workers[i].get_cond_set_updated());
+        pthread_mutex_unlock(_workers[i].get_set_mutex());
+    }
     for (int i = 0; i < _n_workers; i++)
         pthread_join(*(_workers[i].get_th()), NULL);
-    pthread_mutex_destroy(&_cout_mutex);
 }
 
 bool	Host::select_available_sk(void)
@@ -97,6 +120,7 @@ bool	Host::select_available_sk(void)
     int sk = -1;
     if (!_end)
         sk = select(_max_sk + 1, &_read_set, &_write_set, NULL, &tv);
+    std::cout << "sk: " << sk << std::endl;
     if (sk < 0)
         return (false);
     return (true);
@@ -112,15 +136,27 @@ void	Host::check_sk_ready(void)
             new_sk = it->second->accept_client_sk();
             if (new_sk > _max_sk)
                 _max_sk = new_sk;
+            pthread_mutex_lock(&_set_mutex);
             FD_SET(new_sk, &_master_read_set);
             FD_SET(new_sk, &_master_write_set);
+            pthread_mutex_unlock(&_set_mutex);
             if (new_sk > 0)
             {
+                
                 int i = 0;
-                while (i < _n_workers - 1 && _workers[i].get_workload() > _workers[i + 1].get_workload())
+                int j = (i + _start_worker_id) % _n_workers;
+                int k = (i + _start_worker_id + 1) % _n_workers;
+                while (i < _n_workers - 1 && _workers[j].get_workload() > _workers[k].get_workload())
+                {
+                    j = k;
+                    k = (k + 1) % _n_workers;
                     i++;
-                _sk_worker[new_sk] = &_workers[i];
-                _workers[i].new_connection(new_sk, it->second);
+                }
+                // std::cout << "_start_worker_id: " << _start_worker_id << ", j: " << j << ", sk: " << new_sk << std::endl;
+                _sk_worker[new_sk] = &_workers[j];
+                _workers[j].new_connection(new_sk, it->second);
+                _start_worker_id++;
+                _start_worker_id %= _n_workers;
             }
         }
 
@@ -135,7 +171,14 @@ void	Host::check_sk_ready(void)
             it->second->set_sk_tmp_write_set(it->first);
     }
     for (int i = 0; i < _n_workers; i++)
-        _workers[i].update_sets();
+        if (_workers[i].get_workload() || _workers[i].get_sk_size())
+        {
+            pthread_mutex_lock(_workers[i].get_set_mutex());
+            _workers[i].update_sets();
+            _workers[i].set_set_updated(true);
+            pthread_cond_signal(_workers[i].get_cond_set_updated());
+            pthread_mutex_unlock(_workers[i].get_set_mutex());
+        }
 }
 
 void  	Host::close_connection(int i)
@@ -144,11 +187,13 @@ void  	Host::close_connection(int i)
     ft::timestamp();
     std::cout << BLUE << "Close connection " << i << RESET << std::endl;
     pthread_mutex_unlock(&_cout_mutex);
+    pthread_mutex_lock(&_set_mutex);
 	FD_CLR(i, &_master_read_set);
 	FD_CLR(i, &_master_write_set);
     if (i == _max_sk)
 		while (!FD_ISSET(_max_sk, &_master_read_set))
 			_max_sk -= 1;
+    pthread_mutex_unlock(&_set_mutex);
 }
 
 void	Host::start_server(void)
@@ -162,7 +207,9 @@ void	Host::start_server(void)
 		{
 			if (listen_sk > _max_sk)
                 _max_sk = listen_sk;
+            pthread_mutex_lock(&_set_mutex);
             FD_SET(listen_sk, &_master_read_set);
+            pthread_mutex_unlock(&_set_mutex);
             _sk_address[listen_sk] = ad->second;
 			++ad;
 		}
@@ -180,19 +227,30 @@ static void*   start_worker(void* instance) {
     Worker*             worker = static_cast<Worker*>(instance);
     Host*               host = worker->get_host();
     pthread_mutex_t*    terminate_mutex = worker->get_terminate_mutex();
-    std::cout << "worker: " << worker->get_id() << std::endl;
+    pthread_mutex_t*    set_mutex = worker->get_set_mutex();
+    pthread_cond_t*		cond_set_updated = worker->get_cond_set_updated();
+    pthread_mutex_lock(host->get_cout_mutex());
+    std::cout << "Worker " << worker->get_id() << " started." << std::endl;
+    pthread_mutex_unlock(host->get_cout_mutex());
     
     while (true) {
+        pthread_mutex_lock(set_mutex);
+        while (!worker->get_set_updated())
+            pthread_cond_wait(cond_set_updated, set_mutex);
+            
         pthread_mutex_lock(terminate_mutex);
         if (worker->get_terminate_flag()) {
             pthread_mutex_unlock(terminate_mutex);
             break;
         }
         pthread_mutex_unlock(terminate_mutex);
+        worker->set_set_updated(false);
+        pthread_mutex_unlock(set_mutex);
         worker->routine();
-        usleep(host->get_n_workers() * T1 + T2);
     }
-    std::cout << "worker " << worker->get_id() << " end" << std::endl;
+    pthread_mutex_lock(host->get_cout_mutex());
+    std::cout << "Worker " << worker->get_id() << " ended." << std::endl;
+    pthread_mutex_unlock(host->get_cout_mutex());
     pthread_exit(NULL);
     return NULL;
 }
@@ -204,30 +262,25 @@ bool    Host::start_workers() {
         _workers[i].set_id(i);
         _workers[i].set_host(this);
         _workers[i].set_workload(0);
+        //pthread_mutex_lock(&_cout_mutex);
         if (pthread_create(_workers[i].get_th(), NULL, start_worker, &_workers[i]))
         {
             std::cerr << "Error creating select thread" << std::endl;
             return (false);
         }
-        usleep(T3);
+        else
+        {
+            pthread_mutex_lock(&_cout_mutex);
+            std::cout << "Thread of worker " << i << " created" << std::endl;
+            pthread_mutex_unlock(&_cout_mutex);
+        }
+        //pthread_mutex_unlock(&_cout_mutex);
     }
     return (true);
 }
 
 void    Host::status_message(void)
 {
-    /*
-HTTP/1.1 301 Moved Permanently
-Location: https://example.com/new-location
-HTTP/1.1 302 Found
-Location: https://example.com/temporary-location
-HTTP/1.1 303 See Other
-Location: https://example.com/see-other-location
-HTTP/1.1 307 Temporary Redirect
-Location: https://example.com/temporary-redirect-location
-HTTP/1.1 308 Permanent Redirect
-Location: https://example.com/permanent-redirect-location
-*/
 	_status_message[100] = "Continue";
 	_status_message[200] = "OK";
 	_status_message[201] = "Created";
@@ -242,6 +295,7 @@ Location: https://example.com/permanent-redirect-location
 	_status_message[404] = "Not Found";
 	_status_message[405] = "Method Not Allowed";
 	_status_message[413] = "Payload Too Large";
+    _status_message[499] = "Client Closed Request";
 	_status_message[500] = "Internal Server Error";
 }
 

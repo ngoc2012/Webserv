@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/28 15:22:02 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 15:15:42 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ void    Response::init(void)
     _body_size = 0;
     _fd_out = -1;
     _end_header = false;
+    _end = false;
 }
 
 int     Response::write()
@@ -63,13 +64,7 @@ int     Response::write_header()
 {
     int     ret = send(_socket, _header.c_str(), _header.length(), 0);
     if (ret <= 0)
-    {
-        if (!ret && !_end_header)
-            std::cerr << RED << "Error: Send response header interrupted." << RESET << std::endl;
-        if (ret == -1)
-            std::cerr << RED << "Error: Send header error." << RESET << std::endl;
-        return (end_response(ret));
-    }
+        return (ret);
     _worker->set_sk_timeout(_socket);
     _header.erase(0, ret);
     if (_header == "")
@@ -159,10 +154,12 @@ int     Response::write_body()
         ret = send(_socket, _body.c_str(), _body.size(), 0);
         if (ret <= 0)
         {
+            pthread_mutex_lock(_host->get_cout_mutex());
             if (!ret && _body.size())
                 std::cerr << RED << "Error: Send response body interrupted." << RESET << std::endl;
             if (ret == -1)
                 std::cerr << RED << "Error: Send body error." << RESET << std::endl;
+            pthread_mutex_unlock(_host->get_cout_mutex());
             return (end_response(ret));
         }
         _worker->set_sk_timeout(_socket);
@@ -181,25 +178,29 @@ int     Response::write_body()
     ret = read(_fd_out, buffer, RESPONSE_BUFFER * 1028);
     if (ret <= 0)
     {
+        pthread_mutex_lock(_host->get_cout_mutex());
         if (ret == -1)
             std::cerr << RED << "Error: Read fd out." << RESET << std::endl;
         if (!ret)
             std::cerr << RED << "Error: Nothing more to send." << RESET << std::endl;
+        pthread_mutex_unlock(_host->get_cout_mutex());
         return (end_response(ret));
     }
     int     ret1 = send(_socket, buffer, ret, 0);
     if (ret1 <= 0)
     {
+        pthread_mutex_lock(_host->get_cout_mutex());
         if (!ret && ret)
             std::cerr << RED << "Error: Send response body interrupted." << RESET << std::endl;
         if (ret == -1)
             std::cerr << RED << "Error: Send body error." << RESET << std::endl;
+        pthread_mutex_unlock(_host->get_cout_mutex());
         return (end_response(ret1));
     }
     _worker->set_sk_timeout(_socket);
     _body_size += ret1;
     if (_content_length > 1000000)
-        ft::print_loading_bar(_body_size, _content_length, 50);
+        ft::print_loading_bar(_body_size, _content_length, 50, _host->get_cout_mutex());
     if (_body_size >= _content_length)
         return (end_response(ret1));
     return (ret1);
@@ -222,11 +223,15 @@ int     Response::end_response(int ret)
     std::cout << _status_code << " ";
     std::cout << "Request: " << _request->get_body_size() << "b, ";
     std::cout << "Response: " << _body_size << "b ";
-    std::cout << "[worker: " << _worker->get_id() << "] ";
-    std::cout << "[socket: " << _socket << "]" << RESET << std::endl;
+    std::cout << "[wk: " << _worker->get_id() << "] ";
+    std::cout << "[sk: " << _socket << "]" << RESET << std::endl;
     pthread_mutex_unlock(_host->get_cout_mutex());
-    init();
-    _request->init();
+    _end = true;
+    if (!_request->get_close())
+    {
+        init();
+        _request->init();
+    }
     return (ret);
 }
 
@@ -238,6 +243,7 @@ bool            Response::get_end_header(void) const {return (_end_header);}
 size_t		    Response::get_content_length(void) const {return (_content_length);}
 std::string	    Response::get_content_type(void) const {return (_content_type);}
 std::string*	Response::get_header(void) {return (&_header);}
+bool            Response::get_end(void) const {return (_end);}
 
 void		Response::set_socket(int s) {_socket = s;}
 void		Response::set_host(Host* h) {_host = h;}

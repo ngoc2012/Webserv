@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/25 17:47:05 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 14:34:48 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ class	Request
         int 	        read_body();
         void 	        write_chunked();
 
-		int             end_request(void);
+		int             end_request(int);
 		void            clean(void);
 
 		Request();
@@ -111,6 +111,7 @@ class	Request
         bool		    get_chunked(void) const;
 		int				get_timeout(void) const;
         std::map<std::string, std::string>*     get_fields(void);
+        bool		    get_close(void) const;
 
         void		    set_fd_in(int);
 };

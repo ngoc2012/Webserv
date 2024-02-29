@@ -38,10 +38,12 @@ class	Host
 		bool				                    _parser_error;
 
 		bool									_end;
+		int				                        _start_worker_id;
 		int				                        _n_workers;
 		Worker*				                    _workers;
 		
 		pthread_mutex_t							_cout_mutex;
+		pthread_mutex_t							_set_mutex;
 		int										_timeout;
 
 		int										_max_sk;		    // Max of all fd
