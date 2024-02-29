@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/05 21:21:18 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/30 15:19:15 by nbechon          ###   ########.fr       */
+/*   Updated: 2024/02/29 09:47:39 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@ void	main_signal_handler(int sig)
 	{
         g_host->set_end(true);
         std::cout << "\b\b";
-        Worker*     workers = g_host->get_workers();
-        for (int i = 0; i < g_host->get_n_workers(); i++)
-            workers[i].set_terminate_flag(true);
+        //Worker*     workers = g_host->get_workers();
+        //for (int i = 0; i < g_host->get_n_workers(); i++)
+        //    workers[i].set_terminate_flag(true);
 	}
 	if (sig == SIGPIPE)	{}
 }

@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/24 22:41:43 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 09:36:24 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,8 @@ class	Worker
 
 		pthread_mutex_t		_set_mutex;
 		pthread_mutex_t		_terminate_mutex;
-		pthread_cond_t		_set_ready;
+		pthread_cond_t		_cond_set_updated;
+		bool				_set_updated;
 
 		Worker(const Worker&);
 		Worker	&operator=(const Worker& op);
@@ -75,7 +76,10 @@ class	Worker
         int         get_workload(void);
         Host*       get_host(void) const;
         pthread_mutex_t*	get_terminate_mutex(void);
+        pthread_mutex_t*	get_set_mutex(void);
+        pthread_cond_t*		get_cond_set_updated(void);
 		bool				get_terminate_flag(void) const;
+        bool				get_set_updated(void) const;
 
         void        set_id(int);
         void        set_workload(int);
@@ -83,6 +87,7 @@ class	Worker
         // void		set_timeout(int);
 		void		set_terminate_mutex(pthread_mutex_t);
 		void		set_terminate_flag(bool);
+        void		set_set_updated(bool);
 };
 
 #endif

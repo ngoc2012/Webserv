@@ -129,7 +129,8 @@ int     Request::read_header()
         ft::timestamp();
         std::cerr << RED << "Error: Receive request header error." << ret << RESET << std::endl;
         _status_code = 400;
-        return (end_request(ret));
+        perror("read");
+        //return (end_request(ret));
     }
     _worker->set_sk_timeout(_socket);
     _buffer[ret] = 0;
@@ -146,6 +147,7 @@ int     Request::read_header()
         }
         return (ret);
     }
+    // std::cout << "End Header:\n" << _str_header << _str_header.find("\r\n\r\n") << std::endl;
     _end_header = true;
     _body_left = _str_header.size() - _header_size - 4;
     std::string     body_left = _str_header.substr(_header_size + 4);
@@ -285,9 +287,9 @@ bool	Request::parse_header(void)
         return (false);
     if (_fields["Transfer-Encoding"] == "chunked")
         _chunked = true;
-    std::cout << "_chunked = " << _chunked << std::endl;
+    // std::cout << "_chunked = " << _chunked << std::endl;
     _content_length = std::atoi(_fields["Content-Length"].c_str());
-    std::cout << "_content_length = " << _content_length << std::endl;
+    // std::cout << "_content_length = " << _content_length << std::endl;
     _cookies = parse_cookies(_fields["Cookie"]);
     if (_cookies.find("session_id") != _cookies.end())
         _session_id = _cookies["session_id"];
@@ -547,7 +549,7 @@ void	Request::process_fd_in()
 
 int     Request::end_request(int ret)
 {
-    std::cout << "end request" << std::endl;
+    std::cout << "end request:" << std::endl;
     if (_status_code == 200 && _cgi)
         _status_code = _cgi->execute();
     if (_status_code == 200 && _body_size > _body_max)
