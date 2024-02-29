@@ -35,6 +35,7 @@ Host::Host()
     _large_client_header_buffer = 8;
     _parser_error = false;
     _workers = 0;
+    _start_worker_id = 0;
     _n_workers = 1;
     _max_sk = -1;
     pthread_mutex_init(&_cout_mutex, NULL);
@@ -63,6 +64,11 @@ Host::~Host()
 
 void	Host::start(void)
 {
+    struct timeval tv;
+
+    tv.tv_sec = 0;
+    tv.tv_usec = 1000;
+
 	if (_parser_error)
 		return ;
 	FD_ZERO(&_listen_set);
@@ -77,9 +83,8 @@ void	Host::start(void)
 	{
 		memcpy(&_read_set, &_master_read_set, sizeof(_master_read_set));
 		memcpy(&_write_set, &_master_write_set, sizeof(_master_write_set));
-		if (select_available_sk() == false)
-			break;
-		check_sk_ready();
+        if (select(_max_sk + 1, &_read_set, &_write_set, NULL, &tv) != -1)
+            check_sk_ready();
 	} while (!_end);
     for (int i = 0; i < _n_workers; i++)
     {
@@ -103,6 +108,7 @@ bool	Host::select_available_sk(void)
     int sk = -1;
     if (!_end)
         sk = select(_max_sk + 1, &_read_set, &_write_set, NULL, &tv);
+    std::cout << "sk: " << sk << std::endl;
     if (sk < 0)
         return (false);
     return (true);
@@ -122,11 +128,21 @@ void	Host::check_sk_ready(void)
             FD_SET(new_sk, &_master_write_set);
             if (new_sk > 0)
             {
+                
                 int i = 0;
-                while (i < _n_workers - 1 && _workers[i].get_workload() > _workers[i + 1].get_workload())
+                int j = (i + _start_worker_id) % _n_workers;
+                int k = (i + _start_worker_id + 1) % _n_workers;
+                while (i < _n_workers - 1 && _workers[j].get_workload() > _workers[k].get_workload())
+                {
+                    j = k;
+                    k = (k + 1) % _n_workers;
                     i++;
-                _sk_worker[new_sk] = &_workers[i];
-                _workers[i].new_connection(new_sk, it->second);
+                }
+                // std::cout << "_start_worker_id: " << _start_worker_id << ", j: " << j << ", sk: " << new_sk << std::endl;
+                _sk_worker[new_sk] = &_workers[j];
+                _workers[j].new_connection(new_sk, it->second);
+                _start_worker_id++;
+                _start_worker_id %= _n_workers;
             }
         }
 
@@ -141,7 +157,7 @@ void	Host::check_sk_ready(void)
             it->second->set_sk_tmp_write_set(it->first);
     }
     for (int i = 0; i < _n_workers; i++)
-        if (_workers[i].get_workload())
+        if (_workers[i].get_workload() || _workers[i].get_sk_request()->size())
         {
             pthread_mutex_lock(_workers[i].get_set_mutex());
             _workers[i].update_sets();
@@ -203,6 +219,7 @@ static void*   start_worker(void* instance) {
         pthread_mutex_lock(set_mutex);
         while (!worker->get_set_updated())
             pthread_cond_wait(cond_set_updated, set_mutex);
+            
         pthread_mutex_lock(terminate_mutex);
         if (worker->get_terminate_flag()) {
             pthread_mutex_unlock(terminate_mutex);

@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/28 15:17:56 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 14:35:48 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,7 @@ void    Request::init(void)
     _start_chunked_body = false;
     _read_data = "";
     _end = false;
+    _close = false;
     _fields.clear();
     std::memset(_buffer, 0, _buffer_size + 1);
 	_status_code = 200;
@@ -114,24 +115,8 @@ int     Request::read_header()
 {
     size_t			_header_size;
     int ret = recv(_socket, _buffer, _header_buffer, 0);
-    if (!ret && !_end_header)
-    {
-        ft::timestamp();
-        std::cerr << RED << "Error: Receive request header interrupted." << RESET << std::endl;
-        _status_code = 400;
-        return (end_request(ret));
-    }
-    else if (!ret)
+    if (ret <= 0)
         return (ret);
-    if (ret < 0)
-    {
-        std::cout << "Header:\n" << _str_header << _str_header.find("\r\n\r\n") << std::endl;
-        ft::timestamp();
-        std::cerr << RED << "Error: Receive request header error." << ret << RESET << std::endl;
-        _status_code = 400;
-        perror("read");
-        //return (end_request(ret));
-    }
     _worker->set_sk_timeout(_socket);
     _buffer[ret] = 0;
     _str_header += _buffer;
@@ -147,7 +132,6 @@ int     Request::read_header()
         }
         return (ret);
     }
-    // std::cout << "End Header:\n" << _str_header << _str_header.find("\r\n\r\n") << std::endl;
     _end_header = true;
     _body_left = _str_header.size() - _header_size - 4;
     std::string     body_left = _str_header.substr(_header_size + 4);
@@ -287,9 +271,7 @@ bool	Request::parse_header(void)
         return (false);
     if (_fields["Transfer-Encoding"] == "chunked")
         _chunked = true;
-    // std::cout << "_chunked = " << _chunked << std::endl;
     _content_length = std::atoi(_fields["Content-Length"].c_str());
-    // std::cout << "_content_length = " << _content_length << std::endl;
     _cookies = parse_cookies(_fields["Cookie"]);
     if (_cookies.find("session_id") != _cookies.end())
         _session_id = _cookies["session_id"];
@@ -335,22 +317,8 @@ int     Request::read_body()
 {
     int     ret;
     ret = recv(_socket, _buffer, _body_buffer, 0);
-    if (!ret && !_end)
-    {
-        ft::timestamp();
-        std::cerr << RED << "Error: Receive request body interrupted." << RESET << std::endl;
-        _status_code = 400;
-        return (end_request(ret));
-    }
-    else if (!ret)
+    if (ret <= 0)
         return (ret);
-    if (ret < 0)
-    {
-        ft::timestamp();
-        std::cerr << RED << "Error: Receive request body error." << RESET << std::endl;
-        _status_code = 400;
-        return (end_request(ret));
-    }
     _buffer[ret] = 0;
     _worker->set_sk_timeout(_socket);
     if (_chunked)
@@ -360,7 +328,7 @@ int     Request::read_body()
     }
     _body_size += ret;
     if (_content_length > 1000000)
-        ft::print_loading_bar(_body_size, _content_length, 50);
+        ft::print_loading_bar(_body_size, _content_length, 50, _host->get_cout_mutex());
     if (ret > 0 && write(_fd_in, _buffer, ret) == -1)
         return (end_request(ret));
     if (_body_size >= _content_length)
@@ -415,7 +383,7 @@ void    Request::write_chunked()
                 len = read_size;
             if (write(_fd_in, _read_data.c_str(), len) == -1)
             {
-                std::cerr << RED << "Error: Chunked data: Write fd in error(1)." << RESET << std::endl;
+                std::cerr << RED << "Error: Chunked data: Write fd in " << _fd_in << " error." << RESET << std::endl;
                 _status_code = 500;
                 return ;
             }
@@ -433,7 +401,6 @@ void    Request::write_chunked()
         if (!_chunk_size)
         {
             _end = true;
-            std::cout << "End of chunk" << std::endl;
             end_request(1);
             return ;
         }
@@ -468,7 +435,7 @@ bool	Request::check_location()
         struct stat info;
         if (stat(_full_file_name.c_str(), &info) != 0)
         {
-            std::cerr << RED << "Error: File " << _full_file_name << " does not exist." << RESET << std::endl;
+            // std::cerr << RED << "Error: File " << _full_file_name << " does not exist." << RESET << std::endl;
             _status_code = 404;
             return (false);
         }
@@ -549,7 +516,6 @@ void	Request::process_fd_in()
 
 int     Request::end_request(int ret)
 {
-    std::cout << "end request:" << std::endl;
     if (_status_code == 200 && _cgi)
         _status_code = _cgi->execute();
     if (_status_code == 200 && _body_size > _body_max)
@@ -581,6 +547,6 @@ bool		    Request::get_end(void) const {return (_end);}
 bool		    Request::get_chunked(void) const {return (_chunked);}
 int		        Request::get_timeout(void) const {return (_timeout);}
 std::map<std::string, std::string>*     Request::get_fields(void) {return (&_fields);}
-
+bool		    Request::get_close(void) const {return (_close);}
 
 void		    Request::set_fd_in(int f) {_fd_in = f;}

@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/29 09:36:24 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 16:45:05 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,20 +71,20 @@ class	Worker
 		void		set_sk_tmp_write_set(int);
 		void		update_sets(void);
 
-        pthread_t*  get_th(void);
-        int         get_id(void) const;
-        int         get_workload(void);
-        Host*       get_host(void) const;
+        pthread_t*  		get_th(void);
+        int         		get_id(void) const;
+        int         		get_workload(void);
+        Host*       		get_host(void) const;
         pthread_mutex_t*	get_terminate_mutex(void);
         pthread_mutex_t*	get_set_mutex(void);
         pthread_cond_t*		get_cond_set_updated(void);
 		bool				get_terminate_flag(void) const;
         bool				get_set_updated(void) const;
+        std::map<int, Request*>*		get_sk_request(void);
 
         void        set_id(int);
         void        set_workload(int);
         void        set_host(Host*);
-        // void		set_timeout(int);
 		void		set_terminate_mutex(pthread_mutex_t);
 		void		set_terminate_flag(bool);
         void		set_set_updated(bool);

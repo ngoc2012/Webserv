@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/29 09:54:01 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 16:45:30 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,9 @@ Worker::~Worker()
 
 void	Worker::routine(void)
 {
+    Request*    request;
+    Response*   response;
+
     std::map<int, Request*>::iterator next;
     for (std::map<int, Request*>::iterator it = _sk_request.begin(), next = it;
         it != _sk_request.end(); it = next)
@@ -63,26 +66,20 @@ void	Worker::routine(void)
             close_client_sk(it->first);
             continue;
         }
+        request = it->second;
         pthread_mutex_lock(&_set_mutex);
-        if (FD_ISSET(it->first, &_read_set) && !_sk_request[it->first]->get_end())
+        if (FD_ISSET(it->first, &_read_set) && !request->get_end())
         {
             pthread_mutex_unlock(&_set_mutex);
-            if (_sk_request[it->first]->read() < 0)
-            {
-                std::cout << "read close" << std::endl;
-                close_client_sk(it->first);
-            }
-                // close_client_sk(it->first);
+            request->read();
         }
-        else if (FD_ISSET(it->first, &_write_set) && _sk_request[it->first]->get_end())
+        else if (FD_ISSET(it->first, &_write_set) && request->get_end())
         {
             pthread_mutex_unlock(&_set_mutex);
-            if (_sk_request[it->first]->get_response()->write() < 0)
-            {
-                std::cout << "write close" << std::endl;
+            response = _sk_request[it->first]->get_response();
+            response->write();
+            if (response->get_end() && request->get_close())
                 close_client_sk(it->first);
-            }
-                // close_client_sk(it->first);
         }
         else
             pthread_mutex_unlock(&_set_mutex);
@@ -148,6 +145,7 @@ pthread_mutex_t*	Worker::get_set_mutex(void) {return (&_set_mutex);}
 pthread_cond_t*		Worker::get_cond_set_updated(void) {return (&_cond_set_updated);}
 bool				Worker::get_set_updated(void) const {return (_set_updated);}
 bool				Worker::get_terminate_flag(void) const {return (_terminate_flag);}
+std::map<int, Request*>*		Worker::get_sk_request(void) {return (&_sk_request);}
 
 void         Worker::set_id(int s) {_id = s;}
 void         Worker::set_workload(int s) {_workload = s;}

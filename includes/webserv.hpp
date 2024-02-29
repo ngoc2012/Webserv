@@ -63,7 +63,7 @@ std::string                 str_replace(std::string src, std::string find, std::
 std::string                 to_upper(std::string s);
 std::string                 trim_string(const std::string& str);
 void	                    timestamp(void);
-void                        print_loading_bar(int progress, int total, int barWidth);
+void                        print_loading_bar(int progress, int total, int barWidth, pthread_mutex_t* _cout_mutex);
 void                        print_size(size_t size);
 }
 
