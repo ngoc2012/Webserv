@@ -24,7 +24,17 @@ process.stdin.on('data', function(data_in) {
         output["error"] = "Parse Err";
         return ;
     }
-    if (jason["action"] == "check")
+    if (jason["action"] == "get_cookie")
+    {
+        if (conv_json.length == 0)
+            output["status"] = "empty";
+        else
+        {
+            output["status"] = "full";
+            output["cookie"] = conv_json["user"][2];
+        }
+    }
+    else if (jason["action"] == "check")
     {
         if (conv_json["user"][2] == jason["cookie"])
         {

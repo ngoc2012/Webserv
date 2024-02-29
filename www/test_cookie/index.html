@@ -20,25 +20,46 @@
 
             function start() 
             {
+                const data = {
+                    "action": "get_cookie", 
+                    "name": "",
+                    "password": "",
+                    "cookie": ""
+                };
                 fetch("http://127.0.2.2:8000/login.js", {
-                    method: 'GET',
+                    method: 'POST',
                     headers: {'Cookie': document.cookie},
                     credentials: 'include',
-                    contentType: 'text/plain',
+                    contentType: 'application/json',
+                    body: JSON.stringify(data),
                     crossDomain: true,
                 })
                 .then(response => {
-                    const setCookieHeader = response.headers.get('set-cookies');               
-                    if (setCookieHeader)
-                    {
-                        cookies = parseCookies(setCookieHeader);
-                        console.log("Cook: ", cookies);
-                        document.cookie = "session_id=" + cookies.session_id + "; expires=Thu, 01 Jan 2025 00:00:00 UTC; path=/; SameSite=None; Secure";
-                    }
+                    return response.json(); // Parse JSON data
+                })
+                .then(data => {
+                    console.log("First ", data);
+                    if (data["status"] == "full")
+                        document.cookie = "session_id=" + data["cookie"] + "; expires=Thu, 01 Jan 2025 00:00:00 UTC; path=/; SameSite=None; Secure";
+                    fetch("http://127.0.2.2:8000/login.js", {
+                        method: 'GET',
+                        headers: {'Cookie': document.cookie},
+                        credentials: 'include',
+                        contentType: 'text/plain',
+                        crossDomain: true,
+                    })
+                    .then(response => {
+                        const setCookieHeader = response.headers.get('set-cookies');               
+                        if (setCookieHeader)
+                        {
+                            cookies = parseCookies(setCookieHeader);
+                            console.log("Cookie? ", cookies);
+                            document.cookie = "session_id=" + cookies.session_id + "; expires=Thu, 01 Jan 2025 00:00:00 UTC; path=/; SameSite=None; Secure";
+                        }
+                    })
                 })
                 .then(response => 
                 {
-                    console.log("Bubulle", document.cookie);
                     const data = {
                         "action": "check", 
                         "name": "",
@@ -119,24 +140,6 @@
                     {
                         show();
                     }
-                    /*
-                    //const setCookieHeader = data.headers.get('set-cookies');
-                    //const setCookieHeader = "session_id=1; path=/"
-                    //console.log(response);
-                    //console.log(setCookieHeader);
-                    //console.log(document.cookie);
-                    
-                    if (setCookieHeader)
-                    {
-                        cookies = parseCookies(setCookieHeader);
-                        console.log("Cookie found - token: " + cookies.session_id);
-                        document.cookie = "session_id=" + cookies.session_id + "; expires=Thu, 01 Jan 2025 00:00:00 UTC; path=/; SameSite=None; Secure";
-                        //console.log(document.cookie);
-                    }
-                    else
-                        console.log("No cookies");
-                    */
-
                 })
                 .catch(error => {console.log('Catch', error)});
             }
