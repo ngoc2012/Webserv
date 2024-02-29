@@ -58,7 +58,7 @@ void	Worker::routine(void)
         {
             pthread_mutex_lock(_host->get_cout_mutex());
             ft::timestamp();
-            std::cout << MAGENTA << "Time Out " << it->first << "(" << dt << ")" << RESET << std::endl;
+            std::cout << MAGENTA << "Time Out " << it->first << " (" << dt << ")" << RESET << std::endl;
             pthread_mutex_unlock(_host->get_cout_mutex());
             close_client_sk(it->first);
             continue;
