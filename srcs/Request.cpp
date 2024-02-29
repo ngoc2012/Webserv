@@ -388,7 +388,7 @@ void    Request::write_chunked()
                 return ;
             }
             _body_size += len;
-            ft::print_size(_body_size);
+            ft::print_size(_body_size, _host->get_cout_mutex());
             _chunk_size -= len;
             read_size -= len;
             _read_data.erase(0, len);

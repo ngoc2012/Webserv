@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/29 21:31:59 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 22:19:01 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@ class	Worker
 		int         _workload;  // Workload metric
 		pthread_t   _th;
 	
-		// double		`_timeout;
 		Host*       _host;
 		int			_sk_ready;
 		int			_max_sk;		    // Max of all fd
@@ -83,6 +82,7 @@ class	Worker
 		bool				get_terminate_flag(void) const;
         bool				get_set_updated(void) const;
         std::map<int, Request*>*		get_sk_request(void);
+        int         		get_sk_size(void);
 
         void        set_id(int);
         void        set_workload(int);

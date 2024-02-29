@@ -64,7 +64,7 @@ std::string                 to_upper(std::string s);
 std::string                 trim_string(const std::string& str);
 void	                    timestamp(void);
 void                        print_loading_bar(int progress, int total, int barWidth, pthread_mutex_t* _cout_mutex);
-void                        print_size(size_t size);
+void                        print_size(size_t size, pthread_mutex_t* _cout_mutex);
 }
 
 #endif

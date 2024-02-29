@@ -43,6 +43,7 @@ class	Host
 		Worker*				                    _workers;
 		
 		pthread_mutex_t							_cout_mutex;
+		pthread_mutex_t							_set_mutex;
 		int										_timeout;
 
 		int										_max_sk;		    // Max of all fd

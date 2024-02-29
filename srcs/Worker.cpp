@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/29 21:36:49 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 22:23:05 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,23 +106,17 @@ void	Worker::set_empty_sets(void)
 void	Worker::set_sk_tmp_read_set(int sk)
 {
     FD_SET(sk, &_tmp_read_set);
-    //if (_sk_request.find(sk) != _sk_request.end() && !_sk_request[sk]->get_end())
-    //{
-        pthread_mutex_lock(&_workload_mutex);
-        _workload++;
-        pthread_mutex_unlock(&_workload_mutex);
-    //}
+    pthread_mutex_lock(&_workload_mutex);
+    _workload++;
+    pthread_mutex_unlock(&_workload_mutex);
 }
 
 void	Worker::set_sk_tmp_write_set(int sk)
 {
     FD_SET(sk, &_tmp_write_set);
-    //if (_sk_request.find(sk) != _sk_request.end() && _sk_request[sk]->get_end())
-    //{
-        pthread_mutex_lock(&_workload_mutex);
-        _workload++;
-        pthread_mutex_unlock(&_workload_mutex);
-    //}
+    pthread_mutex_lock(&_workload_mutex);
+    _workload++;
+    pthread_mutex_unlock(&_workload_mutex);
 }
 
 void	Worker::update_sets(void)
@@ -134,15 +128,21 @@ void	Worker::update_sets(void)
 void	Worker::new_connection(int new_sk, Address* a)
 {
     set_sk_timeout(new_sk);
+    pthread_mutex_lock(&_sk_size_mutex);
 	_sk_request[new_sk] = new Request(new_sk, this, a);
+    pthread_mutex_unlock(&_sk_size_mutex);
 }
 
 void	Worker::close_client_sk(int i)
 {
+    pthread_mutex_lock(&_workload_mutex);
     _workload -= 2;
+    pthread_mutex_unlock(&_workload_mutex);
     _host->close_connection(i);
+    pthread_mutex_lock(&_sk_size_mutex);
 	delete (_sk_request[i]);
 	_sk_request.erase(i);
+    pthread_mutex_unlock(&_sk_size_mutex);
 }
 
 void	Worker::set_sk_timeout(int i)
@@ -166,6 +166,13 @@ pthread_cond_t*		Worker::get_cond_set_updated(void) {return (&_cond_set_updated)
 bool				Worker::get_set_updated(void) const {return (_set_updated);}
 bool				Worker::get_terminate_flag(void) const {return (_terminate_flag);}
 std::map<int, Request*>*		Worker::get_sk_request(void) {return (&_sk_request);}
+int         		Worker::get_sk_size(void)
+{
+    pthread_mutex_lock(&_sk_size_mutex);
+    int     w = _sk_request.size();
+    pthread_mutex_unlock(&_sk_size_mutex);
+    return (w);
+}
 
 void         Worker::set_id(int s) {_id = s;}
 void         Worker::set_workload(int s) {_workload = s;}

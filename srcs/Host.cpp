@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/29 10:20:27 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/02/29 22:48:30 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ Host::Host()
     _n_workers = 1;
     _max_sk = -1;
     pthread_mutex_init(&_cout_mutex, NULL);
+    pthread_mutex_init(&_set_mutex, NULL);
     _timeout = TIMEOUT;
     mimes();
     status_message();
@@ -58,6 +59,7 @@ Host::~Host()
     if (_workers)
         delete [] _workers;
     pthread_mutex_destroy(&_cout_mutex);
+    pthread_mutex_destroy(&_set_mutex);
     ft::timestamp();
     std::cout << "End server" << std::endl;
 }
@@ -81,10 +83,20 @@ void	Host::start(void)
 		return ;
 	do
 	{
+        pthread_mutex_lock(&_set_mutex);
 		memcpy(&_read_set, &_master_read_set, sizeof(_master_read_set));
 		memcpy(&_write_set, &_master_write_set, sizeof(_master_write_set));
+        
         if (select(_max_sk + 1, &_read_set, &_write_set, NULL, &tv) != -1)
+        {
+            pthread_mutex_unlock(&_set_mutex);
             check_sk_ready();
+        }
+        else
+        {
+            pthread_mutex_unlock(&_set_mutex);
+        }
+            
 	} while (!_end);
     for (int i = 0; i < _n_workers; i++)
     {
@@ -124,8 +136,10 @@ void	Host::check_sk_ready(void)
             new_sk = it->second->accept_client_sk();
             if (new_sk > _max_sk)
                 _max_sk = new_sk;
+            pthread_mutex_lock(&_set_mutex);
             FD_SET(new_sk, &_master_read_set);
             FD_SET(new_sk, &_master_write_set);
+            pthread_mutex_unlock(&_set_mutex);
             if (new_sk > 0)
             {
                 
@@ -157,7 +171,7 @@ void	Host::check_sk_ready(void)
             it->second->set_sk_tmp_write_set(it->first);
     }
     for (int i = 0; i < _n_workers; i++)
-        if (_workers[i].get_workload() || _workers[i].get_sk_request()->size())
+        if (_workers[i].get_workload() || _workers[i].get_sk_size())
         {
             pthread_mutex_lock(_workers[i].get_set_mutex());
             _workers[i].update_sets();
@@ -173,11 +187,13 @@ void  	Host::close_connection(int i)
     ft::timestamp();
     std::cout << BLUE << "Close connection " << i << RESET << std::endl;
     pthread_mutex_unlock(&_cout_mutex);
+    pthread_mutex_lock(&_set_mutex);
 	FD_CLR(i, &_master_read_set);
 	FD_CLR(i, &_master_write_set);
     if (i == _max_sk)
 		while (!FD_ISSET(_max_sk, &_master_read_set))
 			_max_sk -= 1;
+    pthread_mutex_unlock(&_set_mutex);
 }
 
 void	Host::start_server(void)
@@ -191,7 +207,9 @@ void	Host::start_server(void)
 		{
 			if (listen_sk > _max_sk)
                 _max_sk = listen_sk;
+            pthread_mutex_lock(&_set_mutex);
             FD_SET(listen_sk, &_master_read_set);
+            pthread_mutex_unlock(&_set_mutex);
             _sk_address[listen_sk] = ad->second;
 			++ad;
 		}
