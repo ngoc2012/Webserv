@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/29 23:36:54 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/01 08:39:56 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,6 @@ class	Host
 		void				                    status_message(void);
 		bool									start_workers(void);
 		void    								check_sk_ready(void);
-		bool									select_available_sk(void);
 		
 		Host(const Host&);
 		Host &operator=(const Host& op);

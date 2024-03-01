@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/03/01 00:01:15 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/01 08:49:46 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ class	Worker
         pthread_mutex_t*	get_terminate_mutex(void);
         pthread_mutex_t*	get_set_mutex(void);
         pthread_cond_t*		get_cond_set_updated(void);
-		bool				get_terminate_flag(void) const;
+		bool				get_terminate_flag(void);
         bool				get_set_updated(void) const;
         std::map<int, Request*>*		get_sk_request(void);
         int         		get_sk_size(void);

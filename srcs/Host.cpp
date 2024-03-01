@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/29 23:36:48 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/01 09:02:51 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,22 +109,6 @@ void	Host::start(void)
         pthread_join(*(_workers[i].get_th()), NULL);
 }
 
-bool	Host::select_available_sk(void)
-{
-    struct timeval tv;
-
-    tv.tv_sec = 0;
-    tv.tv_usec = 1000;
-
-    int sk = -1;
-    if (!_end)
-        sk = select(_max_sk + 1, &_read_set, &_write_set, NULL, &tv);
-    std::cout << "sk: " << sk << std::endl;
-    if (sk < 0)
-        return (false);
-    return (true);
-}
-
 void	Host::check_sk_ready(void)
 {
     int     new_sk;
@@ -151,7 +135,6 @@ void	Host::check_sk_ready(void)
                     k = (k + 1) % _n_workers;
                     i++;
                 }
-                // std::cout << "_start_worker_id: " << _start_worker_id << ", j: " << j << ", sk: " << new_sk << std::endl;
                 _sk_worker[new_sk] = &_workers[j];
                 _workers[j].new_connection(new_sk, it->second);
                 _start_worker_id++;
@@ -225,32 +208,29 @@ static void*   start_worker(void* instance) {
         return NULL;
     Worker*             worker = static_cast<Worker*>(instance);
     Host*               host = worker->get_host();
-    pthread_mutex_t*    terminate_mutex = worker->get_terminate_mutex();
+    pthread_mutex_t*    cout_mutex = host->get_cout_mutex();
     pthread_mutex_t*    set_mutex = worker->get_set_mutex();
     pthread_cond_t*		cond_set_updated = worker->get_cond_set_updated();
-    pthread_mutex_lock(host->get_cout_mutex());
+
+    pthread_mutex_lock(cout_mutex);
     std::cout << "Worker " << worker->get_id() << " started." << std::endl;
-    pthread_mutex_unlock(host->get_cout_mutex());
-    
+    pthread_mutex_unlock(cout_mutex);
     while (true) {
         pthread_mutex_lock(set_mutex);
         while (!worker->get_set_updated())
             pthread_cond_wait(cond_set_updated, set_mutex);
-            
-        pthread_mutex_lock(terminate_mutex);
-        if (worker->get_terminate_flag()) {
+        if (worker->get_terminate_flag())
+        {
             pthread_mutex_unlock(set_mutex);
-            pthread_mutex_unlock(terminate_mutex);
             break;
         }
-        pthread_mutex_unlock(terminate_mutex);
         worker->set_set_updated(false);
         pthread_mutex_unlock(set_mutex);
         worker->routine();
     }
-    pthread_mutex_lock(host->get_cout_mutex());
+    pthread_mutex_lock(cout_mutex);
     std::cout << "Worker " << worker->get_id() << " ended." << std::endl;
-    pthread_mutex_unlock(host->get_cout_mutex());
+    pthread_mutex_unlock(cout_mutex);
     pthread_exit(NULL);
     return NULL;
 }
@@ -262,10 +242,11 @@ bool    Host::start_workers() {
         _workers[i].set_id(i);
         _workers[i].set_host(this);
         _workers[i].set_workload(0);
-        //pthread_mutex_lock(&_cout_mutex);
         if (pthread_create(_workers[i].get_th(), NULL, start_worker, &_workers[i]))
         {
-            std::cerr << "Error creating select thread" << std::endl;
+            pthread_mutex_lock(&_cout_mutex);
+            std::cerr << RED << "Error creating select thread" << RESET << std::endl;
+            pthread_mutex_unlock(&_cout_mutex);
             return (false);
         }
         else
@@ -274,7 +255,6 @@ bool    Host::start_workers() {
             std::cout << "Thread of worker " << i << " created" << std::endl;
             pthread_mutex_unlock(&_cout_mutex);
         }
-        //pthread_mutex_unlock(&_cout_mutex);
     }
     return (true);
 }

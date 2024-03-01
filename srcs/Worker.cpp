@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/03/01 00:02:24 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/01 08:49:30 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,12 +66,14 @@ void	Worker::routine(void)
         it != sk_request.end(); it = next)
     {
         next++;
+        pthread_mutex_lock(&_timeout_mutex);
         double  dt = static_cast<double>(time(0) - _sk_timeout[it->first]);
+        pthread_mutex_unlock(&_timeout_mutex);
         if (dt > it->second->get_timeout())
         {
             pthread_mutex_lock(_host->get_cout_mutex());
             ft::timestamp();
-            std::cout << MAGENTA << "Time Out " << it->first << " (" << dt << ")" << RESET << std::endl;
+            std::cout << MAGENTA << "Time Out " << it->first << " (" << dt << "/" << it->second->get_timeout() << ")" << RESET << std::endl;
             pthread_mutex_unlock(_host->get_cout_mutex());
             close_client_sk(it->first);
             continue;
@@ -172,9 +174,17 @@ int          Worker::get_workload(void)
 pthread_mutex_t*    Worker::get_terminate_mutex(void) {return (&_terminate_mutex);}
 pthread_mutex_t*	Worker::get_set_mutex(void) {return (&_set_mutex);}
 pthread_cond_t*		Worker::get_cond_set_updated(void) {return (&_cond_set_updated);}
-bool				Worker::get_set_updated(void) const {return (_set_updated);}
-bool				Worker::get_terminate_flag(void) const {return (_terminate_flag);}
 std::map<int, Request*>*		Worker::get_sk_request(void) {return (&_sk_request);}
+
+bool				Worker::get_set_updated(void) const {return (_set_updated);}
+bool				Worker::get_terminate_flag(void)
+{
+    pthread_mutex_lock(&_terminate_mutex);
+    bool     w = _terminate_flag;
+    pthread_mutex_unlock(&_terminate_mutex);
+    return (w);
+}
+
 int         		Worker::get_sk_size(void)
 {
     pthread_mutex_lock(&_sk_size_mutex);
@@ -188,6 +198,7 @@ void         Worker::set_workload(int s) {_workload = s;}
 void         Worker::set_host(Host* h) {_host = h;}
 void	     Worker::set_terminate_mutex(pthread_mutex_t m) {_terminate_mutex = m;}
 void		 Worker::set_set_updated(bool u) {_set_updated = u;}
+
 void	     Worker::set_terminate_flag(bool f)
 {
     pthread_mutex_lock(&_terminate_mutex);
