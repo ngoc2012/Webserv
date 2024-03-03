@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/29 14:35:48 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/03 10:16:28 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,9 +62,20 @@ void    Request::clean(void)
     if (_cgi)
         delete (_cgi);
     if (_fd_in > 0)
+    {
+        pthread_mutex_lock(_host->get_cout_mutex());
+        std::cerr << YELLOW << "Close file " << _fd_in << "." << RESET << std::endl;
+        pthread_mutex_unlock(_host->get_cout_mutex());
         close(_fd_in);
+    }
+        
     if (_tmp_file != "" && std::remove(_tmp_file.c_str()))
         std::cerr << MAGENTA << "Error: Can not delete file " << _tmp_file << RESET << std::endl;
+    else if (_tmp_file != "") {
+       pthread_mutex_lock(_host->get_cout_mutex());
+       std::cerr << YELLOW << "Delete file " << _tmp_file << "." << RESET << std::endl;
+       pthread_mutex_unlock(_host->get_cout_mutex());
+    }
 }
 
 void    Request::init(void)
@@ -140,13 +151,14 @@ int     Request::read_header()
         std::memmove(_buffer, body_left.c_str(), _body_left);
         _buffer[_body_left] = 0;
     }
-    if (!parse_header())
-        return (end_request(1));
+    parse_header();
     process_fd_in();
     write_body_left();
-    if (_status_code != 200 || _end)
+    if (_end)
         return (end_request(1));
     if (_content_length && (_body_size == _content_length))
+        return (end_request(1));
+    if ((!_chunked && !_content_length) || _method == HEAD)
         return (end_request(1));
     return (ret);
 }
@@ -210,7 +222,7 @@ bool	Request::parse_method_url(std::string str)
     return (true);
 }
 
-bool	Request::parse_header(void)
+void	Request::parse_header(void)
 {
     size_t          end_line = _str_header.find("\r\n");
     std::string     line = _str_header.substr(0, end_line);
@@ -218,7 +230,7 @@ bool	Request::parse_header(void)
     {
         std::cerr << RED << "Error: Method or url error." << RESET << std::endl;
         _status_code = 400;
-        return (false);
+        return ;
     }
     _str_header.erase(0, end_line + 2);
     size_t          separator;
@@ -242,7 +254,7 @@ bool	Request::parse_header(void)
     {
         std::cerr << RED << "Error: No host name." << RESET << std::endl;
         _status_code = 400;
-        return (false);
+        return ;
     }
     std::vector<Server*>        servers = _address->get_servers();
     std::set<std::string>*      server_names;
@@ -266,9 +278,6 @@ bool	Request::parse_header(void)
     std::cout << "[sk: " << _socket << "]" << RESET << std::endl;
     pthread_mutex_unlock(_host->get_cout_mutex());
     check_location();
-    // Redirection
-    if (_status_code != 200)
-        return (false);
     if (_fields["Transfer-Encoding"] == "chunked")
         _chunked = true;
     _content_length = std::atoi(_fields["Content-Length"].c_str());
@@ -282,13 +291,7 @@ bool	Request::parse_header(void)
         _close = true;
     _content_type = _fields["Content-Type"];
     if (_content_length > _body_max)
-    {
         _status_code = 413;
-        return (false);
-    }
-    if (_status_code != 200 || (!_chunked && !_content_length) || _method == HEAD)
-        return (false);
-    return (true);
 }
 
 std::map<std::string, std::string>    Request::parse_cookies(std::string& str)
@@ -315,6 +318,7 @@ std::map<std::string, std::string>    Request::parse_cookies(std::string& str)
 
 int     Request::read_body()
 {
+    // std::cout << "read body" << std::endl;
     int     ret;
     ret = recv(_socket, _buffer, _body_buffer, 0);
     if (ret <= 0)
@@ -466,6 +470,7 @@ bool	Request::check_location()
 
 void	Request::process_fd_in()
 {
+    std::string     tmp_file_prefix = "/tmp/" + ft::itos(_worker->get_id()) + "_";
     int i = 0;
     switch (_method)
     {
@@ -474,8 +479,10 @@ void	Request::process_fd_in()
         case GET:
             break;
         case PUT:
+            pthread_mutex_lock(_host->get_fd_mutex());
             _fd_in = open(_full_file_name.c_str(),
                     O_CREAT | O_WRONLY | O_TRUNC, 0664);
+            pthread_mutex_unlock(_host->get_fd_mutex());
             if (_fd_in == -1)
             {
                 pthread_mutex_lock(_host->get_cout_mutex());
@@ -485,11 +492,16 @@ void	Request::process_fd_in()
             }
             break;
         case POST:
-            _tmp_file = "/tmp/0";
+            _tmp_file = tmp_file_prefix + "0";
             struct stat buffer;
+            pthread_mutex_lock(_host->get_fd_mutex());
             while (stat(_tmp_file.c_str(), &buffer) == 0)
-                _tmp_file = "/tmp/" + ft::itos(++i);
+                _tmp_file = tmp_file_prefix + ft::itos(++i);
             _fd_in = open(_tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0664);
+            pthread_mutex_unlock(_host->get_fd_mutex());
+            pthread_mutex_lock(_host->get_cout_mutex());
+            std::cerr << YELLOW << _tmp_file << ":" << _fd_in << ":" << _worker->get_id() << RESET<< std::endl;
+            pthread_mutex_unlock(_host->get_cout_mutex());
             if (_fd_in == -1)
             {
                 pthread_mutex_lock(_host->get_cout_mutex());
@@ -548,5 +560,6 @@ bool		    Request::get_chunked(void) const {return (_chunked);}
 int		        Request::get_timeout(void) const {return (_timeout);}
 std::map<std::string, std::string>*     Request::get_fields(void) {return (&_fields);}
 bool		    Request::get_close(void) const {return (_close);}
+Worker*			Request::get_worker(void) const {return (_worker);}
 
 void		    Request::set_fd_in(int f) {_fd_in = f;}

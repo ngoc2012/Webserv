@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/03/01 08:49:30 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/02 13:18:07 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,18 +66,8 @@ void	Worker::routine(void)
         it != sk_request.end(); it = next)
     {
         next++;
-        pthread_mutex_lock(&_timeout_mutex);
-        double  dt = static_cast<double>(time(0) - _sk_timeout[it->first]);
-        pthread_mutex_unlock(&_timeout_mutex);
-        if (dt > it->second->get_timeout())
-        {
-            pthread_mutex_lock(_host->get_cout_mutex());
-            ft::timestamp();
-            std::cout << MAGENTA << "Time Out " << it->first << " (" << dt << "/" << it->second->get_timeout() << ")" << RESET << std::endl;
-            pthread_mutex_unlock(_host->get_cout_mutex());
-            close_client_sk(it->first);
+        if (!check_timeout(it->first, it->second))
             continue;
-        }
         request = it->second;
         pthread_mutex_lock(&_set_mutex);
         if (FD_ISSET(it->first, &_read_set) && !request->get_end())
@@ -97,6 +87,23 @@ void	Worker::routine(void)
             pthread_mutex_unlock(&_set_mutex);
     }
     
+}
+
+bool	Worker::check_timeout(int sk, Request* request)
+{
+    pthread_mutex_lock(&_timeout_mutex);
+    double  dt = static_cast<double>(time(0) - _sk_timeout[sk]);
+    pthread_mutex_unlock(&_timeout_mutex);
+    if (dt > request->get_timeout())
+    {
+        pthread_mutex_lock(_host->get_cout_mutex());
+        ft::timestamp();
+        std::cout << MAGENTA << "Time Out " << sk << " (" << dt << "/" << request->get_timeout() << ")" << RESET << std::endl;
+        pthread_mutex_unlock(_host->get_cout_mutex());
+        close_client_sk(sk);
+        return (false);
+    }
+    return (true);
 }
 
 void	Worker::set_empty_sets(void)
@@ -159,6 +166,15 @@ void	Worker::set_sk_timeout(int i)
     pthread_mutex_lock(&_timeout_mutex);
     _sk_timeout[i] = time(0);
     pthread_mutex_unlock(&_timeout_mutex);
+}
+
+void		Worker::set_end(void)
+{
+    set_terminate_flag(true);
+    pthread_mutex_lock(&_set_mutex);
+    _set_updated = true;
+    pthread_cond_signal(&_cond_set_updated);
+    pthread_mutex_unlock(&_set_mutex);
 }
 
 pthread_t*   Worker::get_th(void) {return (&_th);}

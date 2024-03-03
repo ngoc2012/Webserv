@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/03/01 09:02:51 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/03 09:52:10 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,6 @@
 #include "Response.hpp"
 #include "Request.hpp"
 #include "Configuration.hpp"
-
-#define T1 1
-#define T2 0
-#define T3 10
 
 Host::Host(const Host& src) { *this = src; }
 
@@ -41,6 +37,7 @@ Host::Host()
     pthread_mutex_init(&_cout_mutex, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
     pthread_mutex_init(&_end_mutex, NULL);
+    pthread_mutex_init(&_fd_mutex, NULL);
     _timeout = TIMEOUT;
     mimes();
     status_message();
@@ -62,6 +59,7 @@ Host::~Host()
     pthread_mutex_destroy(&_cout_mutex);
     pthread_mutex_destroy(&_set_mutex);
     pthread_mutex_destroy(&_end_mutex);
+    pthread_mutex_destroy(&_fd_mutex);
     ft::timestamp();
     std::cout << "End server" << std::endl;
 }
@@ -97,16 +95,6 @@ void	Host::start(void)
         else
             pthread_mutex_unlock(&_set_mutex);
 	} while (!get_end());
-    for (int i = 0; i < _n_workers; i++)
-    {
-        _workers[i].set_terminate_flag(true);
-        pthread_mutex_lock(_workers[i].get_set_mutex());
-        _workers[i].set_set_updated(true);
-        pthread_cond_signal(_workers[i].get_cond_set_updated());
-        pthread_mutex_unlock(_workers[i].get_set_mutex());
-    }
-    for (int i = 0; i < _n_workers; i++)
-        pthread_join(*(_workers[i].get_th()), NULL);
 }
 
 void	Host::check_sk_ready(void)
@@ -117,9 +105,9 @@ void	Host::check_sk_ready(void)
         if (FD_ISSET(it->first, &_read_set))
         {
             new_sk = it->second->accept_client_sk();
+            pthread_mutex_lock(&_set_mutex);
             if (new_sk > _max_sk)
                 _max_sk = new_sk;
-            pthread_mutex_lock(&_set_mutex);
             FD_SET(new_sk, &_master_read_set);
             FD_SET(new_sk, &_master_write_set);
             pthread_mutex_unlock(&_set_mutex);
@@ -530,6 +518,8 @@ size_t								Host::get_large_client_header_buffer(void) const {return (_large_c
 int		                            Host::get_timeout(void) const {return (_timeout);}
 pthread_mutex_t*					Host::get_cout_mutex(void) {return (&_cout_mutex);}
 pthread_mutex_t*					Host::get_end_mutex(void) {return (&_end_mutex);}
+pthread_mutex_t*					Host::get_fd_mutex(void) {return (&_fd_mutex);}
+
 bool								Host::get_end(void)
 {
     pthread_mutex_lock(&_end_mutex);

@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/03/01 08:49:46 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/02 13:16:53 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,8 @@ class	Worker
 		void		set_sk_tmp_read_set(int);
 		void		set_sk_tmp_write_set(int);
 		void		update_sets(void);
+		void		set_end(void);
+		bool		check_timeout(int sk, Request* request);
 
         pthread_t*  		get_th(void);
         int         		get_id(void) const;

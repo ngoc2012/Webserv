@@ -121,7 +121,7 @@ subjects:
 	@echo "Execute CGI based on certain file extension (for example .php). Make it work with POST and GET methods."
 
 test:
-	clear && make re && make clean && valgrind --tool=helgrind ./webserv .conf
+	clear && make re && make clean && valgrind --tool=helgrind --history-level=none ./webserv .conf
 test0:
 	clear && make re && make clean && valgrind --track-origins=yes --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv .conf
 gits:

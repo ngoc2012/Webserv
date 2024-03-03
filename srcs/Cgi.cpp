@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/23 08:48:51 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/03 10:22:12 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include "Server.hpp"
 #include "Location.hpp"
 #include "Request.hpp"
+#include "Worker.hpp"
 #include "Response.hpp"
 #include "webserv.hpp"
 
@@ -79,12 +80,16 @@ int    Cgi::execute()
         return 500;
     }
 
-    _tmp_file = "/tmp/1";
+    std::string     tmp_file_prefix = "/tmp/cgi_" + ft::itos(_request->get_worker()->get_id()) + "_";
+    _tmp_file = tmp_file_prefix + "0";
     struct stat buffer;
     int i = 0;
+	pthread_mutex_t*	fd_mutex = _request->get_host()->get_fd_mutex();
+	pthread_mutex_lock(fd_mutex);
     while (stat(_tmp_file.c_str(), &buffer) == 0)
-        _tmp_file = "/tmp/" + ft::itos(++i);
+        _tmp_file = tmp_file_prefix + ft::itos(++i);
     _fd_out = open(_tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0664);
+	pthread_mutex_unlock(fd_mutex);
     if (_fd_out == -1)
     {
         std::cerr << "Error: CGI fd_out open error." << std::endl;
@@ -102,9 +107,30 @@ int    Cgi::execute()
     else if (!_pid)
     {
         //_response->get_host()->set_end(true);
+        /*
+        int     fd_out = _fd_out;
+        int     pipe[2];
+        pipe[0] = _pipe[0];
+        pipe[1] = _pipe[1];
+        close(pipe[1]);
+        if (dup2(pipe[0], STDIN_FILENO) == -1)
+            return 500;
+        if (dup2(fd_out, STDOUT_FILENO) == -1)
+            return 500;
+        close(pipe[0]);
+        
+        char*   argv[3];
+        argv[0] = (char*) _pass.c_str();
+        argv[1] = (char*) _file.c_str();
+        argv[2] = 0;
+        execve(argv[0], argv, _envs);
+        std::cerr << "Execution error" << std::endl;
+        delete argv[0];
+        delete argv[1];
+        */
         close(_pipe[1]);
         if (dup2(_pipe[0], STDIN_FILENO) == -1)
-            return (-1);
+            return 500;
         if (dup2(_fd_out, STDOUT_FILENO) == -1)
             return 500;
         close(_pipe[0]);

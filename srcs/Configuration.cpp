@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/26 22:49:16 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/03 12:32:14 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -252,7 +252,7 @@ bool	Configuration::server_parser(std::string cmd, Server* server, std::vector<s
 	else if (words[0] == "timeout")
 	{
 		n = std::atoi(words[1].c_str());
-		if (!ft::is_digit(words[1]) || n < 0 || n > 100)
+		if (!ft::is_digit(words[1]) || n < 0 || n > 1000)
         {
 			std::cerr << "Error: timeout value not valid (0..100)." << std::endl;
 			return (true);
