@@ -13,6 +13,8 @@
 #include <unistd.h>
 #include <cstring>  // debug
 #include <sys/stat.h>	// stat, S_ISDIR
+#include <cerrno> // For errno
+#include <cstring> // For strerror
 
 #include "Host.hpp"
 #include "Worker.hpp"
@@ -64,9 +66,11 @@ void    Request::clean(void)
     if (_fd_in > 0)
     {
         pthread_mutex_lock(_host->get_cout_mutex());
-        std::cerr << YELLOW << "Close file " << _fd_in << "." << RESET << std::endl;
+        std::cerr << YELLOW << "Request Clean Close file " << _fd_in << "." << RESET << std::endl;
         pthread_mutex_unlock(_host->get_cout_mutex());
+        pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_in);
+        pthread_mutex_unlock(_host->get_fd_mutex());
     }
         
     if (_tmp_file != "" && std::remove(_tmp_file.c_str()))
@@ -387,7 +391,14 @@ void    Request::write_chunked()
                 len = read_size;
             if (write(_fd_in, _read_data.c_str(), len) == -1)
             {
-                std::cerr << RED << "Error: Chunked data: Write fd in " << _fd_in << " error." << RESET << std::endl;
+                // std::cerr << RED << "Error: Chunked data: Write fd in " << _fd_in << " error." << RESET << std::endl;
+                std::cerr << "Error opening file fd in: " << _fd_in << "|" << strerror(errno) << std::endl;
+                // Print additional information, if available
+                if (errno == ENOENT) {
+                    std::cerr << "The file does not exist." << std::endl;
+                } else if (errno == EACCES) {
+                    std::cerr << "Permission denied." << std::endl;
+                }
                 _status_code = 500;
                 return ;
             }
@@ -449,6 +460,7 @@ bool	Request::check_location()
             _response.set_content_type("text/html");
             return (true);
         }
+        pthread_mutex_lock(_host->get_fd_mutex());
         int     fd_out = open(_full_file_name.c_str(), O_RDONLY);
         if (fd_out == -1)
         {
@@ -456,6 +468,7 @@ bool	Request::check_location()
             _status_code = 500;
             return (false);
         }
+        pthread_mutex_unlock(_host->get_fd_mutex());
         std::string     extension = ft::file_extension(_full_file_name);
         std::map<std::string, std::string>*     mimes = _host->get_mimes();
         if (mimes->find(extension) != mimes->end())
@@ -533,7 +546,14 @@ int     Request::end_request(int ret)
     if (_status_code == 200 && _body_size > _body_max)
         _status_code = 413;
     if (_fd_in > 0)
+    {
+        pthread_mutex_lock(_host->get_cout_mutex());
+        std::cerr << YELLOW << "End request Close file " << _fd_in << "." << RESET << std::endl;
+        pthread_mutex_unlock(_host->get_cout_mutex());
+        pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_in);
+        pthread_mutex_unlock(_host->get_fd_mutex());
+    }
     _end = true;
     _response.set_status_code(_status_code);
     _response.header_generate();

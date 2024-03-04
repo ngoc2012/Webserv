@@ -237,10 +237,10 @@ void Response::createResponse() {
     response_ += body_;
     body_.clear();
   }
-  if (body_.length() == 100000)
-    std::cout << "Response: '" << std::endl << response_ << "'" << std::endl;
-  else
-    std::cout << "Response: '" << std::endl << response_.substr(0, 200) << "'" << std::endl;
+  // if (body_.length() == 100000)
+  //   std::cout << "Response: '" << std::endl << response_ << "'" << std::endl;
+  // else
+  //   std::cout << "Response: '" << std::endl << response_.substr(0, 200) << "'" << std::endl;
 }
 
 /* METHODS */

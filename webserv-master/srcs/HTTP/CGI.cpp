@@ -170,7 +170,7 @@ bool CGI::setCGIEnv() {
   {
 		std::string tmp = it->first + "=" + it->second;
     // debug
-    std::cout << "env[" << i << "] : " << tmp << std::endl;
+    // std::cout << "env[" << i << "] : " << tmp << std::endl;
 		if (!(env_[i] = ft::strdup(tmp.c_str())))
       return false;
 		i++;
