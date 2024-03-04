@@ -43,10 +43,13 @@ process.stdin.on('data', function(data_in) {
         }
         else
         {
-            output["status"] = "wut";
-            output["1"] = conv_json["user"][2];
-            output["2"] = jason["cookie"];
-        }
+            delete conv_json["user"];
+            fs.writeFile(path, JSON.stringify(conv_json), 'utf8', function(err) 
+            {
+                output["error"] = "err";
+            });
+            output["status"] = "signout";     
+            }
 
     }
     else if (jason["action"] == "signup")

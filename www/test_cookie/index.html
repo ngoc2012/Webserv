@@ -38,7 +38,6 @@
                     return response.json(); // Parse JSON data
                 })
                 .then(data => {
-                    console.log("First ", data);
                     if (data["status"] == "full")
                         document.cookie = "session_id=" + data["cookie"] + "; expires=Thu, 01 Jan 2025 00:00:00 UTC; path=/; SameSite=None; Secure";
                     fetch("http://127.0.2.2:8000/login.js", {
@@ -53,40 +52,39 @@
                         if (setCookieHeader)
                         {
                             cookies = parseCookies(setCookieHeader);
-                            console.log("Cookie? ", cookies);
                             document.cookie = "session_id=" + cookies.session_id + "; expires=Thu, 01 Jan 2025 00:00:00 UTC; path=/; SameSite=None; Secure";
                         }
                     })
-                })
-                .then(response => 
-                {
-                    const data = {
-                        "action": "check", 
-                        "name": "",
-                        "password": "",
-                        "cookie": getCookieValue('session_id')
-                    };
-                    fetch("http://127.0.2.2:8000/login.js", {
-                        method: 'POST',
-                        headers: {'Cookie': document.cookie},
-                        credentials: 'include',
-                        contentType: 'application/json',
-                        body: JSON.stringify(data),
-                        crossDomain: true,
+                    .then(response => 
+                    {
+                        const data = {
+                            "action": "check", 
+                            "name": "",
+                            "password": "",
+                            "cookie": getCookieValue('session_id')
+                        };
+                        fetch("http://127.0.2.2:8000/login.js", {
+                            method: 'POST',
+                            headers: {'Cookie': document.cookie},
+                            credentials: 'include',
+                            contentType: 'application/json',
+                            body: JSON.stringify(data),
+                            crossDomain: true,
+                        })
+                        .then(response => {
+                            //let data = response.json();
+                            //data["cookies"] = setCookieHeader;
+                            return response.json(); // Parse JSON data
+                        })
+                        .then(data => {
+                            console.log(data);
+                            if (data["status"] == "OK")
+                            {
+                                hide(data["user"]);
+                            }
+                        })
+                        .catch(error => {console.log('Catch', error)});
                     })
-                    .then(response => {
-                        //let data = response.json();
-                        //data["cookies"] = setCookieHeader;
-                        return response.json(); // Parse JSON data
-                    })
-                    .then(data => {
-                        console.log(data);
-                        if (data["status"] == "OK")
-                        {
-                            hide(data["user"]);
-                        }
-                    })
-                    .catch(error => {console.log('Catch', error)});
                 })
             }
 
