@@ -26,31 +26,34 @@ process.stdin.on('data', function(data_in) {
     }
     if (jason["action"] == "get_cookie")
     {
-        if (conv_json.length == 0)
-            output["status"] = "empty";
-        else
+        if (conv_json.hasOwnProperty("user"))
         {
             output["status"] = "full";
             output["cookie"] = conv_json["user"][2];
         }
+        else
+        {
+            output["status"] = "empty";
+        }
     }
     else if (jason["action"] == "check")
     {
-        if (conv_json["user"][2] == jason["cookie"])
+        if (conv_json.hasOwnProperty("user"))
         {
-            output["status"] = "OK";
-            output["user"] = conv_json["user"][0];
-        }
-        else
-        {
-            delete conv_json["user"];
-            fs.writeFile(path, JSON.stringify(conv_json), 'utf8', function(err) 
+            if (conv_json["user"][2] == jason["cookie"])
             {
-                output["error"] = "err";
-            });
-            output["status"] = "signout";     
+                output["status"] = "OK";
+                output["user"] = conv_json["user"][0];
             }
-
+            else
+            {
+                delete conv_json["user"];
+                fs.writeFile(path, JSON.stringify(conv_json), 'utf8', function(err) 
+                {
+                    output["error"] = "err";
+                });
+            }
+        }
     }
     else if (jason["action"] == "signup")
     {
