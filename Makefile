@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/03/03 13:18:22 by ngoc             ###   ########.fr        #
+#    Updated: 2024/03/04 22:13:23 by ngoc             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -121,7 +121,8 @@ subjects:
 	@echo "Execute CGI based on certain file extension (for example .php). Make it work with POST and GET methods."
 
 test:
-	clear && make re && make clean && valgrind --tool=helgrind --history-level=none ./webserv .conf
+	clear && make re && make clean && valgrind --tool=helgrind ./webserv .conf
+	#clear && make re && make clean && valgrind --tool=helgrind --history-level=none ./webserv .conf
 test0:
 	clear && make re && make clean && valgrind --track-origins=yes --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv .conf
 gits:

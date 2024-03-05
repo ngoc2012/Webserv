@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/03/03 09:52:10 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/05 11:02:04 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,13 @@ Host::Host()
     _start_worker_id = 0;
     _n_workers = 1;
     _max_sk = -1;
+	_need_update = true;
     pthread_mutex_init(&_cout_mutex, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
     pthread_mutex_init(&_end_mutex, NULL);
     pthread_mutex_init(&_fd_mutex, NULL);
+    pthread_mutex_init(&_need_update_mutex, NULL);
+    pthread_cond_init(&_cond_need_update, NULL);
     _timeout = TIMEOUT;
     mimes();
     status_message();
@@ -60,17 +63,14 @@ Host::~Host()
     pthread_mutex_destroy(&_set_mutex);
     pthread_mutex_destroy(&_end_mutex);
     pthread_mutex_destroy(&_fd_mutex);
+    pthread_mutex_destroy(&_need_update_mutex);
+    pthread_cond_destroy(&_cond_need_update);
     ft::timestamp();
     std::cout << "End server" << std::endl;
 }
 
 void	Host::start(void)
 {
-    struct timeval tv;
-
-    tv.tv_sec = 0;
-    tv.tv_usec = 1000;
-
 	if (_parser_error)
 		return ;
 	FD_ZERO(&_listen_set);
@@ -83,13 +83,24 @@ void	Host::start(void)
 		return ;
 	do
 	{
+		pthread_mutex_lock(&_need_update_mutex);
+		while (!_need_update)
+			pthread_cond_wait(&_cond_need_update, &_need_update_mutex);
+		pthread_mutex_unlock(&_need_update_mutex);
+
         pthread_mutex_lock(&_set_mutex);
 		memcpy(&_read_set, &_master_read_set, sizeof(_master_read_set));
 		memcpy(&_write_set, &_master_write_set, sizeof(_master_write_set));
-        
-        if (select(_max_sk + 1, &_read_set, &_write_set, NULL, &tv) != -1)
+
+        if (select(_max_sk + 1, &_read_set, &_write_set, NULL, NULL) != -1)
         {
             pthread_mutex_unlock(&_set_mutex);
+
+            pthread_mutex_lock(&_need_update_mutex);
+            _need_update = false;
+            // pthread_cond_signal(&_cond_need_update);
+            pthread_mutex_unlock(&_need_update_mutex);
+
             check_sk_ready();
         }
         else
@@ -128,6 +139,9 @@ void	Host::check_sk_ready(void)
                 _start_worker_id++;
                 _start_worker_id %= _n_workers;
             }
+            pthread_mutex_lock(&_need_update_mutex);
+            _need_update = true;
+            pthread_mutex_unlock(&_need_update_mutex);
         }
 
     for (int i = 0; i < _n_workers; i++)
@@ -191,34 +205,73 @@ void	Host::start_server(void)
     }
 }
 
-static void*   start_worker(void* instance) {
+static void*   start_worker(void* instance)
+{
     if (!instance)
         return NULL;
     Worker*             worker = static_cast<Worker*>(instance);
     Host*               host = worker->get_host();
     pthread_mutex_t*    cout_mutex = host->get_cout_mutex();
+    pthread_mutex_t*    need_update_mutex = host->get_need_update_mutex();
     pthread_mutex_t*    set_mutex = worker->get_set_mutex();
     pthread_cond_t*		cond_set_updated = worker->get_cond_set_updated();
 
     pthread_mutex_lock(cout_mutex);
     std::cout << "Worker " << worker->get_id() << " started." << std::endl;
     pthread_mutex_unlock(cout_mutex);
-    while (true) {
-        pthread_mutex_lock(set_mutex);
-        while (!worker->get_set_updated())
-            pthread_cond_wait(cond_set_updated, set_mutex);
+
+    while (true)
+    {
         if (worker->get_terminate_flag())
-        {
-            pthread_mutex_unlock(set_mutex);
             break;
+        if (worker->get_sk_size() == 0)
+        {
+            pthread_mutex_lock(set_mutex);
+            while (!worker->get_set_updated())
+                pthread_cond_wait(cond_set_updated, set_mutex);
+            worker->set_set_updated(false);
+            pthread_mutex_unlock(set_mutex);
+
+            if (worker->get_terminate_flag())
+                break;
+            
+            worker->routine();
+
+			pthread_mutex_lock(need_update_mutex);
+			host->set_need_update(true);
+			pthread_cond_signal(host->get_cond_need_update());
+			pthread_mutex_unlock(need_update_mutex);
         }
-        worker->set_set_updated(false);
-        pthread_mutex_unlock(set_mutex);
-        worker->routine();
+        else
+        {
+            worker->check_timeout();
+			if (worker->get_sk_size() == 0)
+				continue;
+
+            pthread_mutex_lock(set_mutex);
+            if (worker->get_set_updated())
+            {
+                worker->set_set_updated(false);
+                pthread_mutex_unlock(set_mutex);
+                worker->routine();
+
+                pthread_mutex_lock(need_update_mutex);
+                host->set_need_update(true);
+                pthread_cond_signal(host->get_cond_need_update());
+                pthread_mutex_unlock(need_update_mutex);
+            }
+            else
+            {
+                pthread_mutex_unlock(set_mutex);
+                usleep(500);
+            }
+        }
     }
+
     pthread_mutex_lock(cout_mutex);
     std::cout << "Worker " << worker->get_id() << " ended." << std::endl;
     pthread_mutex_unlock(cout_mutex);
+
     pthread_exit(NULL);
     return NULL;
 }
@@ -236,12 +289,6 @@ bool    Host::start_workers() {
             std::cerr << RED << "Error creating select thread" << RESET << std::endl;
             pthread_mutex_unlock(&_cout_mutex);
             return (false);
-        }
-        else
-        {
-            pthread_mutex_lock(&_cout_mutex);
-            std::cout << "Thread of worker " << i << " created" << std::endl;
-            pthread_mutex_unlock(&_cout_mutex);
         }
     }
     return (true);
@@ -527,6 +574,9 @@ bool								Host::get_end(void)
     pthread_mutex_unlock(&_end_mutex);
     return (e);
 }
+pthread_mutex_t*					Host::get_need_update_mutex(void) {return (&_need_update_mutex);}
+pthread_cond_t*						Host::get_cond_need_update(void) {return (&_cond_need_update);}
+bool								Host::get_need_update(void) const {return (_need_update);}
 
 void			Host::set_client_max_body_size(size_t n) {_client_max_body_size = n;}
 void			Host::set_client_body_buffer_size(size_t n) {_client_body_buffer_size = n;}
@@ -541,3 +591,4 @@ void	        Host::set_end(bool t)
     _end = t;
     pthread_mutex_unlock(&_end_mutex);
 }
+void			Host::set_need_update(bool n) {_need_update = n;}

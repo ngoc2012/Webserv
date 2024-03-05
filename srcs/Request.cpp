@@ -70,6 +70,7 @@ void    Request::clean(void)
         pthread_mutex_unlock(_host->get_cout_mutex());
         pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_in);
+        _fd_in = -1;
         pthread_mutex_unlock(_host->get_fd_mutex());
     }
         
@@ -392,7 +393,7 @@ void    Request::write_chunked()
             if (write(_fd_in, _read_data.c_str(), len) == -1)
             {
                 // std::cerr << RED << "Error: Chunked data: Write fd in " << _fd_in << " error." << RESET << std::endl;
-                std::cerr << "Error opening file fd in: " << _fd_in << "|" << strerror(errno) << std::endl;
+                std::cerr << "Request: Error opening file fd in: " << _fd_in << "|" << strerror(errno) << std::endl;
                 // Print additional information, if available
                 if (errno == ENOENT) {
                     std::cerr << "The file does not exist." << std::endl;
@@ -548,10 +549,11 @@ int     Request::end_request(int ret)
     if (_fd_in > 0)
     {
         pthread_mutex_lock(_host->get_cout_mutex());
-        std::cerr << YELLOW << "End request Close file " << _fd_in << "." << RESET << std::endl;
+        std::cerr << YELLOW << "End request Close file " << _fd_in << "|" << _worker->get_id() << RESET << std::endl;
         pthread_mutex_unlock(_host->get_cout_mutex());
         pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_in);
+        _fd_in = -1;
         pthread_mutex_unlock(_host->get_fd_mutex());
     }
     _end = true;

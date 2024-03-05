@@ -43,6 +43,7 @@ Response::~Response()
         pthread_mutex_unlock(_host->get_cout_mutex());
         pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_out);
+        _fd_out = -1;
         pthread_mutex_unlock(_host->get_fd_mutex());
     }
         
@@ -194,7 +195,7 @@ int     Response::write_body()
         pthread_mutex_lock(_host->get_cout_mutex());
         if (ret == -1)
         {
-            std::cerr << RED << "Error: Read fd out: " << _fd_out << strerror(errno) << RESET << std::endl;
+            std::cerr << RED << "Error: Read fd out: " << _fd_out << "|" << strerror(errno) << RESET << std::endl;
             if (errno == ENOENT) {
                 std::cerr << "The file does not exist." << std::endl;
             } else if (errno == EACCES) {
@@ -236,6 +237,7 @@ int     Response::end_response(int ret)
         pthread_mutex_unlock(_host->get_cout_mutex());
         pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_out);
+        _fd_out = -1;
         pthread_mutex_unlock(_host->get_fd_mutex());
     }
     pthread_mutex_lock(_host->get_cout_mutex());

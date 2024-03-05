@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/03/03 09:51:45 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/05 07:29:59 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,16 +36,18 @@ class	Host
 		size_t									_large_client_header_buffer;
 	
 		bool				                    _parser_error;
-
 		bool									_end;
 		int				                        _start_worker_id;
 		int				                        _n_workers;
 		Worker*				                    _workers;
+		bool									_need_update;
 		
 		pthread_mutex_t							_cout_mutex;
 		pthread_mutex_t							_set_mutex;
 		pthread_mutex_t							_end_mutex;
 		pthread_mutex_t							_fd_mutex;
+		pthread_mutex_t							_need_update_mutex;
+		pthread_cond_t							_cond_need_update;
 		int										_timeout;
 
 		int										_max_sk;		    // Max of all fd
@@ -93,6 +95,9 @@ class	Host
         pthread_mutex_t*					get_end_mutex(void);
         pthread_mutex_t*					get_fd_mutex(void);
         bool								get_end(void);
+		pthread_mutex_t*					get_need_update_mutex(void);
+		pthread_cond_t*						get_cond_need_update(void);
+		bool								get_need_update(void) const;
 
 
 		void	set_client_max_body_size(size_t);
@@ -103,6 +108,7 @@ class	Host
         void	set_large_client_header_buffer(size_t);
 		void	set_timeout(int);
 		void	set_end(bool);
+		void	set_need_update(bool);
 };
 
 #endif

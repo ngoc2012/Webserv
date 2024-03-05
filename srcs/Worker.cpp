@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/03/02 13:18:07 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/05 11:07:53 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ Worker::Worker()
     pthread_mutex_init(&_workload_mutex, NULL);
     pthread_mutex_init(&_sk_size_mutex, NULL);
     pthread_mutex_init(&_timeout_mutex, NULL);
+    //pthread_mutex_init(&_set_updated_mutex, NULL);
     pthread_cond_init(&_cond_set_updated, NULL);
     FD_ZERO(&_tmp_read_set);
     FD_ZERO(&_tmp_write_set);
@@ -49,6 +50,7 @@ Worker::~Worker()
     pthread_mutex_destroy(&_workload_mutex);
     pthread_mutex_destroy(&_sk_size_mutex);
     pthread_mutex_destroy(&_timeout_mutex);
+    //pthread_mutex_destroy(&_set_updated_mutex);
     pthread_cond_destroy(&_cond_set_updated);
 }
 
@@ -61,13 +63,9 @@ void	Worker::routine(void)
     std::map<int, Request*>     sk_request = _sk_request;
     pthread_mutex_unlock(&_sk_size_mutex);
 
-    std::map<int, Request*>::iterator next;
-    for (std::map<int, Request*>::iterator it = sk_request.begin(), next = it;
-        it != sk_request.end(); it = next)
-    {
-        next++;
-        if (!check_timeout(it->first, it->second))
-            continue;
+    for (std::map<int, Request*>::iterator it = sk_request.begin();
+        it != sk_request.end(); it++)
+    {   
         request = it->second;
         pthread_mutex_lock(&_set_mutex);
         if (FD_ISSET(it->first, &_read_set) && !request->get_end())
@@ -86,24 +84,31 @@ void	Worker::routine(void)
         else
             pthread_mutex_unlock(&_set_mutex);
     }
-    
 }
 
-bool	Worker::check_timeout(int sk, Request* request)
+void	Worker::check_timeout(void)
 {
-    pthread_mutex_lock(&_timeout_mutex);
-    double  dt = static_cast<double>(time(0) - _sk_timeout[sk]);
-    pthread_mutex_unlock(&_timeout_mutex);
-    if (dt > request->get_timeout())
+    pthread_mutex_lock(&_sk_size_mutex);
+    std::map<int, Request*>     sk_request = _sk_request;
+    pthread_mutex_unlock(&_sk_size_mutex);
+
+    // std::map<int, Request*>::iterator next;
+    for (std::map<int, Request*>::iterator it = sk_request.begin(), next = it;
+        it != sk_request.end(); it++)
     {
-        pthread_mutex_lock(_host->get_cout_mutex());
-        ft::timestamp();
-        std::cout << MAGENTA << "Time Out " << sk << " (" << dt << "/" << request->get_timeout() << ")" << RESET << std::endl;
-        pthread_mutex_unlock(_host->get_cout_mutex());
-        close_client_sk(sk);
-        return (false);
+        next++;
+        pthread_mutex_lock(&_timeout_mutex);
+        double  dt = static_cast<double>(time(0) - _sk_timeout[it->first]);
+        pthread_mutex_unlock(&_timeout_mutex);
+        if (dt > it->second->get_timeout())
+        {
+            pthread_mutex_lock(_host->get_cout_mutex());
+            ft::timestamp();
+            std::cout << MAGENTA << "Time Out " << it->first << " (" << dt << "/" << it->second->get_timeout() << ") wk: " << _id << RESET << std::endl;
+            pthread_mutex_unlock(_host->get_cout_mutex());
+            close_client_sk(it->first);
+        }
     }
-    return (true);
 }
 
 void	Worker::set_empty_sets(void)
@@ -189,10 +194,11 @@ int          Worker::get_workload(void)
 }
 pthread_mutex_t*    Worker::get_terminate_mutex(void) {return (&_terminate_mutex);}
 pthread_mutex_t*	Worker::get_set_mutex(void) {return (&_set_mutex);}
+//pthread_mutex_t*	Worker::get_set_updated_mutex(void) {return (&_set_updated_mutex);}
 pthread_cond_t*		Worker::get_cond_set_updated(void) {return (&_cond_set_updated);}
 std::map<int, Request*>*		Worker::get_sk_request(void) {return (&_sk_request);}
-
 bool				Worker::get_set_updated(void) const {return (_set_updated);}
+
 bool				Worker::get_terminate_flag(void)
 {
     pthread_mutex_lock(&_terminate_mutex);
