@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/03/05 07:29:59 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/05 15:18:59 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,8 @@ class	Host
 		pthread_mutex_t*					get_need_update_mutex(void);
 		pthread_cond_t*						get_cond_need_update(void);
 		bool								get_need_update(void) const;
-
+		std::map<int, Address*>*			get_sk_address(void);
+		std::map<int, Worker*>*				get_sk_worker(void);
 
 		void	set_client_max_body_size(size_t);
 		void	set_client_body_buffer_size(size_t);

@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/03/02 19:24:53 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/05 13:51:37 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,7 @@ class	Request
         Worker*			get_worker(void) const;
 
         void		    set_fd_in(int);
+		void            set_cgi(Cgi*);
 };
 
 #endif

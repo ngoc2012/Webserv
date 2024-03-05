@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/03/05 11:02:04 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/05 15:20:00 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ Host&	Host::operator=( Host const & src )
 
 Host::~Host()
 {
+    std::cout << "Destructor Host" << std::endl;
     for (std::map<std::string, Address*>::iterator it = _str_address.begin();
             it != _str_address.end(); ++it)
         delete (it->second);
@@ -312,6 +313,8 @@ void    Host::status_message(void)
 	_status_message[413] = "Payload Too Large";
     _status_message[499] = "Client Closed Request";
 	_status_message[500] = "Internal Server Error";
+    _status_message[502] = "Bad Gateway";
+    _status_message[504] = "Gateway Timeout";
 }
 
 void	Host::mimes(void)
@@ -577,6 +580,8 @@ bool								Host::get_end(void)
 pthread_mutex_t*					Host::get_need_update_mutex(void) {return (&_need_update_mutex);}
 pthread_cond_t*						Host::get_cond_need_update(void) {return (&_cond_need_update);}
 bool								Host::get_need_update(void) const {return (_need_update);}
+std::map<int, Address*>*			Host::get_sk_address(void) {return (&_sk_address);}
+std::map<int, Worker*>*				Host::get_sk_worker(void) {return (&_sk_worker);}
 
 void			Host::set_client_max_body_size(size_t n) {_client_max_body_size = n;}
 void			Host::set_client_body_buffer_size(size_t n) {_client_body_buffer_size = n;}

@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/10 10:08:55 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/05 14:56:05 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,4 +107,5 @@ int		Address::accept_client_sk(void)
 	return (new_sk);
 }
 
-std::vector<Server*>    Address::get_servers(void) {return (_servers);}
+int						Address::get_listen_socket(void) const {return (_listen_socket);}
+std::vector<Server*>*   Address::get_servers(void) {return (&_servers);}

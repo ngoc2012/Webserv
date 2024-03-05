@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/03/03 10:16:28 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/05 13:50:47 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,9 +65,9 @@ void    Request::clean(void)
         delete (_cgi);
     if (_fd_in > 0)
     {
-        pthread_mutex_lock(_host->get_cout_mutex());
-        std::cerr << YELLOW << "Request Clean Close file " << _fd_in << "." << RESET << std::endl;
-        pthread_mutex_unlock(_host->get_cout_mutex());
+        // pthread_mutex_lock(_host->get_cout_mutex());
+        // std::cerr << YELLOW << "Request Clean Close file " << _fd_in << "." << RESET << std::endl;
+        // pthread_mutex_unlock(_host->get_cout_mutex());
         pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_in);
         _fd_in = -1;
@@ -75,12 +75,17 @@ void    Request::clean(void)
     }
         
     if (_tmp_file != "" && std::remove(_tmp_file.c_str()))
+    {
+        pthread_mutex_lock(_host->get_cout_mutex());
         std::cerr << MAGENTA << "Error: Can not delete file " << _tmp_file << RESET << std::endl;
-    else if (_tmp_file != "") {
-       pthread_mutex_lock(_host->get_cout_mutex());
-       std::cerr << YELLOW << "Delete file " << _tmp_file << "." << RESET << std::endl;
-       pthread_mutex_unlock(_host->get_cout_mutex());
+        pthread_mutex_unlock(_host->get_cout_mutex());
     }
+        
+    // else if (_tmp_file != "") {
+    //    pthread_mutex_lock(_host->get_cout_mutex());
+    //    std::cerr << YELLOW << "Delete file " << _tmp_file << "." << RESET << std::endl;
+    //    pthread_mutex_unlock(_host->get_cout_mutex());
+    // }
 }
 
 void    Request::init(void)
@@ -261,11 +266,11 @@ void	Request::parse_header(void)
         _status_code = 400;
         return ;
     }
-    std::vector<Server*>        servers = _address->get_servers();
+    std::vector<Server*>*       servers = _address->get_servers();
     std::set<std::string>*      server_names;
-    _server = servers[0];
-    for (std::vector<Server*>::iterator sv = servers.begin() + 1;
-            sv != servers.end(); ++sv)
+    _server = (*servers)[0];
+    for (std::vector<Server*>::iterator sv = servers->begin() + 1;
+            sv != servers->end(); ++sv)
     {
         server_names = (*sv)->get_server_names();
         if (server_names->find(_host_name) != server_names->end())
@@ -513,9 +518,9 @@ void	Request::process_fd_in()
                 _tmp_file = tmp_file_prefix + ft::itos(++i);
             _fd_in = open(_tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0664);
             pthread_mutex_unlock(_host->get_fd_mutex());
-            pthread_mutex_lock(_host->get_cout_mutex());
-            std::cerr << YELLOW << _tmp_file << ":" << _fd_in << ":" << _worker->get_id() << RESET<< std::endl;
-            pthread_mutex_unlock(_host->get_cout_mutex());
+            // pthread_mutex_lock(_host->get_cout_mutex());
+            // std::cerr << YELLOW << _tmp_file << ":" << _fd_in << ":" << _worker->get_id() << RESET<< std::endl;
+            // pthread_mutex_unlock(_host->get_cout_mutex());
             if (_fd_in == -1)
             {
                 pthread_mutex_lock(_host->get_cout_mutex());
@@ -548,9 +553,9 @@ int     Request::end_request(int ret)
         _status_code = 413;
     if (_fd_in > 0)
     {
-        pthread_mutex_lock(_host->get_cout_mutex());
-        std::cerr << YELLOW << "End request Close file " << _fd_in << "|" << _worker->get_id() << RESET << std::endl;
-        pthread_mutex_unlock(_host->get_cout_mutex());
+        // pthread_mutex_lock(_host->get_cout_mutex());
+        // std::cerr << YELLOW << "End request Close file " << _fd_in << "|" << _worker->get_id() << RESET << std::endl;
+        // pthread_mutex_unlock(_host->get_cout_mutex());
         pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_in);
         _fd_in = -1;
@@ -585,3 +590,4 @@ bool		    Request::get_close(void) const {return (_close);}
 Worker*			Request::get_worker(void) const {return (_worker);}
 
 void		    Request::set_fd_in(int f) {_fd_in = f;}
+void            Request::set_cgi(Cgi* c) {_cgi = c;}

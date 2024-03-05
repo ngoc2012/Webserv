@@ -42,6 +42,7 @@ Worker::Worker()
 
 Worker::~Worker()
 {
+    std::cout << "Worker " << _id << " destructed" << std::endl;
     for (std::map<int, Request*>::iterator it = _sk_request.begin();
             it != _sk_request.end(); ++it)
         delete (it->second);

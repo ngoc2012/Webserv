@@ -6,11 +6,11 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/03/04 22:13:23 by ngoc             ###   ########.fr        #
+#    Updated: 2024/03/05 15:55:09 by ngoc             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FILES = main Host Worker Address Server Request Response Header Configuration Location Cgi Listing Sessions ft/split_string ft/is_digit ft/itos ft/match_wildcard ft/file_extension ft/atoi_base ft/itoa_base ft/str_replace ft/to_upper ft/trim_string ft/timestamp ft/print_loading_bar ft/print_size
+FILES = main Host Worker Address Server Request Response Header Configuration Location Cgi Listing Sessions ft/split_string ft/is_digit ft/itos ft/match_wildcard ft/file_extension ft/atoi_base ft/itoa_base ft/str_replace ft/to_upper ft/trim_string ft/timestamp ft/print_loading_bar ft/print_size ft/strdup
 SRCS = $(addsuffix .cpp, $(addprefix srcs/, $(FILES)))
 INCS = $(wildcard includes/*.hpp)
 OBJS = ${SRCS:.cpp=.o}
@@ -143,7 +143,9 @@ tester:
 js:	
 	#curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/hello.py
 	#curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/hello.php
-	#curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/wait.php
+
+wait:
+	curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/wait.php
 
 M:=
 gitd:
@@ -163,4 +165,4 @@ gitd:
 	#git add -A -- :!*.o :!*.swp :!*.env
 	git commit -m "$(M)"
 	git push
-.PHONY: all clean fclean re test pause tester
+.PHONY: all clean fclean re test pause tester wait
