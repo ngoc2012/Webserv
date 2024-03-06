@@ -98,7 +98,6 @@ void	Worker::check_timeout(void)
     std::map<int, Request*>     sk_request = _sk_request;
     pthread_mutex_unlock(&_sk_size_mutex);
 
-    // std::map<int, Request*>::iterator next;
     for (std::map<int, Request*>::iterator it = sk_request.begin(), next = it;
         it != sk_request.end(); it++)
     {
@@ -161,10 +160,27 @@ void	Worker::new_connection(int new_sk, Address* a)
 }
 
 void	Worker::close_client_sk(int i)
-{
-    pthread_mutex_lock(&_workload_mutex);
-    _workload -= 2;
-    pthread_mutex_unlock(&_workload_mutex);
+{   
+    pthread_mutex_lock(&_set_mutex);
+    if (FD_ISSET(i, &_read_set))
+    {
+        pthread_mutex_unlock(&_set_mutex);
+        pthread_mutex_lock(&_workload_mutex);
+        _workload--;
+        pthread_mutex_unlock(&_workload_mutex);
+    }
+    else
+        pthread_mutex_unlock(&_set_mutex);
+    pthread_mutex_lock(&_set_mutex);
+    if (FD_ISSET(i, &_write_set))
+    {
+        pthread_mutex_unlock(&_set_mutex);
+        pthread_mutex_lock(&_workload_mutex);
+        _workload--;
+        pthread_mutex_unlock(&_workload_mutex);
+    }
+    else
+        pthread_mutex_unlock(&_set_mutex);
     _host->close_connection(i);
     pthread_mutex_lock(&_sk_size_mutex);
 	delete (_sk_request[i]);

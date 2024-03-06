@@ -246,7 +246,7 @@ int     Response::end_response(int ret)
     else
         std::cout << RED;
     std::cout << _request->get_location()->get_method_str(_request->get_method()) << " ";
-    std::cout << _request->get_location()->get_url() << " ";
+    std::cout << _request->get_url() << " ";
     std::cout << _status_code << " ";
     std::cout << "Request: " << _request->get_body_size() << "b, ";
     std::cout << "Response: " << _body_size << "b ";

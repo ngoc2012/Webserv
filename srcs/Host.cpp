@@ -54,7 +54,6 @@ Host&	Host::operator=( Host const & src )
 
 Host::~Host()
 {
-    std::cout << "Destructor Host" << std::endl;
     for (std::map<std::string, Address*>::iterator it = _str_address.begin();
             it != _str_address.end(); ++it)
         delete (it->second);
@@ -85,16 +84,16 @@ void	Host::start(void)
 		return ;
 	do
 	{
-        // struct timespec timeout;
-        // clock_gettime(CLOCK_REALTIME, &timeout);
-        // timeout.tv_sec += 3; // Wait for 5 seconds
-		// pthread_mutex_lock(&_need_update_mutex);
+        struct timespec timeout;
+        clock_gettime(CLOCK_REALTIME, &timeout);
+        timeout.tv_sec += 3;
+		pthread_mutex_lock(&_need_update_mutex);
+		while (!_need_update)
+			pthread_cond_timedwait(&_cond_need_update, &_need_update_mutex, &timeout);
+        // pthread_mutex_lock(&_need_update_mutex);
 		// while (!_need_update)
-		// 	pthread_cond_timedwait(&_cond_need_update, &_need_update_mutex, &timeout);
-        // // pthread_mutex_lock(&_need_update_mutex);
-		// // while (!_need_update)
-		// // 	pthread_cond_wait(&_cond_need_update, &_need_update_mutex);
-		// pthread_mutex_unlock(&_need_update_mutex);
+		// 	pthread_cond_wait(&_cond_need_update, &_need_update_mutex);
+		pthread_mutex_unlock(&_need_update_mutex);
 
         pthread_mutex_lock(&_set_mutex);
 		memcpy(&_read_set, &_master_read_set, sizeof(_master_read_set));
@@ -133,16 +132,17 @@ void	Host::check_sk_ready(void)
             {
                 
                 int i = 0;
-                int j = (i + _start_worker_id) % _n_workers;
-                int k = (i + _start_worker_id + 1) % _n_workers;
-                while (i < _n_workers - 1 && _workers[j].get_workload() > _workers[k].get_workload())
+                int w_min = (i + _start_worker_id) % _n_workers;
+                int j = (i + _start_worker_id + 1) % _n_workers;
+                while (i < _n_workers - 1)
                 {
-                    j = k;
-                    k = (k + 1) % _n_workers;
+                    if (_workers[w_min].get_workload() >= _workers[j].get_workload())
+                        w_min = j;
+                    j = (j + 1) % _n_workers;
                     i++;
                 }
-                _sk_worker[new_sk] = &_workers[j];
-                _workers[j].new_connection(new_sk, it->second);
+                _sk_worker[new_sk] = &_workers[w_min];
+                _workers[w_min].new_connection(new_sk, it->second);
                 _start_worker_id++;
                 _start_worker_id %= _n_workers;
             }
