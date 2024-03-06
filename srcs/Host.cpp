@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/03/05 15:20:00 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/06 20:09:03 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ Host::Host()
     pthread_mutex_init(&_end_mutex, NULL);
     pthread_mutex_init(&_fd_mutex, NULL);
     pthread_mutex_init(&_need_update_mutex, NULL);
+    pthread_mutex_init(&_sk_worker_mutex, NULL);
     pthread_cond_init(&_cond_need_update, NULL);
     _timeout = TIMEOUT;
     mimes();
@@ -64,6 +65,7 @@ Host::~Host()
     pthread_mutex_destroy(&_end_mutex);
     pthread_mutex_destroy(&_fd_mutex);
     pthread_mutex_destroy(&_need_update_mutex);
+    pthread_mutex_destroy(&_sk_worker_mutex);
     pthread_cond_destroy(&_cond_need_update);
     ft::timestamp();
     std::cout << "End server" << std::endl;
@@ -90,9 +92,6 @@ void	Host::start(void)
 		pthread_mutex_lock(&_need_update_mutex);
 		while (!_need_update)
 			pthread_cond_timedwait(&_cond_need_update, &_need_update_mutex, &timeout);
-        // pthread_mutex_lock(&_need_update_mutex);
-		// while (!_need_update)
-		// 	pthread_cond_wait(&_cond_need_update, &_need_update_mutex);
 		pthread_mutex_unlock(&_need_update_mutex);
 
         pthread_mutex_lock(&_set_mutex);
@@ -105,6 +104,7 @@ void	Host::start(void)
 
             pthread_mutex_lock(&_need_update_mutex);
             _need_update = false;
+            pthread_cond_signal(&_cond_need_update);
             pthread_mutex_unlock(&_need_update_mutex);
 
             check_sk_ready();
@@ -121,6 +121,16 @@ void	Host::check_sk_ready(void)
         it != _sk_address.end(); it++)
         if (FD_ISSET(it->first, &_read_set))
         {
+            // pthread_mutex_lock(&_sk_worker_mutex);
+            // int n = _sk_worker.size();
+            // pthread_mutex_unlock(&_sk_worker_mutex);
+            
+            // pthread_mutex_lock(&_cout_mutex);
+            // ft::timestamp();
+            // std::cout << BLUE << "Accept delay " << DELAY * n << RESET << std::endl;
+            // pthread_mutex_unlock(&_cout_mutex);
+            if (it != _sk_address.begin())
+                usleep(DELAY);
             new_sk = it->second->accept_client_sk();
             pthread_mutex_lock(&_set_mutex);
             if (new_sk > _max_sk)
@@ -141,7 +151,9 @@ void	Host::check_sk_ready(void)
                     j = (j + 1) % _n_workers;
                     i++;
                 }
+				pthread_mutex_lock(&_sk_worker_mutex);
                 _sk_worker[new_sk] = &_workers[w_min];
+				pthread_mutex_unlock(&_sk_worker_mutex);
                 _workers[w_min].new_connection(new_sk, it->second);
                 _start_worker_id++;
                 _start_worker_id %= _n_workers;
@@ -149,18 +161,25 @@ void	Host::check_sk_ready(void)
             pthread_mutex_lock(&_need_update_mutex);
             _need_update = true;
             pthread_mutex_unlock(&_need_update_mutex);
+            usleep(DELAY);
         }
 
     for (int i = 0; i < _n_workers; i++)
         _workers[i].set_empty_sets();
-    for (std::map<int, Worker*>::iterator it = _sk_worker.begin();
-        it != _sk_worker.end(); it++)
+
+    pthread_mutex_lock(&_sk_worker_mutex);
+    std::map<int, Worker*>		sk_worker = _sk_worker;
+    pthread_mutex_unlock(&_sk_worker_mutex);
+
+    for (std::map<int, Worker*>::iterator it = sk_worker.begin();
+        it != sk_worker.end(); it++)
     {
         if (FD_ISSET(it->first, &_read_set))
             it->second->set_sk_tmp_read_set(it->first);
         if (FD_ISSET(it->first, &_write_set))
             it->second->set_sk_tmp_write_set(it->first);
     }
+    // int     j = 0;
     for (int i = 0; i < _n_workers; i++)
         if (_workers[i].get_workload() || _workers[i].get_sk_size())
         {
@@ -169,6 +188,9 @@ void	Host::check_sk_ready(void)
             _workers[i].set_set_updated(true);
             pthread_cond_signal(_workers[i].get_cond_set_updated());
             pthread_mutex_unlock(_workers[i].get_set_mutex());
+            // if (j > 0)
+            //     usleep(DELAY);
+            // j++;
         }
 }
 
@@ -185,6 +207,9 @@ void  	Host::close_connection(int i)
 		while (!FD_ISSET(_max_sk, &_master_read_set))
 			_max_sk -= 1;
     pthread_mutex_unlock(&_set_mutex);
+	pthread_mutex_lock(&_sk_worker_mutex);
+	_sk_worker.erase(i);
+	pthread_mutex_unlock(&_sk_worker_mutex);
 }
 
 void	Host::start_server(void)
@@ -260,6 +285,9 @@ static void*   start_worker(void* instance)
             {
                 worker->set_set_updated(false);
                 pthread_mutex_unlock(set_mutex);
+                // pthread_mutex_lock(cout_mutex);
+                // std::cout << "Worker routine " << worker->get_id() << "." << std::endl;
+                // pthread_mutex_unlock(cout_mutex);
                 worker->routine();
 
                 pthread_mutex_lock(need_update_mutex);
@@ -270,9 +298,13 @@ static void*   start_worker(void* instance)
             else
             {
                 pthread_mutex_unlock(set_mutex);
-                usleep(DELAY * host->get_n_workers());
+                usleep(DELAY);
             }
         }
+        // pthread_mutex_lock(host->get_sk_worker_mutex());
+        // int n = host->get_sk_worker()->size();
+        // pthread_mutex_unlock(host->get_sk_worker_mutex());
+        // usleep(DELAY * (n - 1));
     }
 
     pthread_mutex_lock(cout_mutex);
@@ -575,6 +607,7 @@ int		                            Host::get_timeout(void) const {return (_timeout
 pthread_mutex_t*					Host::get_cout_mutex(void) {return (&_cout_mutex);}
 pthread_mutex_t*					Host::get_end_mutex(void) {return (&_end_mutex);}
 pthread_mutex_t*					Host::get_fd_mutex(void) {return (&_fd_mutex);}
+pthread_mutex_t*					Host::get_sk_worker_mutex(void) {return (&_sk_worker_mutex);}
 
 bool								Host::get_end(void)
 {

@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/03/05 15:18:59 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/06 20:08:40 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ class	Host
 		pthread_mutex_t							_end_mutex;
 		pthread_mutex_t							_fd_mutex;
 		pthread_mutex_t							_need_update_mutex;
+		pthread_mutex_t							_sk_worker_mutex;
 		pthread_cond_t							_cond_need_update;
 		int										_timeout;
 
@@ -94,6 +95,7 @@ class	Host
         pthread_mutex_t*					get_cout_mutex(void);
         pthread_mutex_t*					get_end_mutex(void);
         pthread_mutex_t*					get_fd_mutex(void);
+		pthread_mutex_t*					get_sk_worker_mutex(void);
         bool								get_end(void);
 		pthread_mutex_t*					get_need_update_mutex(void);
 		pthread_cond_t*						get_cond_need_update(void);

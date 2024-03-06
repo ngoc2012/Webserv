@@ -17,7 +17,7 @@ OBJS = ${SRCS:.cpp=.o}
 MANDA = webserv
 CC = c++
 #FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread
-FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread -D DELAY=25
+FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread -D DELAY=100
 all:	$(MANDA)
 .cpp.o:
 	$(CC) $(FLAGS) -g -c $< -o ${<:.cpp=.o} -I./includes
@@ -120,6 +120,14 @@ subjects:
 	@echo "=> Check http://127.0.0.1:4141/put_test"
 	@echo "=> Check http://127.0.0.1:4141/put_test0"
 	@echo "Execute CGI based on certain file extension (for example .php). Make it work with POST and GET methods."
+	-curl -i -X GET 127.0.2.2:8000/hello.php
+	-curl -i -X GET 127.0.2.2:8000/version.php
+	@echo "Make the route able to accept uploaded files and configure where they should be saved."
+	-curl -i -X PUT --upload-file "Hanoi.jpg" http://127.0.4.1:4343
+	@echo "=> Check http://127.0.4.1:4343/index_files"
+
+	-curl -i -X GET 127.0.2.2:8000/hello.js
+	-curl -i -X GET 127.0.2.2:8000/hello.py
 
 FLAGS0 = -Wall -Wextra -Werror -std=c++98 -pthread -D DELAY=25
 test:

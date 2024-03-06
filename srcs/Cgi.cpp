@@ -56,12 +56,7 @@ Cgi::~Cgi()
     // std::cerr << "Cgi destructed, wk = " << _request->get_worker()->get_id() << ", sk = " << _request->get_socket() << std::endl;
     // pthread_mutex_unlock(_request->get_host()->get_cout_mutex());
     if (_pid != -1)
-    {
-        // pthread_mutex_lock(_request->get_host()->get_cout_mutex());
-        // std::cerr << "Cgi: Kill on destruction, wk = " << _request->get_worker()->get_id() << ", sk = " << _request->get_socket() << ", pid=" << _pid << std::endl;
-        // pthread_mutex_unlock(_request->get_host()->get_cout_mutex());
         kill(_pid, SIGTERM);
-    }
     pthread_mutex_t*	fd_mutex = _request->get_host()->get_fd_mutex();
     if (_envs)
     {
@@ -88,7 +83,6 @@ Cgi::~Cgi()
 }
 
 static void signalHandler(int signum) {
-    // std::cerr << "Child process received signal: " << signum << std::endl;
     exit(signum);
 }
 
@@ -245,8 +239,9 @@ int    Cgi::execute()
                 _pid = -1;
                 return 504;
             }
-            usleep(DELAY * _request->get_host()->get_n_workers());
+            usleep(DELAY);
         }
+        // usleep(DELAY);
         return parse_header();
     }
 

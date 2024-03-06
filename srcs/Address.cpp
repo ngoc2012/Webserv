@@ -95,7 +95,9 @@ int	    Address::bind_addr()
 int		Address::accept_client_sk(void)
 {
 	int	new_sk;
+	pthread_mutex_lock(_host->get_fd_mutex());
 	new_sk = accept(_listen_socket, NULL, NULL);
+	pthread_mutex_unlock(_host->get_fd_mutex());
 	if (new_sk < 0)
 	{
 		ft::timestamp();
