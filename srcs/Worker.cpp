@@ -59,6 +59,7 @@ void	Worker::routine(void)
 {
     Request*    request;
     Response*   response;
+    bool        worked = false;
 
     pthread_mutex_lock(&_sk_size_mutex);
     std::map<int, Request*>     sk_request = _sk_request;
@@ -72,11 +73,13 @@ void	Worker::routine(void)
         if (FD_ISSET(it->first, &_read_set) && !request->get_end())
         {
             pthread_mutex_unlock(&_set_mutex);
+            worked = true;
             request->read();
         }
         else if (FD_ISSET(it->first, &_write_set) && request->get_end())
         {
             pthread_mutex_unlock(&_set_mutex);
+            worked = true;
             response = it->second->get_response();
             response->write();
             if (response->get_end() && request->get_close())
@@ -85,6 +88,8 @@ void	Worker::routine(void)
         else
             pthread_mutex_unlock(&_set_mutex);
     }
+    if (!worked)
+        usleep(DELAY * _host->get_n_workers());
 }
 
 void	Worker::check_timeout(void)
@@ -165,6 +170,13 @@ void	Worker::close_client_sk(int i)
 	delete (_sk_request[i]);
 	_sk_request.erase(i);
     pthread_mutex_unlock(&_sk_size_mutex);
+
+    pthread_mutex_t*    need_update_mutex = _host->get_need_update_mutex();
+
+    pthread_mutex_lock(need_update_mutex);
+    _host->set_need_update(true);
+    pthread_cond_signal(_host->get_cond_need_update());
+    pthread_mutex_unlock(need_update_mutex);
 }
 
 void	Worker::set_sk_timeout(int i)

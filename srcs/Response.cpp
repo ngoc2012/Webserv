@@ -38,9 +38,6 @@ Response::~Response()
 {
     if (_fd_out != -1)
     {
-        pthread_mutex_lock(_host->get_cout_mutex());
-        std::cerr << YELLOW << "Response destruct Close file " << _fd_out << "." << RESET << std::endl;
-        pthread_mutex_unlock(_host->get_cout_mutex());
         pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_out);
         _fd_out = -1;
@@ -232,9 +229,9 @@ int     Response::end_response(int ret)
 {
     if (_fd_out > 0)
     {
-        pthread_mutex_lock(_host->get_cout_mutex());
-        std::cerr << YELLOW << "End response Close file " << _fd_out << "." << RESET << std::endl;
-        pthread_mutex_unlock(_host->get_cout_mutex());
+        // pthread_mutex_lock(_host->get_cout_mutex());
+        // std::cerr << YELLOW << "End response Close file " << _fd_out << "." << RESET << std::endl;
+        // pthread_mutex_unlock(_host->get_cout_mutex());
         pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_out);
         _fd_out = -1;

@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/03/05 13:51:37 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/05 16:50:43 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,7 @@ class	Request
         std::map<std::string, std::string>*     get_fields(void);
         bool		    get_close(void) const;
         Worker*			get_worker(void) const;
+		int				get_socket(void) const;
 
         void		    set_fd_in(int);
 		void            set_cgi(Cgi*);

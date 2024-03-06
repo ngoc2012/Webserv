@@ -52,6 +52,16 @@ Cgi&	Cgi::operator=( Cgi const & src )
 }
 Cgi::~Cgi()
 {
+    pthread_mutex_lock(_request->get_host()->get_cout_mutex());
+    std::cerr << "Cgi destructed, wk = " << _request->get_worker()->get_id() << ", sk = " << _request->get_socket() << std::endl;
+    pthread_mutex_unlock(_request->get_host()->get_cout_mutex());
+    if (_pid != -1)
+    {
+        pthread_mutex_lock(_request->get_host()->get_cout_mutex());
+        std::cerr << "Cgi: Kill on destruction, wk = " << _request->get_worker()->get_id() << ", sk = " << _request->get_socket() << ", pid=" << _pid << std::endl;
+        pthread_mutex_unlock(_request->get_host()->get_cout_mutex());
+        kill(_pid, SIGTERM);
+    }
     pthread_mutex_t*	fd_mutex = _request->get_host()->get_fd_mutex();
     if (_envs)
     {
@@ -69,45 +79,53 @@ Cgi::~Cgi()
         pthread_mutex_unlock(fd_mutex);
     }
     if (_tmp_file != "" && std::remove(_tmp_file.c_str()))
+    {
+        pthread_mutex_lock(_request->get_host()->get_cout_mutex());
         std::cerr << MAGENTA << "Error: Can not delete file " << _tmp_file << RESET << std::endl;
+        pthread_mutex_unlock(_request->get_host()->get_cout_mutex());
+    }
     pthread_cond_destroy(&_cond_exec_queue);
 }
 
 static void signalHandler(int signum) {
-    std::cerr << "Child process received signal: " << signum << std::endl;
+    // std::cerr << "Child process received signal: " << signum << std::endl;
     exit(signum);
 }
 
 int    Cgi::execute()
 {
+    pthread_mutex_t*	fd_mutex = _request->get_host()->get_fd_mutex();
+    pthread_mutex_t*	cout_mutex = _request->get_host()->get_cout_mutex();
+
     if (!get_envs())
     {
+        pthread_mutex_lock(cout_mutex);
         std::cerr << "Error: envs" << std::endl;
+        pthread_mutex_unlock(cout_mutex);
         return 500;
     }
     std::string     tmp_file_prefix = "/tmp/cgi_" + ft::itos(_request->get_worker()->get_id()) + "_";
     _tmp_file = tmp_file_prefix + "0";
     struct stat buffer;
     int i = 0;
-	pthread_mutex_t*	fd_mutex = _request->get_host()->get_fd_mutex();
-    pthread_mutex_t*	cout_mutex = _request->get_host()->get_cout_mutex();
-
+	
     pthread_mutex_lock(fd_mutex);
     if (pipe(_pipe) == -1) {
+        pthread_mutex_lock(cout_mutex);
         std::cerr << "Error: pipe" << std::endl;
-        perror("pipe");
+        pthread_mutex_unlock(cout_mutex);
         return 500;
     }
-    pthread_mutex_lock(cout_mutex);
-    std::cout << "Cgi: create pipe: " << _pipe[0] << "|" << _pipe[1] << "|" << _request->get_worker()->get_id()  << std::endl;
-    pthread_mutex_unlock(cout_mutex);
+    // pthread_mutex_lock(cout_mutex);
+    // std::cout << "Cgi: create pipe: " << _pipe[0] << "|" << _pipe[1] << "|" << _request->get_worker()->get_id()  << std::endl;
+    // pthread_mutex_unlock(cout_mutex);
     while (stat(_tmp_file.c_str(), &buffer) == 0)
         _tmp_file = tmp_file_prefix + ft::itos(++i);
     _fd_out = open(_tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0664);
 	pthread_mutex_unlock(fd_mutex);
-    pthread_mutex_lock(cout_mutex);
-    std::cout << "Cgi: open fd out: " << _fd_out << "|" << _request->get_worker()->get_id()  << std::endl;
-    pthread_mutex_unlock(cout_mutex);
+    // pthread_mutex_lock(cout_mutex);
+    // std::cout << "Cgi: open fd out: " << _fd_out << "|" << _request->get_worker()->get_id()  << std::endl;
+    // pthread_mutex_unlock(cout_mutex);
 
     if (_fd_out == -1)
     {
@@ -115,7 +133,7 @@ int    Cgi::execute()
         return 500;
     }
     _response->set_fd_out(_fd_out);
-    std::cout << _request->get_host() << std::endl;
+    // std::cout << _request->get_host() << std::endl;
     _pid = fork();
 
     if (_pid == -1)
@@ -197,9 +215,9 @@ int    Cgi::execute()
 
         signal(SIGTERM, signalHandler);
 
-        // pthread_mutex_lock(cout_mutex);
-        // std::cout << "Cgi: fork start child process: " << _request->get_worker()->get_id()  << std::endl;
-        // pthread_mutex_unlock(cout_mutex);
+        pthread_mutex_lock(cout_mutex);
+        std::cout << "Cgi: fork start child process: wk = " << _request->get_worker()->get_id() << ", sk = " << _request->get_socket() << ", pid=" << getpid() << std::endl;
+        pthread_mutex_unlock(cout_mutex);
 		// ===================================================================================================
         pthread_mutex_lock(fd_mutex);
         close(_pipe[1]);
@@ -285,18 +303,8 @@ int    Cgi::execute()
             _request->set_fd_in(-1);
             pthread_mutex_unlock(fd_mutex);
         }
-        // pthread_mutex_lock(cout_mutex);
-        // std::cout << "Cgi: close pipe1_parent: " << _pipe[1] << "|" << _request->get_worker()->get_id()  << std::endl;
-        // pthread_mutex_unlock(cout_mutex);
         pthread_mutex_lock(fd_mutex);
         close(_pipe[1]);
-        pthread_mutex_unlock(fd_mutex);
-        
-        // pthread_mutex_lock(cout_mutex);
-        // std::cout << "Cgi: close pipe0_parent: " << _pipe[0] << "|" << _request->get_worker()->get_id()  << std::endl;
-        // pthread_mutex_unlock(cout_mutex);
-
-        pthread_mutex_lock(fd_mutex);
         close(_pipe[0]);
         pthread_mutex_unlock(fd_mutex);
 
@@ -321,10 +329,16 @@ int    Cgi::execute()
             time_t current_time = time(0);
             if (current_time - start_time > timeout) {
                 kill(_pid, SIGTERM);
+                pthread_mutex_lock(cout_mutex);
+                std::cout << "Cgi: Kill child process: wk = " << _request->get_worker()->get_id() << ", sk = " << _request->get_socket() << ", pid=" << _pid << std::endl;
+                pthread_mutex_unlock(cout_mutex);
                 waitpid(_pid, &status, 0);
+                _pid = -1;
                 return 504;
             }
         }
+        std::cout << "Cgi: Child process return: wk = " << _request->get_worker()->get_id() << ", sk = " << _request->get_socket() << ", pid=" << _pid << std::endl;
+        _pid = -1;
         return parse_header();
     }
 }

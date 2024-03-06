@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/03/05 15:55:09 by ngoc             ###   ########.fr        #
+#    Updated: 2024/03/05 17:37:36 by ngoc             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,8 @@ INCS = $(wildcard includes/*.hpp)
 OBJS = ${SRCS:.cpp=.o}
 MANDA = webserv
 CC = c++
-FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread
+#FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread
+FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread -D DELAY=25
 all:	$(MANDA)
 .cpp.o:
 	$(CC) $(FLAGS) -g -c $< -o ${<:.cpp=.o} -I./includes
@@ -120,9 +121,10 @@ subjects:
 	@echo "=> Check http://127.0.0.1:4141/put_test0"
 	@echo "Execute CGI based on certain file extension (for example .php). Make it work with POST and GET methods."
 
+FLAGS0 = -Wall -Wextra -Werror -std=c++98 -pthread -D DELAY=25
 test:
-	clear && make re && make clean && valgrind --tool=helgrind ./webserv .conf
-	#clear && make re && make clean && valgrind --tool=helgrind --history-level=none ./webserv .conf
+	#clear && make re && make clean && valgrind --tool=helgrind ./webserv .conf
+	clear && make re && make clean && valgrind --tool=helgrind --history-level=none ./webserv .conf
 test0:
 	clear && make re && make clean && valgrind --track-origins=yes --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv .conf
 gits:
@@ -147,6 +149,8 @@ js:
 wait:
 	curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/wait.php
 
+kill:
+	pkill -9 -f "webserv .conf"
 M:=
 gitd:
 	make fclean

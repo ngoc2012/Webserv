@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/03/05 13:50:47 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/05 16:51:02 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,27 +65,17 @@ void    Request::clean(void)
         delete (_cgi);
     if (_fd_in > 0)
     {
-        // pthread_mutex_lock(_host->get_cout_mutex());
-        // std::cerr << YELLOW << "Request Clean Close file " << _fd_in << "." << RESET << std::endl;
-        // pthread_mutex_unlock(_host->get_cout_mutex());
         pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_in);
         _fd_in = -1;
         pthread_mutex_unlock(_host->get_fd_mutex());
     }
-        
     if (_tmp_file != "" && std::remove(_tmp_file.c_str()))
     {
         pthread_mutex_lock(_host->get_cout_mutex());
         std::cerr << MAGENTA << "Error: Can not delete file " << _tmp_file << RESET << std::endl;
         pthread_mutex_unlock(_host->get_cout_mutex());
     }
-        
-    // else if (_tmp_file != "") {
-    //    pthread_mutex_lock(_host->get_cout_mutex());
-    //    std::cerr << YELLOW << "Delete file " << _tmp_file << "." << RESET << std::endl;
-    //    pthread_mutex_unlock(_host->get_cout_mutex());
-    // }
 }
 
 void    Request::init(void)
@@ -588,6 +578,7 @@ int		        Request::get_timeout(void) const {return (_timeout);}
 std::map<std::string, std::string>*     Request::get_fields(void) {return (&_fields);}
 bool		    Request::get_close(void) const {return (_close);}
 Worker*			Request::get_worker(void) const {return (_worker);}
+int				Request::get_socket(void) const {return (_socket);}
 
 void		    Request::set_fd_in(int f) {_fd_in = f;}
 void            Request::set_cgi(Cgi* c) {_cgi = c;}

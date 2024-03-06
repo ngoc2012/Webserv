@@ -72,6 +72,7 @@ Host::~Host()
 
 void	Host::start(void)
 {
+    
 	if (_parser_error)
 		return ;
 	FD_ZERO(&_listen_set);
@@ -84,10 +85,16 @@ void	Host::start(void)
 		return ;
 	do
 	{
-		pthread_mutex_lock(&_need_update_mutex);
-		while (!_need_update)
-			pthread_cond_wait(&_cond_need_update, &_need_update_mutex);
-		pthread_mutex_unlock(&_need_update_mutex);
+        // struct timespec timeout;
+        // clock_gettime(CLOCK_REALTIME, &timeout);
+        // timeout.tv_sec += 3; // Wait for 5 seconds
+		// pthread_mutex_lock(&_need_update_mutex);
+		// while (!_need_update)
+		// 	pthread_cond_timedwait(&_cond_need_update, &_need_update_mutex, &timeout);
+        // // pthread_mutex_lock(&_need_update_mutex);
+		// // while (!_need_update)
+		// // 	pthread_cond_wait(&_cond_need_update, &_need_update_mutex);
+		// pthread_mutex_unlock(&_need_update_mutex);
 
         pthread_mutex_lock(&_set_mutex);
 		memcpy(&_read_set, &_master_read_set, sizeof(_master_read_set));
@@ -99,7 +106,6 @@ void	Host::start(void)
 
             pthread_mutex_lock(&_need_update_mutex);
             _need_update = false;
-            // pthread_cond_signal(&_cond_need_update);
             pthread_mutex_unlock(&_need_update_mutex);
 
             check_sk_ready();
@@ -264,7 +270,7 @@ static void*   start_worker(void* instance)
             else
             {
                 pthread_mutex_unlock(set_mutex);
-                usleep(500);
+                usleep(DELAY * host->get_n_workers());
             }
         }
     }

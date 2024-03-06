@@ -44,17 +44,6 @@ int	main(int argc, char *argv[])
     sigaction(SIGINT, &act, NULL);
     sigaction(SIGPIPE, &act, NULL);
 
-    // Host*	host = new Host;
-    // if (!Configuration::parser(host, argv[1]))
-    //     return (1);
-    // g_host = host;
-    // host->start();
-    // for (int i = 0; i < g_host->get_n_workers(); i++)
-    //     g_host->get_workers()[i].set_end();
-    // for (int i = 0; i < g_host->get_n_workers(); i++)
-    //     pthread_join(*(g_host->get_workers()[i].get_th()), NULL);
-    // delete host;
-
     Host	host;
     if (!Configuration::parser(&host, argv[1]))
         return (1);
