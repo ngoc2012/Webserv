@@ -84,7 +84,7 @@ std::string Listing::get_listing(const std::string& directory_name, const std::s
                     strftime(date_modified, sizeof(date_modified), "%Y-%m-%d %H:%M:%S", localtime(&file_stat.st_mtime));
                     listing_html += "<tr><td><a href='";
                     listing_html += base_path + "/" + entry->d_name;
-                    listing_html += "'>" + std::string(entry->d_name) + "</a></td><td>" + std::to_string(file_stat.st_size) + " bytes</td><td>" + std::string(date_modified) + "</td></tr>\n";
+                    listing_html += "'>" + std::string(entry->d_name) + "</a></td><td>" + ft::itos(file_stat.st_size) + " bytes</td><td>" + std::string(date_modified) + "</td></tr>\n";
                 } else {
                     listing_html += "<tr><td>" + std::string(entry->d_name) + "</td><td></td><td></td></tr>\n";
                 }
@@ -96,7 +96,7 @@ std::string Listing::get_listing(const std::string& directory_name, const std::s
                     strftime(date_modified, sizeof(date_modified), "%Y-%m-%d %H:%M:%S", localtime(&folder_stat.st_mtime));
                     listing_html += "<tr><td><a href='" + base_path + "/" + entry->d_name +  "/'><strong>";
                     listing_html += entry->d_name; 
-                    listing_html += "</strong></a></td><td>" + std::to_string(folder_stat.st_size) + " bytes</td><td>" + std::string(date_modified) + "</td></tr>\n";
+                    listing_html += "</strong></a></td><td>" + ft::itos(folder_stat.st_size) + " bytes</td><td>" + std::string(date_modified) + "</td></tr>\n";
                 } else {
                     listing_html += "<tr><td>" + std::string(entry->d_name) + "</td><td></td><td></td></tr>\n";
                 }

@@ -67,8 +67,8 @@ void    Request::clean(void)
     {
         pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_in);
-        _fd_in = -1;
         pthread_mutex_unlock(_host->get_fd_mutex());
+        _fd_in = -1;
     }
     if (_tmp_file != "" && std::remove(_tmp_file.c_str()))
     {
@@ -136,8 +136,9 @@ int     Request::read_header()
     {
         if (_str_header.size() > _header_buffer)
         {
-            ft::timestamp();
+            pthread_mutex_lock(_host->get_cout_mutex());
             std::cerr << MAGENTA << "Error: No end header found or header too big.\n" << RESET << std::endl;
+            pthread_mutex_unlock(_host->get_cout_mutex());
             _status_code = 400;
             return (end_request(1));
         }
@@ -174,7 +175,9 @@ void    Request::write_body_left(void)
         ssize_t bytes_written = write(_fd_in, _buffer, _body_left);
         if (bytes_written == -1)
         {
+            pthread_mutex_lock(_host->get_cout_mutex());
             std::cerr << "Error: Unable to write to file " << _tmp_file << std::endl;
+            pthread_mutex_unlock(_host->get_cout_mutex());
             _status_code = 500;
             end_request(1);
         }
@@ -199,7 +202,9 @@ bool	Request::parse_method_url(std::string str)
     }
     if (i > 3)
     {
+        pthread_mutex_lock(_host->get_cout_mutex());
         std::cerr << RED << "Error: First line header invalid." << RESET << std::endl;
+        pthread_mutex_unlock(_host->get_cout_mutex());
         return (false);
     }
     if (method == "GET")
@@ -216,7 +221,9 @@ bool	Request::parse_method_url(std::string str)
 		_method = HEAD;
     else
     {
+        pthread_mutex_lock(_host->get_cout_mutex());
         std::cerr << RED << "Error: Method unknown : " << method << RESET << std::endl;
+        pthread_mutex_unlock(_host->get_cout_mutex());
         return (false);
     }
     return (true);
@@ -228,7 +235,9 @@ void	Request::parse_header(void)
     std::string     line = _str_header.substr(0, end_line);
     if (!parse_method_url(line))
     {
+        pthread_mutex_lock(_host->get_cout_mutex());
         std::cerr << RED << "Error: Method or url error." << RESET << std::endl;
+        pthread_mutex_unlock(_host->get_cout_mutex());
         _status_code = 400;
         return ;
     }
@@ -252,7 +261,9 @@ void	Request::parse_header(void)
     _host_name = _fields["Host"];
     if (_host_name == "")
     {
+        pthread_mutex_lock(_host->get_cout_mutex());
         std::cerr << RED << "Error: No host name." << RESET << std::endl;
+        pthread_mutex_unlock(_host->get_cout_mutex());
         _status_code = 400;
         return ;
     }
@@ -318,7 +329,6 @@ std::map<std::string, std::string>    Request::parse_cookies(std::string& str)
 
 int     Request::read_body()
 {
-    // std::cout << "read body" << std::endl;
     int     ret;
     ret = recv(_socket, _buffer, _body_buffer, 0);
     if (ret <= 0)
@@ -375,7 +385,9 @@ void    Request::write_chunked()
     read_size = _read_data.size();
     if (!read_size)
     {
+        pthread_mutex_lock(_host->get_cout_mutex());
         std::cerr << RED << "Error: No chunked data received." << RESET << std::endl;
+        pthread_mutex_unlock(_host->get_cout_mutex());
         return ;
     }
     do
@@ -387,14 +399,9 @@ void    Request::write_chunked()
                 len = read_size;
             if (write(_fd_in, _read_data.c_str(), len) == -1)
             {
-                // std::cerr << RED << "Error: Chunked data: Write fd in " << _fd_in << " error." << RESET << std::endl;
-                std::cerr << "Request: Error opening file fd in: " << _fd_in << "|" << strerror(errno) << std::endl;
-                // Print additional information, if available
-                if (errno == ENOENT) {
-                    std::cerr << "The file does not exist." << std::endl;
-                } else if (errno == EACCES) {
-                    std::cerr << "Permission denied." << std::endl;
-                }
+                pthread_mutex_lock(_host->get_cout_mutex());
+                std::cerr << RED << "Error: Chunked data: Write fd in " << _fd_in << " error." << RESET << std::endl;
+                pthread_mutex_unlock(_host->get_cout_mutex());
                 _status_code = 500;
                 return ;
             }
@@ -446,7 +453,6 @@ bool	Request::check_location()
         struct stat info;
         if (stat(_full_file_name.c_str(), &info) != 0)
         {
-            // std::cerr << RED << "Error: File " << _full_file_name << " does not exist." << RESET << std::endl;
             _status_code = 404;
             return (false);
         }
@@ -458,13 +464,15 @@ bool	Request::check_location()
         }
         pthread_mutex_lock(_host->get_fd_mutex());
         int     fd_out = open(_full_file_name.c_str(), O_RDONLY);
+        pthread_mutex_unlock(_host->get_fd_mutex());
         if (fd_out == -1)
         {
+            pthread_mutex_lock(_host->get_cout_mutex());
             std::cerr << RED << "Error: fd out open error: " << fd_out << RESET << std::endl;
             _status_code = 500;
+            pthread_mutex_unlock(_host->get_cout_mutex());
             return (false);
         }
-        pthread_mutex_unlock(_host->get_fd_mutex());
         std::string     extension = ft::file_extension(_full_file_name);
         std::map<std::string, std::string>*     mimes = _host->get_mimes();
         if (mimes->find(extension) != mimes->end())
@@ -508,9 +516,6 @@ void	Request::process_fd_in()
                 _tmp_file = tmp_file_prefix + ft::itos(++i);
             _fd_in = open(_tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0664);
             pthread_mutex_unlock(_host->get_fd_mutex());
-            // pthread_mutex_lock(_host->get_cout_mutex());
-            // std::cerr << YELLOW << _tmp_file << ":" << _fd_in << ":" << _worker->get_id() << RESET<< std::endl;
-            // pthread_mutex_unlock(_host->get_cout_mutex());
             if (_fd_in == -1)
             {
                 pthread_mutex_lock(_host->get_cout_mutex());
@@ -543,13 +548,10 @@ int     Request::end_request(int ret)
         _status_code = 413;
     if (_fd_in > 0)
     {
-        // pthread_mutex_lock(_host->get_cout_mutex());
-        // std::cerr << YELLOW << "End request Close file " << _fd_in << "|" << _worker->get_id() << RESET << std::endl;
-        // pthread_mutex_unlock(_host->get_cout_mutex());
         pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_in);
-        _fd_in = -1;
         pthread_mutex_unlock(_host->get_fd_mutex());
+        _fd_in = -1;
     }
     _end = true;
     _response.set_status_code(_status_code);

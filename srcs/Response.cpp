@@ -182,7 +182,9 @@ int     Response::write_body()
     }
     if (_fd_out == -1)
     {
+        pthread_mutex_lock(_host->get_cout_mutex());
         std::cerr << RED << "Error: No file content to send." << RESET << std::endl;
+        pthread_mutex_unlock(_host->get_cout_mutex());
         return (end_response(-1));
     }
     char	buffer[RESPONSE_BUFFER * 1028 + 20];
@@ -199,7 +201,6 @@ int     Response::write_body()
                 std::cerr << "Permission denied." << std::endl;
             }
         }
-            
         if (!ret)
             std::cerr << RED << "Error: Nothing more to send." << RESET << std::endl;
         pthread_mutex_unlock(_host->get_cout_mutex());
@@ -229,9 +230,6 @@ int     Response::end_response(int ret)
 {
     if (_fd_out > 0)
     {
-        // pthread_mutex_lock(_host->get_cout_mutex());
-        // std::cerr << YELLOW << "End response Close file " << _fd_out << "." << RESET << std::endl;
-        // pthread_mutex_unlock(_host->get_cout_mutex());
         pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_out);
         _fd_out = -1;

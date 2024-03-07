@@ -102,10 +102,10 @@ void	Host::start(void)
         {
             pthread_mutex_unlock(&_set_mutex);
 
-            pthread_mutex_lock(&_need_update_mutex);
-            _need_update = false;
-            pthread_cond_signal(&_cond_need_update);
-            pthread_mutex_unlock(&_need_update_mutex);
+            // pthread_mutex_lock(&_need_update_mutex);
+            // _need_update = false;
+            // pthread_cond_signal(&_cond_need_update);
+            // pthread_mutex_unlock(&_need_update_mutex);
 
             check_sk_ready();
         }
@@ -272,9 +272,6 @@ static void*   start_worker(void* instance)
             {
                 worker->set_set_updated(false);
                 pthread_mutex_unlock(set_mutex);
-                // pthread_mutex_lock(cout_mutex);
-                // std::cout << "Worker routine " << worker->get_id() << "." << std::endl;
-                // pthread_mutex_unlock(cout_mutex);
                 worker->routine();
 
                 pthread_mutex_lock(need_update_mutex);
@@ -288,10 +285,6 @@ static void*   start_worker(void* instance)
                 usleep(DELAY);
             }
         }
-        // pthread_mutex_lock(host->get_sk_worker_mutex());
-        // int n = host->get_sk_worker()->size();
-        // pthread_mutex_unlock(host->get_sk_worker_mutex());
-        // usleep(DELAY * (n - 1));
     }
 
     pthread_mutex_lock(cout_mutex);
@@ -327,7 +320,7 @@ void    Host::status_message(void)
 	_status_message[201] = "Created";
 	_status_message[204] = "No Content";
     _status_message[301] = "Moved Permanently";
-    _status_message[302] = "Found"; // Moved Temporarily
+    _status_message[302] = "Found";
     _status_message[303] = "See Other";
     _status_message[307] = "Temporary Redirect";
     _status_message[308] = "Permanent Redirect";

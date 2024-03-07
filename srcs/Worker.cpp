@@ -32,7 +32,6 @@ Worker::Worker()
     pthread_mutex_init(&_workload_mutex, NULL);
     pthread_mutex_init(&_sk_size_mutex, NULL);
     pthread_mutex_init(&_timeout_mutex, NULL);
-    //pthread_mutex_init(&_set_updated_mutex, NULL);
     pthread_cond_init(&_cond_set_updated, NULL);
     FD_ZERO(&_tmp_read_set);
     FD_ZERO(&_tmp_write_set);
@@ -42,7 +41,6 @@ Worker::Worker()
 
 Worker::~Worker()
 {
-    // std::cout << "Worker " << _id << " destructed" << std::endl;
     for (std::map<int, Request*>::iterator it = _sk_request.begin();
             it != _sk_request.end(); ++it)
         delete (it->second);
@@ -51,7 +49,6 @@ Worker::~Worker()
     pthread_mutex_destroy(&_workload_mutex);
     pthread_mutex_destroy(&_sk_size_mutex);
     pthread_mutex_destroy(&_timeout_mutex);
-    //pthread_mutex_destroy(&_set_updated_mutex);
     pthread_cond_destroy(&_cond_set_updated);
 }
 
@@ -224,7 +221,6 @@ int          Worker::get_workload(void)
 }
 pthread_mutex_t*    Worker::get_terminate_mutex(void) {return (&_terminate_mutex);}
 pthread_mutex_t*	Worker::get_set_mutex(void) {return (&_set_mutex);}
-//pthread_mutex_t*	Worker::get_set_updated_mutex(void) {return (&_set_updated_mutex);}
 pthread_cond_t*		Worker::get_cond_set_updated(void) {return (&_cond_set_updated);}
 std::map<int, Request*>*		Worker::get_sk_request(void) {return (&_sk_request);}
 bool				Worker::get_set_updated(void) const {return (_set_updated);}

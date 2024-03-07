@@ -52,9 +52,6 @@ Cgi&	Cgi::operator=( Cgi const & src )
 }
 Cgi::~Cgi()
 {
-    // pthread_mutex_lock(_request->get_host()->get_cout_mutex());
-    // std::cerr << "Cgi destructed, wk = " << _request->get_worker()->get_id() << ", sk = " << _request->get_socket() << std::endl;
-    // pthread_mutex_unlock(_request->get_host()->get_cout_mutex());
     if (_pid != -1)
         kill(_pid, SIGTERM);
     pthread_mutex_t*	fd_mutex = _request->get_host()->get_fd_mutex();
@@ -112,9 +109,6 @@ int    Cgi::execute()
         pthread_mutex_unlock(cout_mutex);
         return 500;
     }
-    // pthread_mutex_lock(cout_mutex);
-    // std::cout << "Cgi: create pipe: " << _pipe[0] << "|" << _pipe[1] << "|" << _request->get_worker()->get_id()  << std::endl;
-    // pthread_mutex_unlock(cout_mutex);
     while (stat(_tmp_file.c_str(), &buffer) == 0)
         _tmp_file = tmp_file_prefix + ft::itos(++i);
     _fd_out = open(_tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0664);
@@ -126,7 +120,6 @@ int    Cgi::execute()
         return 500;
     }
     _response->set_fd_out(_fd_out);
-    // std::cout << _request->get_host() << std::endl;
     _pid = fork();
 
     if (_pid == -1)
@@ -136,13 +129,7 @@ int    Cgi::execute()
     }
     else if (!_pid)
     {
-
         signal(SIGTERM, signalHandler);
-
-        // pthread_mutex_lock(cout_mutex);
-        // std::cout << "Cgi: fork start child process: wk = " << _request->get_worker()->get_id() << ", sk = " << _request->get_socket() << ", pid=" << getpid() << std::endl;
-        // pthread_mutex_unlock(cout_mutex);
-	
         pthread_mutex_lock(fd_mutex);
         close(_pipe[1]);
         if (dup2(_pipe[0], STDIN_FILENO) == -1)
@@ -239,7 +226,6 @@ int    Cgi::execute()
             }
             usleep(DELAY);
         }
-        // usleep(DELAY);
         return parse_header();
     }
 
