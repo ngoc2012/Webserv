@@ -17,7 +17,7 @@ OBJS = ${SRCS:.cpp=.o}
 MANDA = webserv
 CC = c++
 #FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread
-FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread -D DELAY=100
+FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread -D DELAY=50
 all:	$(MANDA)
 .cpp.o:
 	$(CC) $(FLAGS) -g -c $< -o ${<:.cpp=.o} -I./includes
@@ -168,6 +168,7 @@ gitd:
 	git add .conf
 	git add www
 	git add tester
+	git add error_pages
 	git add webserv-master
 	git add README.md
 	git add "John Denver Perhaps Love.mp3"

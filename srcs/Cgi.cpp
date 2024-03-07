@@ -223,18 +223,16 @@ int    Cgi::execute()
         while (true) {
             if (waitpid(_pid, &status, WNOHANG) != 0)
             {
-                // pthread_mutex_lock(cout_mutex);
-                // std::cout << "Cgi: Child process return: wk = " << _request->get_worker()->get_id() << ", sk = " << _request->get_socket() << ", pid=" << _pid << std::endl;
-                // pthread_mutex_unlock(cout_mutex);
                 _pid = -1;
                 break;
             }
             time_t current_time = time(0);
             if (current_time - start_time > timeout) {
                 kill(_pid, SIGTERM);
-                // pthread_mutex_lock(cout_mutex);
-                // std::cout << RED << "Cgi: Kill child process: wk = " << _request->get_worker()->get_id() << ", sk = " << _request->get_socket() << ", pid=" << _pid << RESET << std::endl;
-                // pthread_mutex_unlock(cout_mutex);
+                pthread_mutex_lock(cout_mutex);
+                ft::timestamp();
+                std::cout << RED << "Kill child process " << _pid << " after timeout " << current_time - start_time << " [to: " << timeout << "] [wk: " << _request->get_worker()->get_id() << "], [sk: " << _request->get_socket() << "]" << RESET << std::endl;
+                pthread_mutex_unlock(cout_mutex);
                 waitpid(_pid, &status, 0);
                 _pid = -1;
                 return 504;

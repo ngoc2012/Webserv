@@ -111,6 +111,7 @@ void	Host::start(void)
         }
         else
             pthread_mutex_unlock(&_set_mutex);
+        usleep(DELAY);
 	} while (!get_end());
 }
 
@@ -121,16 +122,6 @@ void	Host::check_sk_ready(void)
         it != _sk_address.end(); it++)
         if (FD_ISSET(it->first, &_read_set))
         {
-            // pthread_mutex_lock(&_sk_worker_mutex);
-            // int n = _sk_worker.size();
-            // pthread_mutex_unlock(&_sk_worker_mutex);
-            
-            // pthread_mutex_lock(&_cout_mutex);
-            // ft::timestamp();
-            // std::cout << BLUE << "Accept delay " << DELAY * n << RESET << std::endl;
-            // pthread_mutex_unlock(&_cout_mutex);
-            if (it != _sk_address.begin())
-                usleep(DELAY);
             new_sk = it->second->accept_client_sk();
             pthread_mutex_lock(&_set_mutex);
             if (new_sk > _max_sk)
@@ -179,7 +170,6 @@ void	Host::check_sk_ready(void)
         if (FD_ISSET(it->first, &_write_set))
             it->second->set_sk_tmp_write_set(it->first);
     }
-    // int     j = 0;
     for (int i = 0; i < _n_workers; i++)
         if (_workers[i].get_workload() || _workers[i].get_sk_size())
         {
@@ -188,9 +178,6 @@ void	Host::check_sk_ready(void)
             _workers[i].set_set_updated(true);
             pthread_cond_signal(_workers[i].get_cond_set_updated());
             pthread_mutex_unlock(_workers[i].get_set_mutex());
-            // if (j > 0)
-            //     usleep(DELAY);
-            // j++;
         }
 }
 
