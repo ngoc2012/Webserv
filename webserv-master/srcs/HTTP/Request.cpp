@@ -114,9 +114,9 @@ int Request::headers() {
   std::string value;
 
   // Ngoc: debug
-  std::cout << "buffer: " << std::endl;
-  std::cout << buffer_ << std::endl;
-  std::cout << "+++++++++++++++++++++++++++++" << std::endl;
+  // std::cout << "buffer: " << std::endl;
+  // std::cout << buffer_ << std::endl;
+  // std::cout << "+++++++++++++++++++++++++++++" << std::endl;
   while ((end = buffer_.find("\r\n")) != std::string::npos) {
     if (buffer_.find("\r\n") == 0) {
       buffer_.erase(0, end + 2);

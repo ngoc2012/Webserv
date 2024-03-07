@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/01/10 10:08:55 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/05 14:56:05 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,19 +69,25 @@ int	    Address::bind_addr()
 	addr.sin_addr.s_addr = inet_addr(_ip_address.c_str());
 	if (bind(_listen_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0)
 	{
+		pthread_mutex_lock(_host->get_cout_mutex());
 		ft::timestamp();
         std::cout << "Error: bind_addr: bind() failed " << _ip_address << ":" << _port << std::endl;
+		pthread_mutex_unlock(_host->get_cout_mutex());
 		return (-1);
 	}
 	if (listen(_listen_socket, _host->get_max_clients()) < 0)
 	{
+		pthread_mutex_lock(_host->get_cout_mutex());
 		ft::timestamp();
         std::cout << "Error: bind_addr: listen() failed " << _ip_address << ":" << _port << std::endl;
+		pthread_mutex_unlock(_host->get_cout_mutex());
 		return (-1);
 	}
+	pthread_mutex_lock(_host->get_cout_mutex());
 	ft::timestamp();
 	std::cout << "Listening at " << _ip_address << ":" << _port
 		<< " (socket : " << _listen_socket << ")" << std::endl;
+	pthread_mutex_unlock(_host->get_cout_mutex());
 	return (_listen_socket);
 }
 
@@ -89,7 +95,9 @@ int	    Address::bind_addr()
 int		Address::accept_client_sk(void)
 {
 	int	new_sk;
+	pthread_mutex_lock(_host->get_fd_mutex());
 	new_sk = accept(_listen_socket, NULL, NULL);
+	pthread_mutex_unlock(_host->get_fd_mutex());
 	if (new_sk < 0)
 	{
 		ft::timestamp();
@@ -101,4 +109,5 @@ int		Address::accept_client_sk(void)
 	return (new_sk);
 }
 
-std::vector<Server*>    Address::get_servers(void) {return (_servers);}
+int						Address::get_listen_socket(void) const {return (_listen_socket);}
+std::vector<Server*>*   Address::get_servers(void) {return (&_servers);}

@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/29 22:19:01 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/05 11:07:46 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,8 @@ class	Worker
 		pthread_mutex_t		_terminate_mutex;
 		pthread_mutex_t		_workload_mutex;
 		pthread_mutex_t		_sk_size_mutex;
+		pthread_mutex_t		_timeout_mutex;
+		//pthread_mutex_t		_set_updated_mutex;
 		pthread_cond_t		_cond_set_updated;
 		bool				_set_updated;
 
@@ -71,6 +73,8 @@ class	Worker
 		void		set_sk_tmp_read_set(int);
 		void		set_sk_tmp_write_set(int);
 		void		update_sets(void);
+		void		set_end(void);
+		void		check_timeout(void);
 
         pthread_t*  		get_th(void);
         int         		get_id(void) const;
@@ -78,8 +82,9 @@ class	Worker
         Host*       		get_host(void) const;
         pthread_mutex_t*	get_terminate_mutex(void);
         pthread_mutex_t*	get_set_mutex(void);
+		//pthread_mutex_t*	get_set_updated_mutex(void);
         pthread_cond_t*		get_cond_set_updated(void);
-		bool				get_terminate_flag(void) const;
+		bool				get_terminate_flag(void);
         bool				get_set_updated(void) const;
         std::map<int, Request*>*		get_sk_request(void);
         int         		get_sk_size(void);

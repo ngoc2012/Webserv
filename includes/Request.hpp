@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/29 14:34:48 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/05 16:50:43 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ class	Request
 		int		        _status_code;
 
 		int 		    read_header(void);
-		bool		    parse_header(void);
+		void		    parse_header(void);
 		bool			parse_method_url(std::string str);
         bool	        check_location(void);
 		std::map<std::string, std::string>    parse_cookies(std::string&);
@@ -112,8 +112,11 @@ class	Request
 		int				get_timeout(void) const;
         std::map<std::string, std::string>*     get_fields(void);
         bool		    get_close(void) const;
+        Worker*			get_worker(void) const;
+		int				get_socket(void) const;
 
         void		    set_fd_in(int);
+		void            set_cgi(Cgi*);
 };
 
 #endif

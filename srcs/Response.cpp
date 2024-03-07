@@ -14,6 +14,8 @@
 
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <cerrno> // For errno
+#include <cstring> // For strerror
 
 #include "Host.hpp"
 #include "Worker.hpp"
@@ -35,7 +37,13 @@ Response&	Response::operator=( Response const & src )
 Response::~Response()
 {
     if (_fd_out != -1)
+    {
+        pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_out);
+        _fd_out = -1;
+        pthread_mutex_unlock(_host->get_fd_mutex());
+    }
+        
 }
 
 void    Response::init(void)
@@ -113,6 +121,8 @@ void	 Response::body_generate(void)
 
 void     Response::set_session_id(Header& header)
 {
+    pthread_mutex_t*    mutex = _server->get_sessions()->get_sessions_mutex();
+    pthread_mutex_lock(mutex);
     std::string sid = _request->get_session_id();
     if (sid != "")
     {
@@ -129,6 +139,7 @@ void     Response::set_session_id(Header& header)
             header.set_session_id(sid);
         }
     }
+    pthread_mutex_unlock(mutex);
 }
 
 void     Response::mess_body(std::string title, std::string body)
@@ -180,7 +191,15 @@ int     Response::write_body()
     {
         pthread_mutex_lock(_host->get_cout_mutex());
         if (ret == -1)
-            std::cerr << RED << "Error: Read fd out." << RESET << std::endl;
+        {
+            std::cerr << RED << "Error: Read fd out: " << _fd_out << "|" << strerror(errno) << RESET << std::endl;
+            if (errno == ENOENT) {
+                std::cerr << "The file does not exist." << std::endl;
+            } else if (errno == EACCES) {
+                std::cerr << "Permission denied." << std::endl;
+            }
+        }
+            
         if (!ret)
             std::cerr << RED << "Error: Nothing more to send." << RESET << std::endl;
         pthread_mutex_unlock(_host->get_cout_mutex());
@@ -209,7 +228,15 @@ int     Response::write_body()
 int     Response::end_response(int ret)
 {
     if (_fd_out > 0)
+    {
+        // pthread_mutex_lock(_host->get_cout_mutex());
+        // std::cerr << YELLOW << "End response Close file " << _fd_out << "." << RESET << std::endl;
+        // pthread_mutex_unlock(_host->get_cout_mutex());
+        pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_out);
+        _fd_out = -1;
+        pthread_mutex_unlock(_host->get_fd_mutex());
+    }
     pthread_mutex_lock(_host->get_cout_mutex());
     ft::timestamp();
     if (_status_code == 200)
@@ -219,7 +246,7 @@ int     Response::end_response(int ret)
     else
         std::cout << RED;
     std::cout << _request->get_location()->get_method_str(_request->get_method()) << " ";
-    std::cout << _request->get_location()->get_url() << " ";
+    std::cout << _request->get_url() << " ";
     std::cout << _status_code << " ";
     std::cout << "Request: " << _request->get_body_size() << "b, ";
     std::cout << "Response: " << _body_size << "b ";

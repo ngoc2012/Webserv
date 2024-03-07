@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/21 20:48:27 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/04 21:03:39 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,19 +20,22 @@ class	Request;
 class	Cgi
 {
 	private:
-        std::string     _pass;
-        std::string     _file;
-		Request*        _request;
-        Response*       _response;
-        char**          _envs;
-        int             _pid;
-        int             _pipe[2];
-        std::string     _tmp_file;
-        int             _fd_out;
-        int             _status_code;
-        std::string     _status_message;
-        std::string     _content_type;
-        size_t          _content_length;
+        std::string     	_pass;
+        std::string     	_file;
+		Request*        	_request;
+        Response*       	_response;
+        char**          	_envs;
+        int             	_pid;
+        int             	_pipe[2];
+        std::string     	_tmp_file;
+        int             	_fd_out;
+        int             	_status_code;
+        std::string     	_status_message;
+        std::string     	_content_type;
+        size_t          	_content_length;
+		bool				_pipe_close;
+
+		pthread_cond_t		_cond_exec_queue;
 
         bool            get_envs();
 

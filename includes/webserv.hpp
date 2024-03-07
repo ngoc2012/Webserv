@@ -6,7 +6,7 @@
 /*   By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 22:38:19 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/07 10:32:05 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/05 14:00:23 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,9 @@
 # define KILOBYTE 1024
 # define RESPONSE_BUFFER 64
 # define TIMEOUT 5
+# ifndef DELAY
+#   define DELAY 0 // ms * n_workers
+# endif
 
 # define NPOS std::string::npos
 
@@ -65,6 +68,7 @@ std::string                 trim_string(const std::string& str);
 void	                    timestamp(void);
 void                        print_loading_bar(int progress, int total, int barWidth, pthread_mutex_t* _cout_mutex);
 void                        print_size(size_t size, pthread_mutex_t* _cout_mutex);
+char*						strdup(const char* str);
 }
 
 #endif

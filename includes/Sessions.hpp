@@ -24,10 +24,13 @@
 class Sessions
 {
 	private:
+		pthread_mutex_t				_sessions_mutex;
+
 		Sessions(const Sessions& sessions);
 		Sessions& operator=(const Sessions& sessions);
 		std::map<std::string, time_t>	_sessions_data;
 		int 			check_date(int day, int month, int year);
+		
 
 	public:
 		Sessions(void);
@@ -36,6 +39,8 @@ class Sessions
 		void	add(std::string token, time_t date);
 		bool	verify(std::string token);
 		time_t	get_time_t(int sec, int min, int hour, int day, int month, int year);
+
+		pthread_mutex_t*			get_sessions_mutex(void);
 };
 
 

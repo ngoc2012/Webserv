@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/29 22:48:30 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/06 20:09:03 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,6 @@
 #include "Response.hpp"
 #include "Request.hpp"
 #include "Configuration.hpp"
-
-#define T1 1
-#define T2 0
-#define T3 10
 
 Host::Host(const Host& src) { *this = src; }
 
@@ -38,8 +34,14 @@ Host::Host()
     _start_worker_id = 0;
     _n_workers = 1;
     _max_sk = -1;
+	_need_update = true;
     pthread_mutex_init(&_cout_mutex, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
+    pthread_mutex_init(&_end_mutex, NULL);
+    pthread_mutex_init(&_fd_mutex, NULL);
+    pthread_mutex_init(&_need_update_mutex, NULL);
+    pthread_mutex_init(&_sk_worker_mutex, NULL);
+    pthread_cond_init(&_cond_need_update, NULL);
     _timeout = TIMEOUT;
     mimes();
     status_message();
@@ -60,17 +62,18 @@ Host::~Host()
         delete [] _workers;
     pthread_mutex_destroy(&_cout_mutex);
     pthread_mutex_destroy(&_set_mutex);
+    pthread_mutex_destroy(&_end_mutex);
+    pthread_mutex_destroy(&_fd_mutex);
+    pthread_mutex_destroy(&_need_update_mutex);
+    pthread_mutex_destroy(&_sk_worker_mutex);
+    pthread_cond_destroy(&_cond_need_update);
     ft::timestamp();
     std::cout << "End server" << std::endl;
 }
 
 void	Host::start(void)
 {
-    struct timeval tv;
-
-    tv.tv_sec = 0;
-    tv.tv_usec = 1000;
-
+    
 	if (_parser_error)
 		return ;
 	FD_ZERO(&_listen_set);
@@ -83,47 +86,33 @@ void	Host::start(void)
 		return ;
 	do
 	{
+        struct timespec timeout;
+        clock_gettime(CLOCK_REALTIME, &timeout);
+        timeout.tv_sec += 3;
+		pthread_mutex_lock(&_need_update_mutex);
+		while (!_need_update)
+			pthread_cond_timedwait(&_cond_need_update, &_need_update_mutex, &timeout);
+		pthread_mutex_unlock(&_need_update_mutex);
+
         pthread_mutex_lock(&_set_mutex);
 		memcpy(&_read_set, &_master_read_set, sizeof(_master_read_set));
 		memcpy(&_write_set, &_master_write_set, sizeof(_master_write_set));
-        
-        if (select(_max_sk + 1, &_read_set, &_write_set, NULL, &tv) != -1)
+
+        if (select(_max_sk + 1, &_read_set, &_write_set, NULL, NULL) != -1)
         {
             pthread_mutex_unlock(&_set_mutex);
+
+            pthread_mutex_lock(&_need_update_mutex);
+            _need_update = false;
+            pthread_cond_signal(&_cond_need_update);
+            pthread_mutex_unlock(&_need_update_mutex);
+
             check_sk_ready();
         }
         else
-        {
             pthread_mutex_unlock(&_set_mutex);
-        }
-            
-	} while (!_end);
-    for (int i = 0; i < _n_workers; i++)
-    {
-        _workers[i].set_terminate_flag(true);
-        pthread_mutex_lock(_workers[i].get_set_mutex());
-        _workers[i].set_set_updated(true);
-        pthread_cond_signal(_workers[i].get_cond_set_updated());
-        pthread_mutex_unlock(_workers[i].get_set_mutex());
-    }
-    for (int i = 0; i < _n_workers; i++)
-        pthread_join(*(_workers[i].get_th()), NULL);
-}
-
-bool	Host::select_available_sk(void)
-{
-    struct timeval tv;
-
-    tv.tv_sec = 0;
-    tv.tv_usec = 1000;
-
-    int sk = -1;
-    if (!_end)
-        sk = select(_max_sk + 1, &_read_set, &_write_set, NULL, &tv);
-    std::cout << "sk: " << sk << std::endl;
-    if (sk < 0)
-        return (false);
-    return (true);
+        usleep(DELAY);
+	} while (!get_end());
 }
 
 void	Host::check_sk_ready(void)
@@ -134,9 +123,9 @@ void	Host::check_sk_ready(void)
         if (FD_ISSET(it->first, &_read_set))
         {
             new_sk = it->second->accept_client_sk();
+            pthread_mutex_lock(&_set_mutex);
             if (new_sk > _max_sk)
                 _max_sk = new_sk;
-            pthread_mutex_lock(&_set_mutex);
             FD_SET(new_sk, &_master_read_set);
             FD_SET(new_sk, &_master_write_set);
             pthread_mutex_unlock(&_set_mutex);
@@ -144,26 +133,37 @@ void	Host::check_sk_ready(void)
             {
                 
                 int i = 0;
-                int j = (i + _start_worker_id) % _n_workers;
-                int k = (i + _start_worker_id + 1) % _n_workers;
-                while (i < _n_workers - 1 && _workers[j].get_workload() > _workers[k].get_workload())
+                int w_min = (i + _start_worker_id) % _n_workers;
+                int j = (i + _start_worker_id + 1) % _n_workers;
+                while (i < _n_workers - 1)
                 {
-                    j = k;
-                    k = (k + 1) % _n_workers;
+                    if (_workers[w_min].get_workload() >= _workers[j].get_workload())
+                        w_min = j;
+                    j = (j + 1) % _n_workers;
                     i++;
                 }
-                // std::cout << "_start_worker_id: " << _start_worker_id << ", j: " << j << ", sk: " << new_sk << std::endl;
-                _sk_worker[new_sk] = &_workers[j];
-                _workers[j].new_connection(new_sk, it->second);
+				pthread_mutex_lock(&_sk_worker_mutex);
+                _sk_worker[new_sk] = &_workers[w_min];
+				pthread_mutex_unlock(&_sk_worker_mutex);
+                _workers[w_min].new_connection(new_sk, it->second);
                 _start_worker_id++;
                 _start_worker_id %= _n_workers;
             }
+            pthread_mutex_lock(&_need_update_mutex);
+            _need_update = true;
+            pthread_mutex_unlock(&_need_update_mutex);
+            usleep(DELAY);
         }
 
     for (int i = 0; i < _n_workers; i++)
         _workers[i].set_empty_sets();
-    for (std::map<int, Worker*>::iterator it = _sk_worker.begin();
-        it != _sk_worker.end(); it++)
+
+    pthread_mutex_lock(&_sk_worker_mutex);
+    std::map<int, Worker*>		sk_worker = _sk_worker;
+    pthread_mutex_unlock(&_sk_worker_mutex);
+
+    for (std::map<int, Worker*>::iterator it = sk_worker.begin();
+        it != sk_worker.end(); it++)
     {
         if (FD_ISSET(it->first, &_read_set))
             it->second->set_sk_tmp_read_set(it->first);
@@ -194,6 +194,9 @@ void  	Host::close_connection(int i)
 		while (!FD_ISSET(_max_sk, &_master_read_set))
 			_max_sk -= 1;
     pthread_mutex_unlock(&_set_mutex);
+	pthread_mutex_lock(&_sk_worker_mutex);
+	_sk_worker.erase(i);
+	pthread_mutex_unlock(&_sk_worker_mutex);
 }
 
 void	Host::start_server(void)
@@ -221,36 +224,80 @@ void	Host::start_server(void)
     }
 }
 
-static void*   start_worker(void* instance) {
+static void*   start_worker(void* instance)
+{
     if (!instance)
         return NULL;
     Worker*             worker = static_cast<Worker*>(instance);
     Host*               host = worker->get_host();
-    pthread_mutex_t*    terminate_mutex = worker->get_terminate_mutex();
+    pthread_mutex_t*    cout_mutex = host->get_cout_mutex();
+    pthread_mutex_t*    need_update_mutex = host->get_need_update_mutex();
     pthread_mutex_t*    set_mutex = worker->get_set_mutex();
     pthread_cond_t*		cond_set_updated = worker->get_cond_set_updated();
-    pthread_mutex_lock(host->get_cout_mutex());
+
+    pthread_mutex_lock(cout_mutex);
     std::cout << "Worker " << worker->get_id() << " started." << std::endl;
-    pthread_mutex_unlock(host->get_cout_mutex());
-    
-    while (true) {
-        pthread_mutex_lock(set_mutex);
-        while (!worker->get_set_updated())
-            pthread_cond_wait(cond_set_updated, set_mutex);
-            
-        pthread_mutex_lock(terminate_mutex);
-        if (worker->get_terminate_flag()) {
-            pthread_mutex_unlock(terminate_mutex);
+    pthread_mutex_unlock(cout_mutex);
+
+    while (true)
+    {
+        if (worker->get_terminate_flag())
             break;
+        if (worker->get_sk_size() == 0)
+        {
+            pthread_mutex_lock(set_mutex);
+            while (!worker->get_set_updated())
+                pthread_cond_wait(cond_set_updated, set_mutex);
+            worker->set_set_updated(false);
+            pthread_mutex_unlock(set_mutex);
+
+            if (worker->get_terminate_flag())
+                break;
+            
+            worker->routine();
+
+			pthread_mutex_lock(need_update_mutex);
+			host->set_need_update(true);
+			pthread_cond_signal(host->get_cond_need_update());
+			pthread_mutex_unlock(need_update_mutex);
         }
-        pthread_mutex_unlock(terminate_mutex);
-        worker->set_set_updated(false);
-        pthread_mutex_unlock(set_mutex);
-        worker->routine();
+        else
+        {
+            worker->check_timeout();
+			if (worker->get_sk_size() == 0)
+				continue;
+
+            pthread_mutex_lock(set_mutex);
+            if (worker->get_set_updated())
+            {
+                worker->set_set_updated(false);
+                pthread_mutex_unlock(set_mutex);
+                // pthread_mutex_lock(cout_mutex);
+                // std::cout << "Worker routine " << worker->get_id() << "." << std::endl;
+                // pthread_mutex_unlock(cout_mutex);
+                worker->routine();
+
+                pthread_mutex_lock(need_update_mutex);
+                host->set_need_update(true);
+                pthread_cond_signal(host->get_cond_need_update());
+                pthread_mutex_unlock(need_update_mutex);
+            }
+            else
+            {
+                pthread_mutex_unlock(set_mutex);
+                usleep(DELAY);
+            }
+        }
+        // pthread_mutex_lock(host->get_sk_worker_mutex());
+        // int n = host->get_sk_worker()->size();
+        // pthread_mutex_unlock(host->get_sk_worker_mutex());
+        // usleep(DELAY * (n - 1));
     }
-    pthread_mutex_lock(host->get_cout_mutex());
+
+    pthread_mutex_lock(cout_mutex);
     std::cout << "Worker " << worker->get_id() << " ended." << std::endl;
-    pthread_mutex_unlock(host->get_cout_mutex());
+    pthread_mutex_unlock(cout_mutex);
+
     pthread_exit(NULL);
     return NULL;
 }
@@ -262,19 +309,13 @@ bool    Host::start_workers() {
         _workers[i].set_id(i);
         _workers[i].set_host(this);
         _workers[i].set_workload(0);
-        //pthread_mutex_lock(&_cout_mutex);
         if (pthread_create(_workers[i].get_th(), NULL, start_worker, &_workers[i]))
         {
-            std::cerr << "Error creating select thread" << std::endl;
+            pthread_mutex_lock(&_cout_mutex);
+            std::cerr << RED << "Error creating select thread" << RESET << std::endl;
+            pthread_mutex_unlock(&_cout_mutex);
             return (false);
         }
-        else
-        {
-            pthread_mutex_lock(&_cout_mutex);
-            std::cout << "Thread of worker " << i << " created" << std::endl;
-            pthread_mutex_unlock(&_cout_mutex);
-        }
-        //pthread_mutex_unlock(&_cout_mutex);
     }
     return (true);
 }
@@ -297,6 +338,8 @@ void    Host::status_message(void)
 	_status_message[413] = "Payload Too Large";
     _status_message[499] = "Client Closed Request";
 	_status_message[500] = "Internal Server Error";
+    _status_message[502] = "Bad Gateway";
+    _status_message[504] = "Gateway Timeout";
 }
 
 void	Host::mimes(void)
@@ -549,6 +592,22 @@ int 				                Host::get_n_workers(void) const {return (_n_workers);}
 size_t								Host::get_large_client_header_buffer(void) const {return (_large_client_header_buffer);}
 int		                            Host::get_timeout(void) const {return (_timeout);}
 pthread_mutex_t*					Host::get_cout_mutex(void) {return (&_cout_mutex);}
+pthread_mutex_t*					Host::get_end_mutex(void) {return (&_end_mutex);}
+pthread_mutex_t*					Host::get_fd_mutex(void) {return (&_fd_mutex);}
+pthread_mutex_t*					Host::get_sk_worker_mutex(void) {return (&_sk_worker_mutex);}
+
+bool								Host::get_end(void)
+{
+    pthread_mutex_lock(&_end_mutex);
+    bool e = _end;
+    pthread_mutex_unlock(&_end_mutex);
+    return (e);
+}
+pthread_mutex_t*					Host::get_need_update_mutex(void) {return (&_need_update_mutex);}
+pthread_cond_t*						Host::get_cond_need_update(void) {return (&_cond_need_update);}
+bool								Host::get_need_update(void) const {return (_need_update);}
+std::map<int, Address*>*			Host::get_sk_address(void) {return (&_sk_address);}
+std::map<int, Worker*>*				Host::get_sk_worker(void) {return (&_sk_worker);}
 
 void			Host::set_client_max_body_size(size_t n) {_client_max_body_size = n;}
 void			Host::set_client_body_buffer_size(size_t n) {_client_body_buffer_size = n;}
@@ -557,4 +616,10 @@ void		    Host::set_str_address(std::map<std::string, Address*> a) {_str_address
 void	        Host::set_n_workers(int w) {_n_workers = w;}
 void	        Host::set_large_client_header_buffer(size_t l) {_large_client_header_buffer = l;}
 void	        Host::set_timeout(int t) {_timeout = t;}
-void	        Host::set_end(bool t) {_end = t;}
+void	        Host::set_end(bool t)
+{
+    pthread_mutex_lock(&_end_mutex);
+    _end = t;
+    pthread_mutex_unlock(&_end_mutex);
+}
+void			Host::set_need_update(bool n) {_need_update = n;}

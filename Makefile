@@ -6,17 +6,18 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/02/29 16:49:31 by ngoc             ###   ########.fr        #
+#    Updated: 2024/03/05 17:37:36 by ngoc             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FILES = main Host Worker Address Server Request Response Header Configuration Location Cgi Listing Sessions ft/split_string ft/is_digit ft/itos ft/match_wildcard ft/file_extension ft/atoi_base ft/itoa_base ft/str_replace ft/to_upper ft/trim_string ft/timestamp ft/print_loading_bar ft/print_size
+FILES = main Host Worker Address Server Request Response Header Configuration Location Cgi Listing Sessions ft/split_string ft/is_digit ft/itos ft/match_wildcard ft/file_extension ft/atoi_base ft/itoa_base ft/str_replace ft/to_upper ft/trim_string ft/timestamp ft/print_loading_bar ft/print_size ft/strdup
 SRCS = $(addsuffix .cpp, $(addprefix srcs/, $(FILES)))
 INCS = $(wildcard includes/*.hpp)
 OBJS = ${SRCS:.cpp=.o}
 MANDA = webserv
 CC = c++
-FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread
+#FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread
+FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread -D DELAY=50
 all:	$(MANDA)
 .cpp.o:
 	$(CC) $(FLAGS) -g -c $< -o ${<:.cpp=.o} -I./includes
@@ -119,9 +120,19 @@ subjects:
 	@echo "=> Check http://127.0.0.1:4141/put_test"
 	@echo "=> Check http://127.0.0.1:4141/put_test0"
 	@echo "Execute CGI based on certain file extension (for example .php). Make it work with POST and GET methods."
+	-curl -i -X GET 127.0.2.2:8000/hello.php
+	-curl -i -X GET 127.0.2.2:8000/version.php
+	@echo "Make the route able to accept uploaded files and configure where they should be saved."
+	-curl -i -X PUT --upload-file "Hanoi.jpg" http://127.0.4.1:4343
+	@echo "=> Check http://127.0.4.1:4343/index_files"
 
+	-curl -i -X GET 127.0.2.2:8000/hello.js
+	-curl -i -X GET 127.0.2.2:8000/hello.py
+
+FLAGS0 = -Wall -Wextra -Werror -std=c++98 -pthread -D DELAY=25
 test:
-	clear && make re && make clean && valgrind --tool=helgrind ./webserv .conf
+	#clear && make re && make clean && valgrind --tool=helgrind ./webserv .conf
+	clear && make re && make clean && valgrind --tool=helgrind --history-level=none ./webserv .conf
 test0:
 	clear && make re && make clean && valgrind --track-origins=yes --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv .conf
 gits:
@@ -142,8 +153,12 @@ tester:
 js:	
 	#curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/hello.py
 	#curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/hello.php
-	#curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/wait.php
 
+wait:
+	curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/wait.php
+
+kill:
+	pkill -9 -f "webserv .conf"
 M:=
 gitd:
 	make fclean
@@ -153,6 +168,7 @@ gitd:
 	git add .conf
 	git add www
 	git add tester
+	git add error_pages
 	git add webserv-master
 	git add README.md
 	git add "John Denver Perhaps Love.mp3"
@@ -162,4 +178,4 @@ gitd:
 	#git add -A -- :!*.o :!*.swp :!*.env
 	git commit -m "$(M)"
 	git push
-.PHONY: all clean fclean re test pause tester
+.PHONY: all clean fclean re test pause tester wait

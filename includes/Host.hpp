@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/02/28 15:02:48 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/06 20:08:40 by ngoc             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,14 +36,19 @@ class	Host
 		size_t									_large_client_header_buffer;
 	
 		bool				                    _parser_error;
-
 		bool									_end;
 		int				                        _start_worker_id;
 		int				                        _n_workers;
 		Worker*				                    _workers;
+		bool									_need_update;
 		
 		pthread_mutex_t							_cout_mutex;
 		pthread_mutex_t							_set_mutex;
+		pthread_mutex_t							_end_mutex;
+		pthread_mutex_t							_fd_mutex;
+		pthread_mutex_t							_need_update_mutex;
+		pthread_mutex_t							_sk_worker_mutex;
+		pthread_cond_t							_cond_need_update;
 		int										_timeout;
 
 		int										_max_sk;		    // Max of all fd
@@ -66,7 +71,6 @@ class	Host
 		void				                    status_message(void);
 		bool									start_workers(void);
 		void    								check_sk_ready(void);
-		bool									select_available_sk(void);
 		
 		Host(const Host&);
 		Host &operator=(const Host& op);
@@ -89,6 +93,15 @@ class	Host
         size_t								get_large_client_header_buffer(void) const;
 		int									get_timeout(void) const;
         pthread_mutex_t*					get_cout_mutex(void);
+        pthread_mutex_t*					get_end_mutex(void);
+        pthread_mutex_t*					get_fd_mutex(void);
+		pthread_mutex_t*					get_sk_worker_mutex(void);
+        bool								get_end(void);
+		pthread_mutex_t*					get_need_update_mutex(void);
+		pthread_cond_t*						get_cond_need_update(void);
+		bool								get_need_update(void) const;
+		std::map<int, Address*>*			get_sk_address(void);
+		std::map<int, Worker*>*				get_sk_worker(void);
 
 		void	set_client_max_body_size(size_t);
 		void	set_client_body_buffer_size(size_t);
@@ -98,6 +111,7 @@ class	Host
         void	set_large_client_header_buffer(size_t);
 		void	set_timeout(int);
 		void	set_end(bool);
+		void	set_need_update(bool);
 };
 
 #endif
