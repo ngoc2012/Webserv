@@ -3,12 +3,13 @@
     <head>
         <title>Blip Bloup</title>
     </head>
-    <body>
+    <body onload="start()">
         <h1>Blip Bloup</h1>
-        <button id="button" onclick="send_get_request('signup')">signup</button>
-        <button id="button" onclick="send_get_request('signout')">signout</button>
-        Login: <input name="searchTxt" type="text" maxlength="512" id="login"/>
-        Password: <input name="searchTxt" type="text" maxlength="512" id="password"/>
+        <div id="is_signed"></div>
+        <button id="button_signup" onclick="send_get_request('signup')">signup</button>
+        <button id="button_signout" onclick="send_get_request('signout')">signout</button>
+        <div id='login_div'> Login: <input name="searchTxt" type="text" maxlength="512" id="login"/> </div>
+        <div id='password_div'> Password: <input name="searchTxt" type="text" maxlength="512" id="password"/> </div>
         <ul></ul>
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -17,16 +18,15 @@
             document.cookie = "session_id=123456; expires=Thu, 01 Jan 2025 00:00:00 UTC; path=/; SameSite=None; Secure";
             var setCookieHeader;
 
-            function send_get_request(action)
+            function start() 
             {
-                login = document.getElementById('login').value;
-                password = document.getElementById('password').value;
                 const data = {
-                    "action": action,
-                    "name": login,
-                    "password": password
+                    "action": "get_cookie", 
+                    "name": "",
+                    "password": "",
+                    "cookie": ""
                 };
-                fetch("http://127.0.0.1:4141/login.js", {
+                fetch("http://127.0.2.2:8000/login.js", {
                     method: 'POST',
                     headers: {'Cookie': document.cookie},
                     credentials: 'include',
@@ -35,33 +35,142 @@
                     crossDomain: true,
                 })
                 .then(response => {
-                    setCookieHeader = response.headers.get('set-cookies');
-                    console.log('Cook first', setCookieHeader);
+                    return response.json(); // Parse JSON data
+                })
+                .then(data => {
+                    if (data["status"] == "full")
+                        document.cookie = "session_id=" + data["cookie"] + "; expires=Thu, 01 Jan 2025 00:00:00 UTC; path=/; SameSite=None; Secure";
+                    fetch("http://127.0.2.2:8000/login.js", {
+                        method: 'GET',
+                        headers: {'Cookie': document.cookie},
+                        credentials: 'include',
+                        contentType: 'text/plain',
+                        crossDomain: true,
+                    })
+                    .then(response => {
+                        const setCookieHeader = response.headers.get('set-cookies');               
+                        if (setCookieHeader)
+                        {
+                            cookies = parseCookies(setCookieHeader);
+                            document.cookie = "session_id=" + cookies.session_id + "; expires=Thu, 01 Jan 2025 00:00:00 UTC; path=/; SameSite=None; Secure";
+                        }
+                    })
+                    .then(response => 
+                    {
+                        const data = {
+                            "action": "check", 
+                            "name": "",
+                            "password": "",
+                            "cookie": getCookieValue('session_id')
+                        };
+                        fetch("http://127.0.2.2:8000/login.js", {
+                            method: 'POST',
+                            headers: {'Cookie': document.cookie},
+                            credentials: 'include',
+                            contentType: 'application/json',
+                            body: JSON.stringify(data),
+                            crossDomain: true,
+                        })
+                        .then(response => {
+                            //let data = response.json();
+                            //data["cookies"] = setCookieHeader;
+                            return response.json(); // Parse JSON data
+                        })
+                        .then(data => {
+                            console.log(data);
+                            if (data["status"] == "OK")
+                            {
+                                hide(data["user"]);
+                            }
+                        })
+                        .catch(error => {console.log('Catch', error)});
+                    })
+                })
+            }
+
+            function send_get_request(action)
+            {
+                fetch("http://127.0.2.2:8000/login.js", {
+                    method: 'GET',
+                    headers: {'Cookie': document.cookie},
+                    credentials: 'include',
+                    contentType: 'text/plain',
+                    crossDomain: true,
+                })
+                .then(response => {
+                    const setCookieHeader = response.headers.get('set-cookies');               
+                    if (setCookieHeader)
+                    {
+                        cookies = parseCookies(setCookieHeader);
+                        document.cookie = "session_id=" + cookies.session_id + "; expires=Thu, 01 Jan 2025 00:00:00 UTC; path=/; SameSite=None; Secure";
+                    }
+                })
+
+                login = document.getElementById('login').value;
+                password = document.getElementById('password').value;
+                const data = {
+                    "action": action, 
+                    "name": login,
+                    "password": password,
+                    "cookie": getCookieValue('session_id')
+                };
+                fetch("http://127.0.2.2:8000/login.js", {
+                    method: 'POST',
+                    headers: {'Cookie': document.cookie},
+                    credentials: 'include',
+                    contentType: 'application/json',
+                    body: JSON.stringify(data),
+                    crossDomain: true,
+                })
+                .then(response => {
+                    //setCookieHeader = response.headers.get('set-cookies');
                     //let data = response.json();
                     //data["cookies"] = setCookieHeader;
                     return response.json(); // Parse JSON data
                 })
                 .then(data => {
                     console.log(data);
-                    //const setCookieHeader = data.headers.get('set-cookies');
-                    //const setCookieHeader = "session_id=1; path=/"
-                    //console.log(response);
-                    //console.log(setCookieHeader);
-                    //console.log(document.cookie);
-                    
-                    if (setCookieHeader)
+                    if (data["status"] == "OK")
                     {
-                        cookies = parseCookies(setCookieHeader);
-                        console.log("Cookie found - token: " + cookies.session_id);
-                        document.cookie = "session_id=" + cookies.session_id + "; expires=Thu, 01 Jan 2025 00:00:00 UTC; path=/; SameSite=None; Secure";
-                        //console.log(document.cookie);
+                        hide(login);
                     }
-                    else
-                        console.log("No cookies");
-                    
-
+                    else if (data["status"] == "signout")
+                    {
+                        show();
+                    }
                 })
                 .catch(error => {console.log('Catch', error)});
+            }
+
+            function hide(login) 
+            {
+                document.getElementById('login_div').style.visibility = "hidden";
+                document.getElementById('password_div').style.visibility = "hidden";
+                document.getElementById('button_signup').style.visibility = "hidden";
+                document.getElementById('is_signed').innerHTML = login + ' is registered';
+            }
+
+            function show()
+            {
+                document.getElementById('login_div').style.visibility = "visible";
+                document.getElementById('password_div').style.visibility = "visible";
+                document.getElementById('button_signup').style.visibility = "visible";
+                document.getElementById('is_signed').innerHTML = "";
+            }
+
+            function getCookieValue(cookieName) 
+            {
+                var cookies = document.cookie.split(';');
+
+                for (var i = 0; i < cookies.length; i++) 
+                {
+                    var cookie = cookies[i].trim();
+
+                   if (cookie.indexOf(cookieName + '=') === 0) 
+                    {
+                        return cookie.substring(cookieName.length + 1);
+                    }
+                }
             }
 
             function parseCookies(setCookieHeader) {

@@ -24,19 +24,60 @@ process.stdin.on('data', function(data_in) {
         output["error"] = "Parse Err";
         return ;
     }
-    if (jason["action"] == "signup")
+    if (jason["action"] == "get_cookie")
+    {
+        if (conv_json.hasOwnProperty("user"))
+        {
+            output["status"] = "full";
+            output["cookie"] = conv_json["user"][2];
+        }
+        else
+        {
+            output["status"] = "empty";
+        }
+    }
+    else if (jason["action"] == "check")
+    {
+        if (conv_json.hasOwnProperty("user"))
+        {
+            if (conv_json["user"][2] == jason["cookie"])
+            {
+                output["status"] = "OK";
+                output["user"] = conv_json["user"][0];
+            }
+            else
+            {
+                delete conv_json["user"];
+                fs.writeFile(path, JSON.stringify(conv_json), 'utf8', function(err) 
+                {
+                    output["error"] = "err";
+                });
+            }
+        }
+    }
+    else if (jason["action"] == "signup")
     {
         if(conv_json[jason["name"]])
             output["status"] = "existed";
         else
         {
-            conv_json[jason["name"]] = jason["password"]; 
+            conv_json["user"] = [jason["name"], jason["password"], jason["cookie"]]; 
+            //conv_json[jason["name"]] = jason["cookie"];
             fs.writeFile(path, JSON.stringify(conv_json), 'utf8', function(err) 
             {
                 output["error"] = "err";
             });
             output["status"] = "OK";
         }
+    }
+    else if (jason["action"] == "signout")
+    {
+        delete conv_json["user"];
+        fs.writeFile(path, JSON.stringify(conv_json), 'utf8', function(err) 
+        {
+            output["error"] = "err";
+        });
+        output["status"] = "signout";
     }
 });
 
