@@ -16,7 +16,6 @@ INCS = $(wildcard includes/*.hpp)
 OBJS = ${SRCS:.cpp=.o}
 MANDA = webserv
 CC = c++
-#FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread
 FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread -D DELAY=50
 all:	$(MANDA)
 .cpp.o:
@@ -129,36 +128,37 @@ subjects:
 	-curl -i -X GET 127.0.2.2:8000/hello.js
 	-curl -i -X GET 127.0.2.2:8000/hello.py
 
-FLAGS0 = -Wall -Wextra -Werror -std=c++98 -pthread -D DELAY=25
-test:
-	#clear && make re && make clean && valgrind --tool=helgrind ./webserv .conf
+helgrind:
 	clear && make re && make clean && valgrind --tool=helgrind --history-level=none ./webserv .conf
-test0:
+
+valgrind:
 	clear && make re && make clean && valgrind --track-origins=yes --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv .conf
+
 gits:
 	git add Makefile
 	git add *.cpp
 	git add *.hpp
-	git commit -m "all"
+	git add .conf
+	git add www
+	git add tester
+	git add error_pages
+	git add "John Denver Perhaps Love.mp3"
+	git add "Hanoi.jpg"
+	git add "Break dance.mp4"
+	git add ubuntu_tester
+	git add ubuntu_cgi_tester
+	git commit -m "defense in depth"
 	git push
 
 tester:
-	clear
-	./ubuntu_tester http://127.0.2.1:4242
-	#./ubuntu_tester http://0.0.0.0:8012
-	#curl -i -X GET http://127.0.2.1:4242
-	#curl -i -X POST http://127.0.2.1:4242/directory/youpi.bla
-	#curl -i -X POST http://0.0.0.0:8012/directory/youpi.bla
-	#curl -i -X POST -H "Transfer-Encoding: chunked" --data-raw "$$(dd if=/dev/urandom bs=20000 count=1 status=none | base64 | tr -d '\n' | head -c 20000)" http://127.0.2.1:4242/directory/youpi.bla
-js:	
-	#curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/hello.py
-	#curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/hello.php
+	clear && ./ubuntu_tester http://127.0.2.1:4242
 
 wait:
 	curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/wait.php
 
 kill:
 	pkill -9 -f "webserv .conf"
+
 M:=
 gitd:
 	make fclean
@@ -169,13 +169,10 @@ gitd:
 	git add www
 	git add tester
 	git add error_pages
-	git add webserv-master
 	git add README.md
 	git add "John Denver Perhaps Love.mp3"
 	git add "Hanoi.jpg"
 	git add "Break dance.mp4"
-	#git commit -m "all"
-	#git add -A -- :!*.o :!*.swp :!*.env
 	git commit -m "$(M)"
 	git push
 .PHONY: all clean fclean re test pause tester wait
