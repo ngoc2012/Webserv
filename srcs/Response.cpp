@@ -17,6 +17,10 @@
 #include <cerrno> // For errno
 #include <cstring> // For strerror
 
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
 #include "Host.hpp"
 #include "Worker.hpp"
 #include "Server.hpp"
@@ -111,8 +115,20 @@ void	 Response::body_generate(void)
             return ;
         else
         {
-            std::string mess = (*_host->get_status_message())[_status_code];
-            mess_body(ft::itos(_status_code) + " " + mess, mess);
+            std::string file_name = "error_pages/" + ft::itos(_status_code) + ".html";
+            std::ifstream file(file_name.c_str());
+            if (file.is_open())
+            {
+                std::stringstream buffer;
+                buffer << file.rdbuf();
+                _body += buffer.str();
+                file.close();
+            }
+            else
+            {
+                std::string mess = (*_host->get_status_message())[_status_code];
+                mess_body(ft::itos(_status_code) + " " + mess, mess);
+            }
         }
     }
     else if (_request->get_method() == DELETE)
