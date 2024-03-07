@@ -67,7 +67,7 @@ std::string Listing::get_listing(const std::string& directory_name, const std::s
         std::string parent_directory = directory_name.substr(0, directory_name.find_last_of("/\\"));
         if (parent_directory.empty())
             parent_directory = "/";
-        listing_html += "<tr><td><a href='" + base_path + "/..'>Parent Directory</a></td><td></td><td></td></tr>\n";
+        listing_html += "<tr><td><a href='" + base_path + "../'>Parent Directory</a></td><td></td><td></td></tr>\n";
     }
 
     const char* directory_path = directory_name.c_str();
