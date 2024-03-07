@@ -32,7 +32,7 @@ void print_loading_bar(int progress, int total, int barWidth, pthread_mutex_t* _
             std::cout << " ";
         }
     }
-    std::cout << "] " << static_cast<int>(percentage * 100.0) << "% (" << progress << "b/" << total << "b)" << "\r";
+    std::cout << "] " << static_cast<int>(percentage * 100.0) << "% (" << convertisseur(progress) << "/" << convertisseur(total) << ")" << "          \r";
     std::cout.flush();
     if (_cout_mutex)
         pthread_mutex_unlock(_cout_mutex);

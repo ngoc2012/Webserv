@@ -22,7 +22,7 @@ void print_size(size_t size, pthread_mutex_t* _cout_mutex)
     if (_cout_mutex)
         pthread_mutex_lock(_cout_mutex);
 
-    std::cout << size << "b\r";
+    std::cout << convertisseur(size) << "               \r";
     std::cout.flush();
 
     if (_cout_mutex)

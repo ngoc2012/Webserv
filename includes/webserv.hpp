@@ -69,6 +69,7 @@ void	                    timestamp(void);
 void                        print_loading_bar(int progress, int total, int barWidth, pthread_mutex_t* _cout_mutex);
 void                        print_size(size_t size, pthread_mutex_t* _cout_mutex);
 char*						strdup(const char* str);
+std::string                 convertisseur(size_t size);
 }
 
 #endif

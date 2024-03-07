@@ -14,7 +14,9 @@
 #include <string>
 #include <sstream>
 
-std::string ft(size_t size) {
+namespace ft {
+
+std::string     convertisseur(size_t size) {
     std::ostringstream result;
     if (size < 1024) {
         result << size << "b";
@@ -24,4 +26,6 @@ std::string ft(size_t size) {
         result << size / (1024 * 1024) << "Mb";
     }
     return result.str();
+}
+
 }
