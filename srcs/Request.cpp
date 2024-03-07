@@ -112,7 +112,11 @@ Request::~Request()
     delete[] _buffer;
     clean();
     if (_socket > 0)
+    {
+        pthread_mutex_lock(_host->get_fd_mutex());
         close(_socket);
+        pthread_mutex_unlock(_host->get_fd_mutex());
+    }
 }
 
 int     Request::read(void)

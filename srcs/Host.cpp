@@ -101,12 +101,6 @@ void	Host::start(void)
         if (select(_max_sk + 1, &_read_set, &_write_set, NULL, NULL) != -1)
         {
             pthread_mutex_unlock(&_set_mutex);
-
-            // pthread_mutex_lock(&_need_update_mutex);
-            // _need_update = false;
-            // pthread_cond_signal(&_cond_need_update);
-            // pthread_mutex_unlock(&_need_update_mutex);
-
             check_sk_ready();
         }
         else

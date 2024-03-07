@@ -94,7 +94,7 @@ void	Worker::check_timeout(void)
     pthread_mutex_lock(&_sk_size_mutex);
     std::map<int, Request*>     sk_request = _sk_request;
     pthread_mutex_unlock(&_sk_size_mutex);
-    // bool        to = false;
+
     for (std::map<int, Request*>::iterator it = sk_request.begin(), next = it;
         it != sk_request.end(); it++)
     {
@@ -104,7 +104,6 @@ void	Worker::check_timeout(void)
         pthread_mutex_unlock(&_timeout_mutex);
         if (dt > it->second->get_timeout())
         {
-            // to = true;
             pthread_mutex_lock(_host->get_cout_mutex());
             ft::timestamp();
             std::cout << MAGENTA << "Time Out " << it->first << " (" << dt << "/" << it->second->get_timeout() << ") wk: " << _id << RESET << std::endl;
