@@ -179,7 +179,7 @@ void  	Host::close_connection(int i)
 {
     pthread_mutex_lock(&_cout_mutex);
     ft::timestamp();
-    std::cout << BLUE << "Close connection " << i << RESET << std::endl;
+    std::cout << BLUE << "Close connection " << i << "                                         " << RESET << std::endl;
     pthread_mutex_unlock(&_cout_mutex);
     pthread_mutex_lock(&_set_mutex);
 	FD_CLR(i, &_master_read_set);
