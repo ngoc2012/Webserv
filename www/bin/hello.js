@@ -99,6 +99,8 @@ process.stdin.on('data', function(data) {
 process.stdin.on('end', function() {
     // End of input, if needed
     //console.log("End of input.");
+    console.log("Status: 200 OK\r\n");
+    console.log("Content-Type: plain/text; charset=utf-8\r\n\r\n");
     console.log(JSON.stringify(output));
 });
 
