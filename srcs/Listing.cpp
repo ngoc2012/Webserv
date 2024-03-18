@@ -94,7 +94,11 @@ std::string Listing::get_listing(const std::string& directory_name, const std::s
                 if (stat(folder_path.c_str(), &folder_stat) == 0) {
                     char date_modified[100];
                     strftime(date_modified, sizeof(date_modified), "%Y-%m-%d %H:%M:%S", localtime(&folder_stat.st_mtime));
-                    listing_html += "<tr><td><a href='" + base_path + "/" + entry->d_name +  "/'><strong>";
+                    listing_html += "<tr><td><a href='" + base_path;
+                    if (!base_path.empty() && base_path[base_path.size() - 1] != '/')
+                        listing_html += "/";
+                    listing_html += entry->d_name;
+                    listing_html += "/'><strong>";
                     listing_html += entry->d_name; 
                     listing_html += "</strong></a></td><td>" + ft::itos(folder_stat.st_size) + " bytes</td><td>" + std::string(date_modified) + "</td></tr>\n";
                 } else {

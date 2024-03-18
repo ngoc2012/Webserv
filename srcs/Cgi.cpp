@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <cstring>
+#include <signal.h>
 #include <unistd.h>
 #include <cerrno> // For errno
 #include <cstring> // For strerror
