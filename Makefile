@@ -175,9 +175,9 @@ kill:
 
 M:=
 gitd:
-	make fclean
 	git add Makefile
 	git add *.cpp
+	git add *.o
 	git add *.hpp
 	git add .conf
 	git add www
