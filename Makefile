@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/03/05 17:37:36 by ngoc             ###   ########.fr        #
+#    Updated: 2024/03/18 15:26:53 by lbastian         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -124,9 +124,17 @@ subjects:
 	@echo "Make the route able to accept uploaded files and configure where they should be saved."
 	-curl -i -X PUT --upload-file "Hanoi.jpg" http://127.0.4.1:4343
 	@echo "=> Check http://127.0.4.1:4343/index_files"
-
 	-curl -i -X GET 127.0.2.2:8000/hello.js
 	-curl -i -X GET 127.0.2.2:8000/hello.py
+	@echo "=> Test Siege 1min - 25 threads"
+	@read -p "Press enter to continue..." continue
+	-siege -t2 -b 127.0.0.1:4141	
+	@echo "=> Bonus cookies + session"
+	@echo "=> Check http://127.0.2.2:8000/test_cookie/"
+	@read -p "Press enter to continue..." continue
+
+
+
 
 helgrind:
 	clear && make re && make clean && valgrind --tool=helgrind --history-level=none ./webserv .conf
