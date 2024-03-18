@@ -128,6 +128,7 @@ int     Request::read(void)
 
 int     Request::read_header()
 {
+    // std::cout << "Read header" << std::endl;
     size_t			_header_size;
     int ret = recv(_socket, _buffer, _header_buffer, 0);
     if (ret <= 0)
@@ -159,12 +160,10 @@ int     Request::read_header()
     parse_header();
     process_fd_in();
     write_body_left();
-    if (_end)
-        return (end_request(1));
     if (_content_length && (_body_size == _content_length))
-        return (end_request(1));
+        return (end_request(3));
     if ((!_chunked && !_content_length) || _method == HEAD)
-        return (end_request(1));
+        return (end_request(4));
     return (ret);
 }
 
@@ -183,7 +182,7 @@ void    Request::write_body_left(void)
             std::cerr << "Error: Unable to write to file " << _tmp_file << std::endl;
             pthread_mutex_unlock(_host->get_cout_mutex());
             _status_code = 500;
-            end_request(1);
+            end_request(5);
         }
         _body_size = _body_left;
     }
@@ -238,13 +237,7 @@ void	Request::parse_header(void)
     size_t          end_line = _str_header.find("\r\n");
     std::string     line = _str_header.substr(0, end_line);
     if (!parse_method_url(line))
-    {
-        pthread_mutex_lock(_host->get_cout_mutex());
-        std::cerr << RED << "Error: Method or url error." << RESET << std::endl;
-        pthread_mutex_unlock(_host->get_cout_mutex());
         _status_code = 400;
-        return ;
-    }
     _str_header.erase(0, end_line + 2);
     size_t          separator;
     do
@@ -269,7 +262,7 @@ void	Request::parse_header(void)
         std::cerr << RED << "Error: No host name." << RESET << std::endl;
         pthread_mutex_unlock(_host->get_cout_mutex());
         _status_code = 400;
-        return ;
+        // return ;
     }
     std::vector<Server*>*       servers = _address->get_servers();
     std::set<std::string>*      server_names;
@@ -423,7 +416,7 @@ void    Request::write_chunked()
         if (!_chunk_size)
         {
             _end = true;
-            end_request(1);
+            end_request(9);
             return ;
         }
         _read_data.erase(0, end_size);
@@ -526,7 +519,7 @@ void	Request::process_fd_in()
                 std::cerr << RED << "Error: Can not open file " << _tmp_file << "." << RESET << std::endl;
                 pthread_mutex_unlock(_host->get_cout_mutex());
                 _status_code = 500;
-                end_request(1);
+                end_request(7);
             }
             break;
         case DELETE:
@@ -536,7 +529,7 @@ void	Request::process_fd_in()
                 pthread_mutex_lock(_host->get_cout_mutex());
                 std::cerr << RED << "Error: Can not delete file " << _full_file_name << "." << RESET << std::endl;
                 pthread_mutex_unlock(_host->get_cout_mutex());
-                end_request(1);
+                end_request(8);
             }
             break;
         case NONE:
@@ -559,7 +552,9 @@ int     Request::end_request(int ret)
     }
     _end = true;
     _response.set_status_code(_status_code);
-    _response.header_generate();
+    if (*(_response.get_header()) == "")
+        _response.header_generate();
+    // _response.header_generate();
     return (ret);
 }
 

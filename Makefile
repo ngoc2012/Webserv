@@ -134,7 +134,7 @@ subjects:
 	-curl -i -X GET 127.0.2.2:8000/hello.py
 	@echo "=> Test Siege 1min - 25 threads"
 	@read -p "Press enter to continue..." continue
-	-siege -t2 -b 127.0.0.1:4141	
+	-siege -t2 -b 127.0.5.1:4141	
 	@echo "=> Bonus cookies + session"
 	@echo "=> Check http://127.0.2.2:8000/test_cookie/"
 	@read -p "Press enter to continue..." continue
