@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/03/18 15:26:53 by lbastian         ###   ########.fr        #
+#    Updated: 2024/03/18 16:34:02 by lbastian         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -90,6 +90,10 @@ subjects:
 	@echo "****************************************************************************"
 	@echo "=> Recheck http://127.0.0.1:4141/put_test"
 	@read -p "Press enter to continue..." continue
+	@echo "Test with UNKNOWN method"
+	@read -p "Press enter to continue..." continue
+	-curl -i -X UNKNOWN http://127.0.2.1:4242
+	@read -p "Press enter to continue..." continue
 	@echo "============================================================================"
 	@echo "Setup the server_names or not."
 	@echo "Without server name"
@@ -118,9 +122,11 @@ subjects:
 	@echo "=> Check http://127.0.0.1:4141/index_files0"
 	@echo "=> Check http://127.0.0.1:4141/put_test"
 	@echo "=> Check http://127.0.0.1:4141/put_test0"
+	@read -p "Press enter to continue..." continue
 	@echo "Execute CGI based on certain file extension (for example .php). Make it work with POST and GET methods."
 	-curl -i -X GET 127.0.2.2:8000/hello.php
 	-curl -i -X GET 127.0.2.2:8000/version.php
+	@read -p "Press enter to continue..." continue
 	@echo "Make the route able to accept uploaded files and configure where they should be saved."
 	-curl -i -X PUT --upload-file "Hanoi.jpg" http://127.0.4.1:4343
 	@echo "=> Check http://127.0.4.1:4343/index_files"
