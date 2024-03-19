@@ -31,6 +31,10 @@
 #   define DELAY 0 // ms * n_workers
 # endif
 
+# ifndef RUPTURE
+#   define RUPTURE 0 // Close connection after send or recv failure
+# endif
+
 # define NPOS std::string::npos
 
 // ANSI color codes

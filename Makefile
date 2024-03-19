@@ -16,7 +16,7 @@ INCS = $(wildcard includes/*.hpp)
 OBJS = ${SRCS:.cpp=.o}
 MANDA = webserv
 CC = c++
-FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread -D DELAY=50
+FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread -D DELAY=50 -D RUPTURE=0
 all:	$(MANDA)
 .cpp.o:
 	$(CC) $(FLAGS) -g -c $< -o ${<:.cpp=.o} -I./includes
