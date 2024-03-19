@@ -291,7 +291,7 @@ int    Cgi::parse_header()
             _content_type = header.substr(value_start);
         }
     }
-    pos = header.find("\r\n\r\n");
+    // pos = header.find("\r\n\r\n");
     if (header == "" || pos == NPOS)
     {
         std::cerr << RED << "Error: No header found in cgi _fd_out" << RESET << std::endl;
