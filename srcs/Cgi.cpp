@@ -248,7 +248,7 @@ int    Cgi::parse_header()
     std::string     header = "";
     char            buffer[BUFFER_SIZE + 1];
     ssize_t         ret;
-    size_t          pos;
+    size_t          pos = NPOS;
     bool            header_complete = false;
 
     if (lseek(_fd_out, 0, SEEK_SET) == -1)
