@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/03/21 18:45:42 by lbastian         ###   ########.fr        #
+#    Updated: 2024/03/21 18:58:55 by lbastian         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -168,6 +168,11 @@ subjects:
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.timeout_min.conf
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.timeout_not.conf
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.wrong_name_server_cat.conf
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.autoindex_not.conf
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.alias_not.conf
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.redirection_one_arg.conf
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.cgi_pass_not.conf
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.location_not.conf
 	@echo "=> Test Siege 1min - 25 threads"
 	@read -p "Press enter to continue..." continue
 	-siege -t2 -b 127.0.5.1:4141	

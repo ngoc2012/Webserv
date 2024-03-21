@@ -12,6 +12,9 @@
 .root_not.conf = crash
 .timeout_not.conf = crash
 .same_server_name.conf = working?
+.alias_not.conf = crash
+.cgi_pass_not.conf = crash
+.location_not.conf = error + working?
 
 //////////OTHER
 There should be only one read or one write per client per select (or equivalent). Ask to show you the code that goes from the select (or equivalent) to the read and write of a client.
