@@ -1,0 +1,21 @@
+//////////CONF HOST
+.worker_not.conf = crash
+.client_body_buffer_size_not.conf = crash
+.client_max_body_size_not.conf = crash
+.large_client_header_buffer_not.conf = crash
+.timeout_not.conf = crash
+
+
+//////////CONF SERVER
+.listen_double_same.conf = working?
+.listen_double_same2.conf = working?
+.root_not.conf = crash
+.timeout_not.conf = crash
+.same_server_name.conf = working?
+
+//////////OTHER
+There should be only one read or one write per client per select (or equivalent). Ask to show you the code that goes from the select (or equivalent) to the read and write of a client.
+2 recv -> Request l.133 l.330
+3 send -> Response l.77 l.181 l.225
+
+wilcards makefile
