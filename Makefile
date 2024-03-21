@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/03/18 16:34:02 by lbastian         ###   ########.fr        #
+#    Updated: 2024/03/19 14:42:05 by lbastian         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,7 @@ INCS = $(wildcard includes/*.hpp)
 OBJS = ${SRCS:.cpp=.o}
 MANDA = webserv
 CC = c++
-FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread -D DELAY=50
+FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread -D DELAY=50 -D RUPTURE=0
 all:	$(MANDA)
 .cpp.o:
 	$(CC) $(FLAGS) -g -c $< -o ${<:.cpp=.o} -I./includes
@@ -134,7 +134,7 @@ subjects:
 	-curl -i -X GET 127.0.2.2:8000/hello.py
 	@echo "=> Test Siege 1min - 25 threads"
 	@read -p "Press enter to continue..." continue
-	-siege -t2 -b 127.0.0.1:4141	
+	-siege -t2 -b 127.0.5.1:4141	
 	@echo "=> Bonus cookies + session"
 	@echo "=> Check http://127.0.2.2:8000/test_cookie/"
 	@read -p "Press enter to continue..." continue

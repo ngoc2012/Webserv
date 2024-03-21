@@ -57,6 +57,7 @@ void	Worker::routine(void)
     Request*    request;
     Response*   response;
     bool        worked = false;
+    int         ret;
 
     pthread_mutex_lock(&_sk_size_mutex);
     std::map<int, Request*>     sk_request = _sk_request;
@@ -71,15 +72,17 @@ void	Worker::routine(void)
         {
             pthread_mutex_unlock(&_set_mutex);
             worked = true;
-            request->read();
+            ret = request->read();
+            if (ret < 0 && RUPTURE != 0)
+                close_client_sk(it->first);
         }
         else if (FD_ISSET(it->first, &_write_set) && request->get_end())
         {
             pthread_mutex_unlock(&_set_mutex);
             worked = true;
             response = it->second->get_response();
-            response->write();
-            if (response->get_end() && request->get_close())
+            ret = response->write();
+            if ((ret < 0 && RUPTURE != 0) || (response->get_end() && request->get_close()))
                 close_client_sk(it->first);
         }
         else
