@@ -19,3 +19,5 @@ There should be only one read or one write per client per select (or equivalent)
 3 send -> Response l.77 l.181 l.225
 
 wilcards makefile
+
+Launch multiple servers at the same time with different configurations but with common ports. Is it working? If it is working, ask why the server should work if one of the configurations isn't working. keep going
