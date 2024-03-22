@@ -171,6 +171,11 @@ bool	Configuration::host_parser(std::string cmd, Host* host, std::vector<std::st
 		return (true);
 	if (words[0] == "client_max_body_size")
 	{
+		if (words.size() != 2)
+		{
+			std::cerr << "Error: client_max_body_size value not found." << std::endl;
+			return (true);
+		}
 		n = std::atoi(words[1].c_str());
 		if (!ft::is_digit(words[1]) || n < 0 || n > 1000)
         {
@@ -181,6 +186,11 @@ bool	Configuration::host_parser(std::string cmd, Host* host, std::vector<std::st
 	}
 	else if (words[0] == "client_body_buffer_size")
 	{
+		if (words.size() != 2)
+		{
+			std::cerr << "Error: client_body_buffer_size value not found." << std::endl;
+			return (true);
+		}
 		n = std::atoi(words[1].c_str());
 		if (!ft::is_digit(words[1]) || n < 0 || n > 1000)
         {
@@ -191,6 +201,11 @@ bool	Configuration::host_parser(std::string cmd, Host* host, std::vector<std::st
 	}
 	else if (words[0] == "workers")
 	{
+		if (words.size() != 2)
+		{
+			std::cerr << "Error: number of workers value not found." << std::endl;
+			return (true);
+		}
 		n = std::atoi(words[1].c_str());
 		if (!ft::is_digit(words[1]) || n < 1 || n > 200)
         {
@@ -201,6 +216,11 @@ bool	Configuration::host_parser(std::string cmd, Host* host, std::vector<std::st
 	}
 	else if (words[0] == "large_client_header_buffer")
 	{
+		if (words.size() != 2)
+		{
+			std::cerr << "Error: large_client_header_buffer value not found." << std::endl;
+			return (true);
+		}
 		n = std::atoi(words[1].c_str());
 		if (!ft::is_digit(words[1]) || n < 1 || n > 64)
         {
@@ -211,6 +231,11 @@ bool	Configuration::host_parser(std::string cmd, Host* host, std::vector<std::st
 	}
 	else if (words[0] == "timeout")
 	{
+		if (words.size() != 2)
+		{
+			std::cerr << "Error: timeout value not found." << std::endl;
+			return (true);
+		}
 		n = std::atoi(words[1].c_str());
 		if (!ft::is_digit(words[1]) || n < 0 || n > 100)
         {
@@ -241,6 +266,11 @@ bool	Configuration::server_parser(std::string cmd, Server* server, std::vector<s
             server->set_server_name(*it);
 	else if (words[0] == "root")
 	{
+		if (words.size() != 2)
+		{
+			std::cerr << "Error: root value not found." << std::endl;
+			return (true);
+		}
 		struct stat	info;
 		if (!(stat(words[1].c_str(), &info) == 0 && S_ISDIR(info.st_mode)))
 		{
@@ -251,6 +281,12 @@ bool	Configuration::server_parser(std::string cmd, Server* server, std::vector<s
 	}
 	else if (words[0] == "timeout")
 	{
+		if (words.size() != 2)
+		{
+			std::cerr << "Error: timeout value not found." << std::endl;
+			return (true);
+		}
+		
 		n = std::atoi(words[1].c_str());
 		if (!ft::is_digit(words[1]) || n < 0 || n > 100)
         {
@@ -293,6 +329,11 @@ bool	Configuration::location_parser(std::string cmd, Location* loc, std::vector<
 		}
 	else if (words[0] == "index")
 	{
+		if (words.size() < 2)
+		{
+			std::cerr << "Error: index value not found." << std::endl;
+			return (true);
+		}
 		for (std::vector<std::string>::iterator it = words.begin() + 1;
 				it != words.end(); ++it)
             loc->push_back_index(*it);
@@ -309,6 +350,11 @@ bool	Configuration::location_parser(std::string cmd, Location* loc, std::vector<
     }
 	else if (words[0] == "alias")
 	{
+		if (words.size() != 2)
+		{
+			std::cerr << "Error: alias value not found." << std::endl;
+			return (true);
+		}
 		struct stat	info;
 		if (!(stat(words[1].c_str(), &info) == 0 && S_ISDIR(info.st_mode)))
 		{
@@ -319,6 +365,11 @@ bool	Configuration::location_parser(std::string cmd, Location* loc, std::vector<
 	}
 	else if (words[0] == "cgi_pass")
 	{
+		if (words.size() != 2)
+		{
+			std::cerr << "Error: cgi pass value not found." << std::endl;
+			return (true);
+		}
 		struct stat	info;
 		if (stat(words[1].c_str(), &info) == -1 || S_ISDIR(info.st_mode))
 		{
@@ -329,6 +380,11 @@ bool	Configuration::location_parser(std::string cmd, Location* loc, std::vector<
 	}
 	else if (words[0] == "client_max_body_size")
 	{
+		if (words.size() != 2)
+		{
+			std::cerr << "Error: client_max_body_size value not found." << std::endl;
+			return (true);
+		}
 		n = std::atoi(words[1].c_str());
 		if (!ft::is_digit(words[1]) || n < 0 || n > 10000000)
         {
