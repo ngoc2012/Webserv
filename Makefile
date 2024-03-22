@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/03/22 16:01:09 by ngoc             ###   ########.fr        #
+#    Updated: 2024/03/22 16:08:45 by lbastian         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -133,55 +133,99 @@ subjects:
 	@echo "=> Check http://127.0.4.1:4343/index_files"
 	-curl -i -X GET 127.0.2.2:8000/hello.js
 	-curl -i -X GET 127.0.2.2:8000/hello.py
+	@echo "============================================================================"
 	@echo "=> Test .conf"
 	@read -p "Press enter to continue..." continue
 	@echo "=> The following tests should return error:"
 	@read -p "Press enter to continue..." continue
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/.categorie_unknown.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.client_body_buffer_size_max.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.client_body_buffer_size_min.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.client_body_buffer_size_not.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.client_max_body_size_max.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.client_max_body_size_min.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.client_max_body_size_not.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.host_indentation.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.large_client_header_buffer_max.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.large_client_header_buffer_min.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.large_client_header_buffer_not.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.timeout_max.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.timeout_min.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.timeout_not.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.unknown_host.conf 
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.workers_max.conf  
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.workers_min.conf  
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.workers_not.conf  
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.listen_double_same2.conf 
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.listen_double_same.conf 
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.listen_not.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.listen_wrong_ip.conf 
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.listen_wrong_port.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.methods_wrong.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.root_not.conf 
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.same_server_name.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.server_indentation.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.timeout_max.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.timeout_min.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.timeout_not.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.wrong_name_server_cat.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.autoindex_not.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.alias_not.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.redirection_one_arg.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.cgi_pass_not.conf
+	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.location_not.conf
-	@echo "=> Test Siege 1min - 25 threads"
+	@echo "=> The following tests should work"
+	@read -p "Press enter to continue..." continue
+	@echo "valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/should_work/.no_host.conf"
+	@echo "valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/should_work/.listen_double_diff.conf"
+	@echo "valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/should_work/.methods_not.conf"
+	@echo "valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/should_work/.server_name_not.conf"
+	@read -p "Press enter to continue..." continue
+	@echo "============================================================================"
+	@echo "=> Test Siege 2min - 25 threads"
 	@read -p "Press enter to continue..." continue
 	-siege -t2 -b 127.0.5.1:4141	
 	@echo "=> Bonus cookies + session"
 	@echo "=> Check http://127.0.2.2:8000/test_cookie/"
 	@read -p "Press enter to continue..." continue
 	@echo "!!!!!!!!!!!! To do: !!!!!!!!!!!!"
-	-cat to_check
-
+	@-cat to_check	
+	@echo "!!!!!!!!!!!! REMOVE COMMENT MAKEFILE !!!!!!!!!!!!"
 
 
 helgrind:
