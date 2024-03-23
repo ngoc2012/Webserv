@@ -268,7 +268,8 @@ gitd:
 	git add www
 	git add tester
 	git add error_pages
-	git add README.md
+	git add nginx.conf
+	git add nginx.sh
 	git add "John Denver Perhaps Love.mp3"
 	git add "Hanoi.jpg"
 	git add "Break dance.mp4"
