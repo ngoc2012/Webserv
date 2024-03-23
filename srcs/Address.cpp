@@ -49,9 +49,9 @@ int     Address::listen_socket(void)
         std::cout << "Error: listen_socket: socket() failed " << _ip_address << ":" << _port << std::endl;
 		return (-1);
 	}
-	int    on = 1;
+	int    off = 0;
 	if (setsockopt(_listen_socket, SOL_SOCKET,  SO_REUSEADDR,
-                   (char *)&on, sizeof(on)) < 0)
+                   (char *)&off, sizeof(off)) < 0)
 	{
         std::cout << "Error: listen_socket: setsockopt() failed " << _ip_address << ":" << _port << std::endl;
 		return (-1);
@@ -67,6 +67,7 @@ int	    Address::bind_addr()
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(_port);
 	addr.sin_addr.s_addr = inet_addr(_ip_address.c_str());
+	std::cout << "Binding to " << _ip_address << ":" << _port << std::endl;
 	if (bind(_listen_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0)
 	{
 		pthread_mutex_lock(_host->get_cout_mutex());
