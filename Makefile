@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/03/22 16:08:45 by lbastian         ###   ########.fr        #
+#    Updated: 2024/03/23 16:59:52 by lbastian         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,7 +29,7 @@ fclean: clean
 	rm -f logs
 re: fclean all
 
-# ANSI escape codes
+#ANSI escape codes
 RESET := \033[0m
 RED := \033[0;31m
 GREEN := \033[0;32m
@@ -52,127 +52,127 @@ B_CYAN := \033[1;36m
 B_WHITE := \033[1;37m
 
 subjects:
-	#-make
-	#@echo "============================================================================"
-	#@echo "You must be able to serve a fully static website."
-	#@read -p "Press enter to continue..." continue
-	#@echo "=> Check http://127.0.0.1:4141"
-	#@read -p "Press enter to continue..." continue
-	#@echo "============================================================================"
-	#@echo "Clients must be able to upload files."
-	#@read -p "Press enter to continue..." continue
-	#@echo "=> Check http://127.0.0.1:4141/put_test"
-	#@read -p "Press enter to continue..." continue
-	#@echo "Put some files to server:"
-	#-curl -i -X PUT --upload-file "John Denver Perhaps Love.mp3" http://127.0.0.1:4141/#put_test/John_Denver_Perhaps_Love.mp3
-	#@echo "****************************************************************************"
-	#-curl -i -X PUT --upload-file "Hanoi.jpg" http://127.0.0.1:4141/put_test/Hanoi.jpg
-	#@echo "****************************************************************************"
-	#-curl -i -X PUT --upload-file "Break dance.mp4" http://127.0.0.1:4141/put_test/#Break_dance.mp4
-	#@echo "****************************************************************************"
-	#@echo "=> Recheck http://127.0.0.1:4141/put_test"
-	#@read -p "Press enter to continue..." continue
-	#@echo ""
-	#@echo "============================================================================"
-	#@echo "You need at least GET, POST, and DELETE methods."
-	#@read -p "Press enter to continue..." continue
-	#-curl -i -X GET http://127.0.2.1:4242
-	#@echo "****************************************************************************"
-	#@echo ""
-	#@read -p "Press enter to continue..." continue
-	#-curl -i -X POST -H "Transfer-Encoding: chunked" --data-raw "$$(dd if=/dev/urandom #bs=2000 count=1 status=none | base64 | tr -d '\n' | head -c 2000)" http://127.0.2.#1:4242/directory/youpi.bla
-	#@echo ""
-	#@read -p "Press enter to continue..." continue
-	#-curl -i -X DELETE http://127.0.0.1:4141/put_test/John_Denver_Perhaps_Love.mp3
-	#@echo "****************************************************************************"
-	#-curl -i -X DELETE http://127.0.0.1:4141/put_test/Hanoi.jpg
-	#@echo "****************************************************************************"
-	#-curl -i -X DELETE http://127.0.0.1:4141/put_test/Break_dance.mp4
-	#@echo "****************************************************************************"
-	#@echo "=> Recheck http://127.0.0.1:4141/put_test"
-	#@read -p "Press enter to continue..." continue
-	#@echo "Test with UNKNOWN method"
-	#@read -p "Press enter to continue..." continue
-	#-curl -i -X UNKNOWN http://127.0.2.1:4242
-	#@read -p "Press enter to continue..." continue
-	#@echo "============================================================================"
-	#@echo "Setup the server_names or not."
-	#@echo "Without server name"
-	#-curl -X GET http://127.0.3.1:8080
-	#@echo "****************************************************************************"
-	#@read -p "Press enter to continue..." continue
-	#-curl -H "Host: loic.com" http://127.0.3.1:8080
-	#@echo "****************************************************************************"
-	#@read -p "Press enter to continue..." continue
-	#-curl -H "Host: minh-ngu.42.fr" http://127.0.3.1:8080
-	#@echo "****************************************************************************"
-	#@read -p "Press enter to continue..." continue
-	#-curl -H "Host: nathan.fr" http://127.0.3.1:8080
-	#@echo "****************************************************************************"
-	#@read -p "Press enter to continue..." continue
-	#-curl -H "Host: minh-ngu.com" http://127.0.3.1:8080
-	#@read -p "Press enter to continue..." continue
-	#@echo "============================================================================"
-	#@echo "Limit client body size."
-	#-curl -i -X POST -H "Transfer-Encoding: chunked" --data-raw "$$(dd if=/dev/urandom #bs=20 count=1 status=none | base64 | tr -d '\n' | head -c 20)" http://127.0.2.1:4242/#post_body
-	#@read -p "Press enter to continue..." continue
-	#-curl -i -X POST -H "Transfer-Encoding: chunked" --data-raw "$$(dd if=/dev/urandom #bs=120 count=1 status=none | base64 | tr -d '\n' | head -c 120)" http://127.0.2.#1:4242/post_body
-	#@read -p "Press enter to continue..." continue
-	#@echo "Turn on or off directory listing."
-	#@echo "=> Check http://127.0.0.1:4141/index_files"
-	#@echo "=> Check http://127.0.0.1:4141/index_files0"
-	#@echo "=> Check http://127.0.0.1:4141/put_test"
-	#@echo "=> Check http://127.0.0.1:4141/put_test0"
-	#@read -p "Press enter to continue..." continue
-	#@echo "Execute CGI based on certain file extension (for example .php). Make it work #with POST and GET methods."
-	#-curl -i -X GET 127.0.2.2:8000/hello.php
-	#-curl -i -X GET 127.0.2.2:8000/version.php
-	#@read -p "Press enter to continue..." continue
-	#@echo "Make the route able to accept uploaded files and configure where they should #be saved."
-	#-curl -i -X PUT --upload-file "Hanoi.jpg" http://127.0.4.1:4343
-	#@echo "=> Check http://127.0.4.1:4343/index_files"
-	#-curl -i -X GET 127.0.2.2:8000/hello.js
-	#-curl -i -X GET 127.0.2.2:8000/hello.py
-	#@echo "============================================================================"
-	#@echo "=> Test .conf"
-	#@read -p "Press enter to continue..." continue
-	#@echo "=> The following tests should return error:"
-	#@read -p "Press enter to continue..." continue
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/.categorie_unknown.conf
-	#@echo "****************************************************************************"
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/host/send_error/.#client_body_buffer_size_max.conf
-	#@echo "****************************************************************************"
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/host/send_error/.#client_body_buffer_size_min.conf
-	#@echo "****************************************************************************"
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/host/send_error/.#client_body_buffer_size_not.conf
-	#@echo "****************************************************************************"
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/host/send_error/.client_max_body_size_max.#conf
-	#@echo "****************************************************************************"
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/host/send_error/.client_max_body_size_min.#conf
-	#@echo "****************************************************************************"
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/host/send_error/.client_max_body_size_not.#conf
-	#@echo "****************************************************************************"
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/host/send_error/.host_indentation.conf
-	#@echo "****************************************************************************"
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/host/send_error/.#large_client_header_buffer_max.conf
-	#@echo "****************************************************************************"
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/host/send_error/.#large_client_header_buffer_min.conf
-	#@echo "****************************************************************************"
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/host/send_error/.#large_client_header_buffer_not.conf
-	#@echo "****************************************************************************"
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/host/send_error/.timeout_max.conf
-	#@echo "****************************************************************************"
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/host/send_error/.timeout_min.conf
-	#@echo "****************************************************************************"
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/host/send_error/.timeout_not.conf
-	#@echo "****************************************************************************"
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/host/send_error/.unknown_host.conf 
-	#@echo "****************************************************************************"
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/host/send_error/.workers_max.conf  
-	#@echo "****************************************************************************"
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/host/send_error/.workers_min.conf  
-	#@echo "****************************************************************************"
-	#-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all #--track-origins=yes ./webserv wrong_conf/host/send_error/.workers_not.conf  
+	-make
+	@echo "============================================================================"
+	@echo "You must be able to serve a fully static website."
+	@read -p "Press enter to continue..." continue
+	@echo "=> Check http://127.0.0.1:4141"
+	@read -p "Press enter to continue..." continue
+	@echo "============================================================================"
+	@echo "Clients must be able to upload files."
+	@read -p "Press enter to continue..." continue
+	@echo "=> Check http://127.0.0.1:4141/put_test"
+	@read -p "Press enter to continue..." continue
+	@echo "Put some files to server:"
+	-curl -i -X PUT --upload-file "John Denver Perhaps Love.mp3" http://127.0.0.1:4141/put_test/John_Denver_Perhaps_Love.mp3
+	@echo "****************************************************************************"
+	-curl -i -X PUT --upload-file "Hanoi.jpg" http://127.0.0.1:4141/put_test/Hanoi.jpg
+	@echo "****************************************************************************"
+	-curl -i -X PUT --upload-file "Break dance.mp4" http://127.0.0.1:4141/put_test/Break_dance.mp4
+	@echo "****************************************************************************"
+	@echo "=> Recheck http://127.0.0.1:4141/put_test"
+	@read -p "Press enter to continue..." continue
+	@echo ""
+	@echo "============================================================================"
+	@echo "You need at least GET, POST, and DELETE methods."
+	@read -p "Press enter to continue..." continue
+	-curl -i -X GET http://127.0.2.1:4242
+	@echo "****************************************************************************"
+	@echo ""
+	@read -p "Press enter to continue..." continue
+	-curl -i -X POST -H "Transfer-Encoding: chunked" --data-raw "$$(dd if=/dev/urandom bs=2000 count=1 status=none | base64 | tr -d '\n' | head -c 2000)" http://127.0.2.1:4242/directory/youpi.bla
+	@echo ""
+	@read -p "Press enter to continue..." continue
+	-curl -i -X DELETE http://127.0.0.1:4141/put_test/John_Denver_Perhaps_Love.mp3
+	@echo "****************************************************************************"
+	-curl -i -X DELETE http://127.0.0.1:4141/put_test/Hanoi.jpg
+	@echo "****************************************************************************"
+	-curl -i -X DELETE http://127.0.0.1:4141/put_test/Break_dance.mp4
+	@echo "****************************************************************************"
+	@echo "=> Recheck http://127.0.0.1:4141/put_test"
+	@read -p "Press enter to continue..." continue
+	@echo "Test with UNKNOWN method"
+	@read -p "Press enter to continue..." continue
+	-curl -i -X UNKNOWN http://127.0.2.1:4242
+	@read -p "Press enter to continue..." continue
+	@echo "============================================================================"
+	@echo "Setup the server_names or not."
+	@echo "Without server name"
+	-curl -X GET http://127.0.3.1:8080
+	@echo "****************************************************************************"
+	@read -p "Press enter to continue..." continue
+	-curl -H "Host: loic.com" http://127.0.3.1:8080
+	@echo "****************************************************************************"
+	@read -p "Press enter to continue..." continue
+	-curl -H "Host: minh-ngu.42.fr" http://127.0.3.1:8080
+	@echo "****************************************************************************"
+	@read -p "Press enter to continue..." continue
+	-curl -H "Host: nathan.fr" http://127.0.3.1:8080
+	@echo "****************************************************************************"
+	@read -p "Press enter to continue..." continue
+	-curl -H "Host: minh-ngu.com" http://127.0.3.1:8080
+	@read -p "Press enter to continue..." continue
+	@echo "============================================================================"
+	@echo "Limit client body size."
+	-curl -i -X POST -H "Transfer-Encoding: chunked" --data-raw "$$(dd if=/dev/urandom bs=20 count=1 status=none | base64 | tr -d '\n' | head -c 20)" http://127.0.2.1:4242/post_body
+	@read -p "Press enter to continue..." continue
+	-curl -i -X POST -H "Transfer-Encoding: chunked" --data-raw "$$(dd if=/dev/urandom bs=120 count=1 status=none | base64 | tr -d '\n' | head -c 120)" http://127.0.2.1:4242/post_body
+	@read -p "Press enter to continue..." continue
+	@echo "Turn on or off directory listing."
+	@echo "=> Check http://127.0.0.1:4141/index_files"
+	@echo "=> Check http://127.0.0.1:4141/index_files0"
+	@echo "=> Check http://127.0.0.1:4141/put_test"
+	@echo "=> Check http://127.0.0.1:4141/put_test0"
+	@read -p "Press enter to continue..." continue
+	@echo "Execute CGI based on certain file extension (for example .php). Make it work with POST and GET methods."
+	-curl -i -X GET 127.0.2.2:8000/hello.php
+	-curl -i -X GET 127.0.2.2:8000/version.php
+	@read -p "Press enter to continue..." continue
+	@echo "Make the route able to accept uploaded files and configure where they should be saved."
+	-curl -i -X PUT --upload-file "Hanoi.jpg" http://127.0.4.1:4343
+	@echo "=> Check http://127.0.4.1:4343/index_files"
+	-curl -i -X GET 127.0.2.2:8000/hello.js
+	-curl -i -X GET 127.0.2.2:8000/hello.py
+	@echo "============================================================================"
+	@echo "=> Test .conf"
+	@read -p "Press enter to continue..." continue
+	@echo "=> The following tests should return error:"
+	@read -p "Press enter to continue..." continue
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/.categorie_unknown.conf
+	@echo "****************************************************************************"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.client_body_buffer_size_max.conf
+	@echo "****************************************************************************"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.client_body_buffer_size_min.conf
+	@echo "****************************************************************************"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.client_body_buffer_size_not.conf
+	@echo "****************************************************************************"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.client_max_body_size_max.conf
+	@echo "****************************************************************************"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.client_max_body_size_min.conf
+	@echo "****************************************************************************"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.client_max_body_size_not.conf
+	@echo "****************************************************************************"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.host_indentation.conf
+	@echo "****************************************************************************"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.large_client_header_buffer_max.conf
+	@echo "****************************************************************************"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.large_client_header_buffer_min.conf
+	@echo "****************************************************************************"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.large_client_header_buffer_not.conf
+	@echo "****************************************************************************"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.timeout_max.conf
+	@echo "****************************************************************************"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.timeout_min.conf
+	@echo "****************************************************************************"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.timeout_not.conf
+	@echo "****************************************************************************"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.unknown_host.conf 
+	@echo "****************************************************************************"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.workers_max.conf  
+	@echo "****************************************************************************"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.workers_min.conf  
+	@echo "****************************************************************************"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.workers_not.conf  
 	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.listen_double_same2.conf 
 	@echo "****************************************************************************"
