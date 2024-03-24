@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/03/23 16:59:52 by lbastian         ###   ########.fr        #
+#    Updated: 2024/03/24 19:50:55 by lbastian         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -53,24 +53,44 @@ B_WHITE := \033[1;37m
 
 subject2:
 	-make
-	@echo "Look two servers with different port"
+	@echo "===== Look two servers with different port"
 	@echo "Check => 127.0.0.1:4141"
 	@echo "Check => 127.0.0.1:5050"
-	#PS : j'ai copier coller 127.0.0.1:4141 et j'ai juste changer le port donc on arrive sur le meme site a voir si ca derange pas dans le .conf
-	@echo "Setup the server_names or not."
-	@echo "Without server name"
-	#VRAIMENT PAS SUR
-	-curl -X GET http://127.0.3.1:8080
 	@read -p "Press enter to continue..." continue
-	@echo "With server name"
-	-curl -H "Host: loic.com" http://127.0.3.1:8080
-	#VRAIMENT PAS SUR
-	@echo "Limit client body size."
+#PS : j'ai copier coller 127.0.0.1:4141 et j'ai juste changer le port donc on arrive sur le meme site a voir si ca derange pas dans le .conf
+	@echo "===== Setup the server_names or not."
+	@echo "** Without server name"
+#VRAIMENT PAS SUR --
+	-curl -i -X GET http://127.0.3.1:8080
+	@read -p "Press enter to continue..." continue
+	@echo "** With server name"
+	-curl -i -H "Host: loic.com" http://127.0.3.1:8080
+	@echo "****************************************************************************"
+	-curl -i -H "Host: nathan.fr" http://127.0.3.1:8080
+	@read -p "Press enter to continue..." continue
+#VRAIMENT PAS SUR
+	@echo "===== Default error page"
+	-curl -i http://127.0.0.1:4141/toto
+	@echo "** Change 404 file (in error_pages)"
+	@read -p "Press enter to continue..." continue
+	-curl -i http://127.0.0.1:4141/toto
+	@echo "===== Limit client body size."
 	@read -p "Press enter to continue..." continue
 	-curl -i -X POST -H "Transfer-Encoding: chunked" --data-raw "$$(dd if=/dev/urandom bs=120 count=1 status=none | base64 | tr -d '\n' | head -c 120)" http://127.0.2.1:4242/post_body
-=>	@echo "Montrer une routes in server" ("setup routes in a server to different directories")
-=>	@echo "Montrer qu'il y a un fichier par defaut" ("setup default file to search for if you ask for a directory")
-=>	@echo "Montrer les list de method accepter" ("setup a list of method accepted for a certain route")
+#=>	@echo "Montrer une routes in server" ("setup routes in a server to different directories")
+#=>	@echo "Montrer qu'il y a un fichier par defaut" ("setup default file to search for if you ask for a directory")
+	@echo "===== Different directories + default files "
+	@echo "Check => 127.0.0.1:4141/index_files"
+	@echo "Check => 127.0.0.1:4141/put_test"	
+	@read -p "Press enter to continue..." continue
+	
+#=>	@echo "Montrer les list de method accepter" ("setup a list of method accepted for a certain route")	
+	@echo "127.0.0.1:4141 only allow GET (view .conf file l.42)"
+	@read -p "Press enter to continue..." continue
+	-curl -X DELETE http://127.0.0.1:4141
+	-curl -X PUT http://127.0.0.1:4141
+	@read -p "Press enter to continue..." continue
+	
 	@echo "Methode GET"
 	@read -p "Press enter to continue..." continue
 	-curl -i -X GET http://127.0.2.1:4242
@@ -100,14 +120,22 @@ subject2:
 	@echo "=> Check request header and response header in => http://127.0.0.1:4141 (go in "reseaux")"
 	@echo "=> Check wrong URL like http://127.0.0.1:4141/index_fil"
 	@echo "=> Check listing http://127.0.0.1:4141/index_files"
-	@echo "=> Check redirection http://127.0.0.1:4141/hoppy"
-=>	@echo "Montrer deux website avec different ports dans le meme server" ("in the config file setup multiple ports and use different website")
-=>	@echo "Montrer deux website avec les memes ports et differente conf" ("launch multiple server at the same time with different configuration but with common port")
+	@echo "=> Check redirection http://127.0.0.1:5050/hoppy"
+#=>	@echo "Montrer deux website avec different ports dans le meme server" ("in the config file setup multiple ports and use different website")
+#=>	@echo "Montrer deux website avec les memes ports et differente conf" ("launch multiple server at the same time with different configuration but with common port")
 	@echo "=> Test Siege 2min - 25 threads"
 	@read -p "Press enter to continue..." continue
 	-siege -t2 -b 127.0.5.1:4141
 	@echo "=> Bonus cookies + session"
 	@echo "=> Check http://127.0.2.2:8000/test_cookie/"
+	@read -p "Press enter to continue..." continue
+	@echo "=> Test CGI"
+	@read -p "Press enter to continue..." continue
+	-curl -i -X GET 127.0.2.2:8000/hello.php
+	-curl -i -X GET 127.0.2.2:8000/version.php
+	-curl -i -X GET 127.0.2.2:8000/hello.js
+	-curl -i -X GET 127.0.2.2:8000/hello.py
+
 
 subjects:
 	-make
