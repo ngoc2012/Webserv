@@ -68,7 +68,9 @@ subject2:
 	@echo "Limit client body size."
 	@read -p "Press enter to continue..." continue
 	-curl -i -X POST -H "Transfer-Encoding: chunked" --data-raw "$$(dd if=/dev/urandom bs=120 count=1 status=none | base64 | tr -d '\n' | head -c 120)" http://127.0.2.1:4242/post_body
-=>	@echo "Montrer une routes in server" 
+=>	@echo "Montrer une routes in server" ("setup routes in a server to different directories")
+=>	@echo "Montrer qu'il y a un fichier par defaut" ("setup default file to search for if you ask for a directory")
+=>	@echo "Montrer les list de method accepter" ("setup a list of method accepted for a certain route")
 	@echo "Methode GET"
 	@read -p "Press enter to continue..." continue
 	-curl -i -X GET http://127.0.2.1:4242
@@ -99,8 +101,8 @@ subject2:
 	@echo "=> Check wrong URL like http://127.0.0.1:4141/index_fil"
 	@echo "=> Check listing http://127.0.0.1:4141/index_files"
 	@echo "=> Check redirection http://127.0.0.1:4141/hoppy"
-=>	@echo "Montrer deux website avec different ports"
-=>	@echo "Montrer deux website avec les memes ports et differente conf"
+=>	@echo "Montrer deux website avec different ports dans le meme server" ("in the config file setup multiple ports and use different website")
+=>	@echo "Montrer deux website avec les memes ports et differente conf" ("launch multiple server at the same time with different configuration but with common port")
 	@echo "=> Test Siege 2min - 25 threads"
 	@read -p "Press enter to continue..." continue
 	-siege -t2 -b 127.0.5.1:4141
