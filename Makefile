@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/03/24 21:18:25 by lbastian         ###   ########.fr        #
+#    Updated: 2024/03/24 22:01:26 by lbastian         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -121,7 +121,13 @@ subject2:
 	@echo "=> Check wrong URL like http://127.0.0.1:4141/index_fil"
 	@echo "=> Check listing http://127.0.0.1:4141/index_files"
 	@echo "=> Check redirection http://127.0.0.1:5050/hoppy"
-	@echo "=> Set up port multiple time = working, not written in subject (just If you’ve got a question about one behavior, you should compare your program behavior with NGINX’s.)"
+	@echo "2 same ports in a server:"
+	@read -p "Press enter to continue..." continue
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv .2.conf
+	@echo "2 same ports in different server (ignore the next one if server_name is the same):"
+	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv .3.conf
+	@echo "=> check http://127.15.0.1:4242/directory"
+	@echo "=> check http://127.15.0.1:4242/index_files"
 	
 #=>	@echo "Montrer deux website avec les memes ports et differente conf" ("launch multiple server at the same time with different configuration but with common port")
 	@echo "=> Test Siege 2min - 25 threads"
