@@ -51,6 +51,62 @@ B_MAGENTA := \033[1;35m
 B_CYAN := \033[1;36m
 B_WHITE := \033[1;37m
 
+subject2:
+	-make
+	@echo "Look two servers with different port"
+	@echo "Check => 127.0.0.1:4141"
+	@echo "Check => 127.0.0.1:5050"
+	#PS : j'ai copier coller 127.0.0.1:4141 et j'ai juste changer le port donc on arrive sur le meme site a voir si ca derange pas dans le .conf
+	@echo "Setup the server_names or not."
+	@echo "Without server name"
+	#VRAIMENT PAS SUR
+	-curl -X GET http://127.0.3.1:8080
+	@read -p "Press enter to continue..." continue
+	@echo "With server name"
+	-curl -H "Host: loic.com" http://127.0.3.1:8080
+	#VRAIMENT PAS SUR
+	@echo "Limit client body size."
+	@read -p "Press enter to continue..." continue
+	-curl -i -X POST -H "Transfer-Encoding: chunked" --data-raw "$$(dd if=/dev/urandom bs=120 count=1 status=none | base64 | tr -d '\n' | head -c 120)" http://127.0.2.1:4242/post_body
+=>	@echo "Montrer une routes in server" 
+	@echo "Methode GET"
+	@read -p "Press enter to continue..." continue
+	-curl -i -X GET http://127.0.2.1:4242
+	@echo "Methode POST"
+	@read -p "Press enter to continue..." continue
+	-curl -i -X POST -H "Transfer-Encoding: chunked" --data-raw "$$(dd if=/dev/urandom bs=2000 count=1 status=none | base64 | tr -d '\n' | head -c 2000)" http://127.0.2.1:4242/directory/youpi.bla
+	@echo "=> Check http://127.0.0.1:4141/put_test"
+	@read -p "Press enter to continue..." continue
+	@echo "Put some files to server:"
+	-curl -i -X PUT --upload-file "John Denver Perhaps Love.mp3" http://127.0.0.1:4141/put_test/John_Denver_Perhaps_Love.mp3
+	@echo "****************************************************************************"
+	-curl -i -X PUT --upload-file "Hanoi.jpg" http://127.0.0.1:4141/put_test/Hanoi.jpg
+	@echo "****************************************************************************"
+	-curl -i -X PUT --upload-file "Break dance.mp4" http://127.0.0.1:4141/put_test/Break_dance.mp4
+	@echo "=> Check http://127.0.0.1:4141/put_test"
+	@read -p "Press enter to continue..." continue
+	-curl -i -X DELETE http://127.0.0.1:4141/put_test/John_Denver_Perhaps_Love.mp3
+	@echo "****************************************************************************"
+	-curl -i -X DELETE http://127.0.0.1:4141/put_test/Hanoi.jpg
+	@echo "****************************************************************************"
+	-curl -i -X DELETE http://127.0.0.1:4141/put_test/Break_dance.mp4
+	@echo "****************************************************************************"
+	@echo "=> Recheck http://127.0.0.1:4141/put_test"
+	@echo "Test with UNKNOWN method"
+	@read -p "Press enter to continue..." continue
+	-curl -i -X UNKNOWN http://127.0.2.1:4242
+	@echo "=> Check request header and response header in => http://127.0.0.1:4141 (go in "reseaux")"
+	@echo "=> Check wrong URL like http://127.0.0.1:4141/index_fil"
+	@echo "=> Check listing http://127.0.0.1:4141/index_files"
+	@echo "=> Check redirection http://127.0.0.1:4141/hoppy"
+=>	@echo "Montrer deux website avec different ports"
+=>	@echo "Montrer deux website avec les memes ports et differente conf"
+	@echo "=> Test Siege 2min - 25 threads"
+	@read -p "Press enter to continue..." continue
+	-siege -t2 -b 127.0.5.1:4141
+	@echo "=> Bonus cookies + session"
+	@echo "=> Check http://127.0.2.2:8000/test_cookie/"
+
 subjects:
 	-make
 	@echo "============================================================================"
