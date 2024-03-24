@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/03/24 19:50:55 by lbastian         ###   ########.fr        #
+#    Updated: 2024/03/24 21:18:25 by lbastian         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -121,7 +121,8 @@ subject2:
 	@echo "=> Check wrong URL like http://127.0.0.1:4141/index_fil"
 	@echo "=> Check listing http://127.0.0.1:4141/index_files"
 	@echo "=> Check redirection http://127.0.0.1:5050/hoppy"
-#=>	@echo "Montrer deux website avec different ports dans le meme server" ("in the config file setup multiple ports and use different website")
+	@echo "=> Set up port multiple time = working, not written in subject (just If you’ve got a question about one behavior, you should compare your program behavior with NGINX’s.)"
+	
 #=>	@echo "Montrer deux website avec les memes ports et differente conf" ("launch multiple server at the same time with different configuration but with common port")
 	@echo "=> Test Siege 2min - 25 threads"
 	@read -p "Press enter to continue..." continue
@@ -260,10 +261,6 @@ subjects:
 	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/send_error/.workers_not.conf  
 	@echo "****************************************************************************"
-	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.listen_double_same2.conf 
-	@echo "****************************************************************************"
-	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.listen_double_same.conf 
-	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.listen_not.conf
 	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.listen_wrong_ip.conf 
@@ -273,8 +270,6 @@ subjects:
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.methods_wrong.conf
 	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.root_not.conf 
-	@echo "****************************************************************************"
-	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.same_server_name.conf
 	@echo "****************************************************************************"
 	-valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/send_error/.server_indentation.conf
 	@echo "****************************************************************************"
