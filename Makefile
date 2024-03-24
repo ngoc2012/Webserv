@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/03/24 22:08:16 by lbastian         ###   ########.fr        #
+#    Updated: 2024/03/24 22:15:59 by lbastian         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -54,8 +54,8 @@ B_WHITE := \033[1;37m
 subject2:
 	-make
 	@echo "===== Look two servers with different port"
-	@echo "Check => 127.0.0.1:4141"
-	@echo "Check => 127.0.0.1:5050"
+	@echo "Check => http://127.0.0.1:4141"
+	@echo "Check => http://127.0.0.1:5050"
 	@read -p "Press enter to continue..." continue
 	@echo "===== Setup the server_names or not."
 	@echo "** Without server name"
@@ -75,8 +75,8 @@ subject2:
 	@read -p "Press enter to continue..." continue
 	-curl -i -X POST -H "Transfer-Encoding: chunked" --data-raw "$$(dd if=/dev/urandom bs=120 count=1 status=none | base64 | tr -d '\n' | head -c 120)" http://127.0.2.1:4242/post_body
 	@echo "===== Different directories + default files "
-	@echo "Check => 127.0.0.1:4141/index_files"
-	@echo "Check => 127.0.0.1:4141/put_test"	
+	@echo "Check => http://127.0.0.1:4141/index_files"
+	@echo "Check => http://127.0.0.1:4141/put_test"	
 	@read -p "Press enter to continue..." continue
 	@echo "127.0.0.1:4141 only allow GET (view .conf file l.42)"
 	@read -p "Press enter to continue..." continue
