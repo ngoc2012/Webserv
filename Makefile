@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/03/25 11:08:10 by nbechon          ###   ########.fr        #
+#    Updated: 2024/03/25 14:19:49 by lbastian         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -134,7 +134,6 @@ subject2:
 	-curl -i -X GET 127.0.2.2:8000/version.php
 	-curl -i -X GET 127.0.2.2:8000/hello.js
 	-curl -i -X GET 127.0.2.2:8000/hello.py
-	@echo "!!!!!!!!! REMOVE COMMENT"
 
 subjects:
 	-make
