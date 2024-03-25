@@ -6,13 +6,13 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/03/25 11:00:18 by lbastian         ###   ########.fr        #
+#    Updated: 2024/03/25 11:08:10 by nbechon          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FILES = main Host Worker Address Server Request Response Header Configuration Location Cgi Listing Sessions ft/split_string ft/is_digit ft/itos ft/match_wildcard ft/file_extension ft/atoi_base ft/itoa_base ft/str_replace ft/to_upper ft/trim_string ft/timestamp ft/print_loading_bar ft/print_size ft/strdup ft/convertisseur
 SRCS = $(addsuffix .cpp, $(addprefix srcs/, $(FILES)))
-INCS = $(wildcard includes/*.hpp)
+INCS = includes/Address.hpp includes/Cgi.hpp includes/Configuration.hpp includes/Header.hpp includes/Host.hpp includes/Listing.hpp includes/Location.hpp includes/Request.hpp includes/Response.hpp includes/Server.hpp includes/Sessions.hpp includes/webserv.hpp includes/Worker.hpp
 OBJS = ${SRCS:.cpp=.o}
 MANDA = webserv
 CC = c++
