@@ -6,7 +6,7 @@
 /*   By: ngoc <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:57:07 by ngoc              #+#    #+#             */
-/*   Updated: 2024/03/03 12:32:14 by ngoc             ###   ########.fr       */
+/*   Updated: 2024/03/25 10:58:04 by lbastian         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ bool    Configuration::parser(Host* host, const char* conf)
 		}
 		else if (s[0] == '	' && words[0] == "location")
 		{
-			if (part != SERVER && part != LOCATION)
+			if ((part != SERVER && part != LOCATION) || words.size() != 2)
 				err = true;
 			else
 			{
