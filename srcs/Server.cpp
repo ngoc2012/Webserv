@@ -16,8 +16,10 @@
 
 Server::Server()
 {
-	_ip_address = std::string("127.0.0.1");
-	_port = 4242;
+	// _ip_address = std::string("127.0.0.1");
+	// _port = 4242;
+	_ip_address = "";
+	_port = 0;
 	_socket = -1;
 	_host = 0;
 	_root = "";
@@ -35,8 +37,8 @@ Server&	Server::operator=( Server const & src )
 }
 Server::Server(Host* host): _host(host)
 {
-	_ip_address = std::string("127.0.0.1");
-	_port = 4242;
+	_ip_address = "";
+	_port = 0;
 	_socket = -1;
 	_root = "";
 	_timeout = _host->get_timeout();

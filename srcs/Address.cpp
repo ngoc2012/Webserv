@@ -67,7 +67,7 @@ int	    Address::bind_addr()
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(_port);
 	addr.sin_addr.s_addr = inet_addr(_ip_address.c_str());
-	std::cout << "Binding to " << _ip_address << ":" << _port << std::endl;
+	// std::cout << "Binding to " << _ip_address << ":" << _port << std::endl;
 	if (bind(_listen_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0)
 	{
 		pthread_mutex_lock(_host->get_cout_mutex());

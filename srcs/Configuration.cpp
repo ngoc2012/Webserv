@@ -31,19 +31,19 @@ bool    Configuration::add_server(Host* host, Server* new_server, std::map<std::
 {
     if (new_server->get_address() == "")
     {
-        std::cerr << "Error: Server without address." << std::endl;
+        // std::cerr << "Error: Server without address." << std::endl;
         delete (new_server);
         return (false);
     }
     if (new_server->get_root() == "")
     {
-        std::cerr << "Error: Server without root." << std::endl;
+        // std::cerr << "Error: Server without root." << std::endl;
         delete (new_server);
         return (false);
     }
     if (!new_server->get_locations().size())
     {
-        std::cerr << "Error: Server without location." << std::endl;
+        // std::cerr << "Error: Server without location." << std::endl;
         delete (new_server);
         return (false);
     }
@@ -440,6 +440,8 @@ bool	Configuration::listen(Server* s, std::vector<std::string> words)
 	}
 	n = std::atoi(address[1].c_str());
 	if (!ft::is_digit(address[1]) || n < 0 || n > 65535)
+		return (false);
+	if (std::string(s->get_ip_address()) != "" || s->get_port() != 0)
 		return (false);
 	s->set_address(words[1]);
 	s->set_ip_address(address[0]);

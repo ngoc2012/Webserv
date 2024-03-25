@@ -439,6 +439,8 @@ bool	Request::check_location()
     }
     _full_file_name = _location->get_full_file_name(_url,
             _server->get_root(), _method);
+    // std::cout << "Full file name: " << _full_file_name << std::endl;
+    
     if (_location->get_cgi_pass() != "")
     {
         _cgi = new Cgi(this);
@@ -493,16 +495,19 @@ void	Request::process_fd_in()
         case GET:
             break;
         case PUT:
-            pthread_mutex_lock(_host->get_fd_mutex());
-            _fd_in = open(_full_file_name.c_str(),
-                    O_CREAT | O_WRONLY | O_TRUNC, 0664);
-            pthread_mutex_unlock(_host->get_fd_mutex());
-            if (_fd_in == -1)
+            if (_status_code == 200)
             {
-                pthread_mutex_lock(_host->get_cout_mutex());
-                std::cerr << RED << "Error: Can not open file " << _full_file_name << "." << RESET << std::endl;
-                pthread_mutex_unlock(_host->get_cout_mutex());
-                _status_code = 403;
+                pthread_mutex_lock(_host->get_fd_mutex());
+                _fd_in = open(_full_file_name.c_str(),
+                        O_CREAT | O_WRONLY | O_TRUNC, 0664);
+                pthread_mutex_unlock(_host->get_fd_mutex());
+                if (_fd_in == -1)
+                {
+                    pthread_mutex_lock(_host->get_cout_mutex());
+                    std::cerr << RED << "Error: Can not open file " << _full_file_name << "." << RESET << std::endl;
+                    pthread_mutex_unlock(_host->get_cout_mutex());
+                    _status_code = 403;
+                }
             }
             break;
         case POST:
@@ -523,7 +528,7 @@ void	Request::process_fd_in()
             }
             break;
         case DELETE:
-            if (std::remove(_full_file_name.c_str()))
+            if (_status_code == 200 && std::remove(_full_file_name.c_str()))
             {
                 _status_code = 500;
                 pthread_mutex_lock(_host->get_cout_mutex());
