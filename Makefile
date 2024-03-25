@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/03/25 10:40:33 by lbastian         ###   ########.fr        #
+#    Updated: 2024/03/25 11:00:18 by lbastian         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -291,7 +291,6 @@ subjects:
 	@echo "=> The following tests should work"
 	@read -p "Press enter to continue..." continue
 	@echo "valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/host/should_work/.no_host.conf"
-	@echo "valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/should_work/.listen_double_diff.conf"
 	@echo "valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/should_work/.methods_not.conf"
 	@echo "valgrind --tool=memcheck --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes ./webserv wrong_conf/server/should_work/.server_name_not.conf"
 	@read -p "Press enter to continue..." continue
