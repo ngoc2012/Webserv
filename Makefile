@@ -18,6 +18,7 @@ MANDA = webserv
 CC = c++
 FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread -D DELAY=50 -D RUPTURE=0
 all:	$(MANDA)
+	cp webserv ../Resume/webserv/conf
 .cpp.o:
 	$(CC) $(FLAGS) -g -c $< -o ${<:.cpp=.o} -I./includes
 $(MANDA): $(SRCS) $(OBJS) $(INCS)
