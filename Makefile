@@ -6,7 +6,7 @@
 #    By: nbechon <nbechon@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/28 10:56:09 by minh-ngu          #+#    #+#              #
-#    Updated: 2024/03/25 14:19:49 by lbastian         ###   ########.fr        #
+#    Updated: 2024/03/25 14:50:55 by lbastian         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -311,45 +311,19 @@ helgrind:
 valgrind:
 	clear && make re && make clean && valgrind --track-origins=yes --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv .conf
 
-gits:
-	git add Makefile
-	git add *.cpp
-	git add *.hpp
-	git add .conf
-	git add www
-	git add tester
-	git add error_pages
-	git add "John Denver Perhaps Love.mp3"
-	git add "Hanoi.jpg"
-	git add "Break dance.mp4"
-	git add ubuntu_tester
-	git add ubuntu_cgi_tester
-	git commit -m "defense in depth"
-	git push
-
 tester:
 	clear && ./ubuntu_tester http://127.0.2.1:4242
 
 wait:
 	curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/wait.php
+	
+M:=
+gitd:
+	git add -A -- :!*.o :!*.swp :!*.env :!*.crt :!*.key
+	git commit -m "$(M)"
+	git push
 
 kill:
 	pkill -9 -f "webserv .conf"
 
-M:=
-gitd:
-	git add Makefile
-	git add *.cpp
-	git add *.hpp
-	git add .conf
-	git add www
-	git add tester
-	git add error_pages
-	git add nginx.conf
-	git add nginx.sh
-	git add "John Denver Perhaps Love.mp3"
-	git add "Hanoi.jpg"
-	git add "Break dance.mp4"
-	git commit -m "$(M)"
-	git push
 .PHONY: all clean fclean re test pause tester wait
