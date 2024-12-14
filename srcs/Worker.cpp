@@ -58,6 +58,7 @@ void	Worker::routine(void)
     Response*   response;
     bool        worked = false;
     int         ret;
+    int         fd;
 
     pthread_mutex_lock(&_sk_size_mutex);
     std::map<int, Request*>     sk_request = _sk_request;
@@ -66,24 +67,25 @@ void	Worker::routine(void)
     for (std::map<int, Request*>::iterator it = sk_request.begin();
         it != sk_request.end(); it++)
     {   
+        fd = it->first;
         request = it->second;
         pthread_mutex_lock(&_set_mutex);
-        if (FD_ISSET(it->first, &_read_set) && !request->get_end())
+        if (FD_ISSET(fd, &_read_set) && !request->get_end())
         {
             pthread_mutex_unlock(&_set_mutex);
             worked = true;
             ret = request->read();
             if (ret < 0 && RUPTURE != 0)
-                close_client_sk(it->first);
+                close_client_sk(fd);
         }
-        else if (FD_ISSET(it->first, &_write_set) && request->get_end())
+        else if (FD_ISSET(fd, &_write_set) && request->get_end())
         {
             pthread_mutex_unlock(&_set_mutex);
             worked = true;
-            response = it->second->get_response();
+            response = request->get_response();
             ret = response->write();
             if ((ret < 0 && RUPTURE != 0) || (response->get_end() && request->get_close()))
-                close_client_sk(it->first);
+                close_client_sk(fd);
         }
         else
             pthread_mutex_unlock(&_set_mutex);
@@ -159,10 +161,10 @@ void	Worker::new_connection(int new_sk, Address* a)
     pthread_mutex_unlock(&_sk_size_mutex);
 }
 
-void	Worker::close_client_sk(int i)
+void	Worker::close_client_sk(int fd)
 {   
     pthread_mutex_lock(&_set_mutex);
-    if (FD_ISSET(i, &_read_set))
+    if (FD_ISSET(fd, &_read_set))
     {
         pthread_mutex_unlock(&_set_mutex);
         pthread_mutex_lock(&_workload_mutex);
@@ -172,7 +174,7 @@ void	Worker::close_client_sk(int i)
     else
         pthread_mutex_unlock(&_set_mutex);
     pthread_mutex_lock(&_set_mutex);
-    if (FD_ISSET(i, &_write_set))
+    if (FD_ISSET(fd, &_write_set))
     {
         pthread_mutex_unlock(&_set_mutex);
         pthread_mutex_lock(&_workload_mutex);
@@ -181,10 +183,10 @@ void	Worker::close_client_sk(int i)
     }
     else
         pthread_mutex_unlock(&_set_mutex);
-    _host->close_connection(i);
+    _host->close_connection(fd);
     pthread_mutex_lock(&_sk_size_mutex);
-	delete (_sk_request[i]);
-	_sk_request.erase(i);
+	delete (_sk_request[fd]);
+	_sk_request.erase(fd);
     pthread_mutex_unlock(&_sk_size_mutex);
 
     pthread_mutex_t*    need_update_mutex = _host->get_need_update_mutex();
