@@ -18,7 +18,6 @@ MANDA = webserv
 CC = c++
 FLAGS = -Wall -Wextra -Werror -std=c++98 -pthread -D DELAY=50 -D RUPTURE=0
 all:	$(MANDA)
-	cp webserv ../Resume/webserv/conf
 .cpp.o:
 	$(CC) $(FLAGS) -g -c $< -o ${<:.cpp=.o} -I./includes
 $(MANDA): $(SRCS) $(OBJS) $(INCS)
@@ -312,8 +311,11 @@ helgrind:
 valgrind:
 	clear && make re && make clean && valgrind --track-origins=yes --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv .conf
 
+build:
+	clear && make && ./webserv .3.conf
+
 tester:
-	clear && ./ubuntu_tester http://127.0.2.1:4242
+	clear && ./ubuntu_tester http://127.15.0.1:4242
 
 wait:
 	curl -i -X POST -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}' 127.0.2.2:8000/wait.php
