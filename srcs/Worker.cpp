@@ -218,15 +218,15 @@ void		Worker::set_end(void)
     pthread_mutex_unlock(&_set_mutex);
 }
 
-void		Worker::need_host_update_set(void)
-{
-    pthread_mutex_t*    need_update_mutex = _host->get_need_update_mutex();
+// void		Worker::need_host_update_set(void)
+// {
+//     pthread_mutex_t*    need_update_mutex = _host->get_need_update_mutex();
 
-    pthread_mutex_lock(need_update_mutex);
-    _host->set_need_update(true);
-    pthread_cond_signal(_host->get_cond_need_update());
-    pthread_mutex_unlock(need_update_mutex);
-}
+//     pthread_mutex_lock(need_update_mutex);
+//     _host->set_need_update(true);
+//     pthread_cond_signal(_host->get_cond_need_update());
+//     pthread_mutex_unlock(need_update_mutex);
+// }
 
 void		Worker::wait_for_set_updated(void)
 {

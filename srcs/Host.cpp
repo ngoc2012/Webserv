@@ -34,14 +34,14 @@ Host::Host()
     _start_worker_id = 0;
     _n_workers = 1;
     _max_sk = -1;
-	_need_update = true;
+	// _need_update = true;
     pthread_mutex_init(&_cout_mutex, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
     pthread_mutex_init(&_end_mutex, NULL);
     pthread_mutex_init(&_fd_mutex, NULL);
     pthread_mutex_init(&_need_update_mutex, NULL);
     pthread_mutex_init(&_sk_worker_mutex, NULL);
-    pthread_cond_init(&_cond_need_update, NULL);
+    // pthread_cond_init(&_cond_need_update, NULL);
     _timeout = TIMEOUT;
     mimes();
     status_message();
@@ -64,24 +64,24 @@ Host::~Host()
     pthread_mutex_destroy(&_set_mutex);
     pthread_mutex_destroy(&_end_mutex);
     pthread_mutex_destroy(&_fd_mutex);
-    pthread_mutex_destroy(&_need_update_mutex);
+    // pthread_mutex_destroy(&_need_update_mutex);
     pthread_mutex_destroy(&_sk_worker_mutex);
-    pthread_cond_destroy(&_cond_need_update);
+    // pthread_cond_destroy(&_cond_need_update);
     // Cout mutex destroyed in main
     ft::timestamp();
     std::cout << "End server" << std::endl;
 }
 
-void    Host::wait_for_fd_set_need_update(void)
-{
-    struct timespec timeout;
-    clock_gettime(CLOCK_REALTIME, &timeout);
-    timeout.tv_sec += 3;
-	pthread_mutex_lock(&_need_update_mutex);
-	while (!_need_update)
-		pthread_cond_timedwait(&_cond_need_update, &_need_update_mutex, &timeout);
-	pthread_mutex_unlock(&_need_update_mutex);
-}
+// void    Host::wait_for_fd_set_need_update(void)
+// {
+//     struct timespec timeout;
+//     clock_gettime(CLOCK_REALTIME, &timeout);
+//     timeout.tv_sec += 3;
+// 	pthread_mutex_lock(&_need_update_mutex);
+// 	while (!_need_update)
+// 		pthread_cond_timedwait(&_cond_need_update, &_need_update_mutex, &timeout);
+// 	pthread_mutex_unlock(&_need_update_mutex);
+// }
 
 void	Host::start(void)
 {
@@ -577,7 +577,7 @@ bool								Host::get_end(void)
 }
 pthread_mutex_t*					Host::get_need_update_mutex(void) {return (&_need_update_mutex);}
 pthread_cond_t*						Host::get_cond_need_update(void) {return (&_cond_need_update);}
-bool								Host::get_need_update(void) const {return (_need_update);}
+// bool								Host::get_need_update(void) const {return (_need_update);}
 std::map<int, Address*>*			Host::get_sk_address(void) {return (&_sk_address);}
 std::map<int, Worker*>*				Host::get_sk_worker(void) {return (&_sk_worker);}
 
@@ -594,4 +594,4 @@ void	        Host::set_end(bool t)
     _end = t;
     pthread_mutex_unlock(&_end_mutex);
 }
-void			Host::set_need_update(bool n) {_need_update = n;}
+// void			Host::set_need_update(bool n) {_need_update = n;}

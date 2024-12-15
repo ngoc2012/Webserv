@@ -40,7 +40,7 @@ class	Host
 		int				                        _start_worker_id;
 		int				                        _n_workers;
 		Worker*				                    _workers;
-		bool									_need_update;
+		// bool									_need_update;
 		
 		pthread_mutex_t							_cout_mutex;
 		pthread_mutex_t							_set_mutex;
@@ -48,7 +48,7 @@ class	Host
 		pthread_mutex_t							_fd_mutex;
 		pthread_mutex_t							_need_update_mutex;
 		pthread_mutex_t							_sk_worker_mutex;
-		pthread_cond_t							_cond_need_update;
+		// pthread_cond_t							_cond_need_update;
 		int										_timeout;
 
 		int										_max_sk;		    // Max of all fd
@@ -81,7 +81,7 @@ class	Host
 
 		void    		                    start(void);
 		void  								close_connection(int);
-		void  								wait_for_fd_set_need_update(void);
+		// void  								wait_for_fd_set_need_update(void);
 		void  								print(e_message, std::string);
 
 		int				                    get_max_clients(void) const;
@@ -101,7 +101,7 @@ class	Host
         bool								get_end(void);
 		pthread_mutex_t*					get_need_update_mutex(void);
 		pthread_cond_t*						get_cond_need_update(void);
-		bool								get_need_update(void) const;
+		// bool								get_need_update(void) const;
 		std::map<int, Address*>*			get_sk_address(void);
 		std::map<int, Worker*>*				get_sk_worker(void);
 
@@ -113,7 +113,7 @@ class	Host
         void	set_large_client_header_buffer(size_t);
 		void	set_timeout(int);
 		void	set_end(bool);
-		void	set_need_update(bool);
+		// void	set_need_update(bool);
 };
 
 #endif
