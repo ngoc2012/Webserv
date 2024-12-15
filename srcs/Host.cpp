@@ -266,6 +266,20 @@ static void*   start_worker(void* instance)
     return NULL;
 }
 
+void  	Host::print(e_message m, std::string str)
+{
+    pthread_mutex_lock(&_cout_mutex);
+    if (m == ERROR)
+        std::cerr << RED << str << RESET << std::endl;
+    else if (m == WARNING)
+        std::cerr << YELLOW << str << RESET << std::endl;
+    else if (m == SUCCESS)
+        std::cout << GREEN << str << RESET << std::endl;
+    else
+        std::cout << str << std::endl;
+    pthread_mutex_unlock(&_cout_mutex);
+}
+
 bool    Host::start_workers() {
     _workers = new Worker[_n_workers];
     for (int i = 0; i < _n_workers; i++)
