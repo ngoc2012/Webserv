@@ -249,18 +249,13 @@ static void*   start_worker(void* instance)
         }
         else
         {
-            // pthread_mutex_lock(set_mutex);
             if (worker->get_set_updated())
             {
                 worker->set_set_updated(false);
-                // pthread_mutex_unlock(set_mutex);
                 worker->routine();
             }
             else
-            {
-                // pthread_mutex_unlock(set_mutex);
                 usleep(DELAY);
-            }
         }
     }
 
