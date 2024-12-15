@@ -257,10 +257,10 @@ static void*   start_worker(void* instance)
             
             worker->routine();
 
-			pthread_mutex_lock(need_update_mutex);
-			host->set_need_update(true);
-			pthread_cond_signal(host->get_cond_need_update());
-			pthread_mutex_unlock(need_update_mutex);
+			// pthread_mutex_lock(need_update_mutex);
+			// host->set_need_update(true);
+			// pthread_cond_signal(host->get_cond_need_update());
+			// pthread_mutex_unlock(need_update_mutex);
         }
         else
         {
@@ -275,10 +275,10 @@ static void*   start_worker(void* instance)
                 pthread_mutex_unlock(set_mutex);
                 worker->routine();
 
-                pthread_mutex_lock(need_update_mutex);
-                host->set_need_update(true);
-                pthread_cond_signal(host->get_cond_need_update());
-                pthread_mutex_unlock(need_update_mutex);
+                // pthread_mutex_lock(need_update_mutex);
+                // host->set_need_update(true);
+                // pthread_cond_signal(host->get_cond_need_update());
+                // pthread_mutex_unlock(need_update_mutex);
             }
             else
             {
