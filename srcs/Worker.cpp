@@ -92,8 +92,8 @@ void	Worker::routine(void)
     }
     if (!worked)
         usleep(DELAY);
-    else
-        need_host_update_set();
+    // else
+    //     need_host_update_set();
 }
 
 void	Worker::check_timeout(void)

@@ -576,7 +576,7 @@ bool								Host::get_end(void)
     return (e);
 }
 pthread_mutex_t*					Host::get_need_update_mutex(void) {return (&_need_update_mutex);}
-pthread_cond_t*						Host::get_cond_need_update(void) {return (&_cond_need_update);}
+// pthread_cond_t*						Host::get_cond_need_update(void) {return (&_cond_need_update);}
 // bool								Host::get_need_update(void) const {return (_need_update);}
 std::map<int, Address*>*			Host::get_sk_address(void) {return (&_sk_address);}
 std::map<int, Worker*>*				Host::get_sk_worker(void) {return (&_sk_worker);}
