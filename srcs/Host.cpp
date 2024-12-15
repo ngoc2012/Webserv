@@ -71,7 +71,7 @@ Host::~Host()
     std::cout << "End server" << std::endl;
 }
 
-void    Host::wait_for_update_with_timeout(void)
+void    Host::wait_for_fd_set_need_update(void)
 {
     struct timespec timeout;
     clock_gettime(CLOCK_REALTIME, &timeout);
@@ -97,7 +97,7 @@ void	Host::start(void)
 		return ;
 	do
 	{
-        wait_for_update_with_timeout();
+        wait_for_fd_set_need_update();
         pthread_mutex_lock(&_set_mutex);
 		memcpy(&_read_set, &_master_read_set, sizeof(_master_read_set));
 		memcpy(&_write_set, &_master_write_set, sizeof(_master_write_set));
