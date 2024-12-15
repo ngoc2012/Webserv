@@ -80,7 +80,6 @@ void    Host::wait_for_update_with_timeout(void)
 	while (!_need_update)
 		pthread_cond_timedwait(&_cond_need_update, &_need_update_mutex, &timeout);
 	pthread_mutex_unlock(&_need_update_mutex);
-
 }
 
 void	Host::start(void)
