@@ -174,9 +174,9 @@ void	Host::check_sk_ready(void)
     for (int i = 0; i < _n_workers; i++)
         if (_workers[i].get_workload() || _workers[i].get_sk_size())
         {
+            _workers[i].set_set_updated(true);
             pthread_mutex_lock(_workers[i].get_set_mutex());
             _workers[i].update_sets();
-            _workers[i].set_set_updated(true);
             pthread_cond_signal(_workers[i].get_cond_set_updated());
             pthread_mutex_unlock(_workers[i].get_set_mutex());
         }
