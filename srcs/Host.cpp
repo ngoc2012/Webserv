@@ -121,35 +121,38 @@ void	Host::check_sk_ready(void)
         if (FD_ISSET(it->first, &_read_set))
         {
             new_sk = it->second->accept_client_sk();
+            if (new_sk < 0)
+                continue;
             pthread_mutex_lock(&_set_mutex);
             if (new_sk > _max_sk)
                 _max_sk = new_sk;
             FD_SET(new_sk, &_master_read_set);
             FD_SET(new_sk, &_master_write_set);
             pthread_mutex_unlock(&_set_mutex);
-            if (new_sk > 0)
-            {
+            
+            
                 
-                int i = 0;
-                int w_min = (i + _start_worker_id) % _n_workers;
-                int j = (i + _start_worker_id + 1) % _n_workers;
-                while (i < _n_workers - 1)
-                {
-                    if (_workers[w_min].get_workload() >= _workers[j].get_workload())
-                        w_min = j;
-                    j = (j + 1) % _n_workers;
-                    i++;
-                }
-				pthread_mutex_lock(&_sk_worker_mutex);
-                _sk_worker[new_sk] = &_workers[w_min];
-				pthread_mutex_unlock(&_sk_worker_mutex);
-                _workers[w_min].new_connection(new_sk, it->second);
-                _start_worker_id++;
-                _start_worker_id %= _n_workers;
+            int i = 0;
+            int w_min = (i + _start_worker_id) % _n_workers;
+            int j = (i + _start_worker_id + 1) % _n_workers;
+            while (i < _n_workers - 1)
+            {
+                if (_workers[w_min].get_workload() >= _workers[j].get_workload())
+                    w_min = j;
+                j = (j + 1) % _n_workers;
+                i++;
             }
+			pthread_mutex_lock(&_sk_worker_mutex);
+            _sk_worker[new_sk] = &_workers[w_min];
+			pthread_mutex_unlock(&_sk_worker_mutex);
+            _workers[w_min].new_connection(new_sk, it->second);
+            _start_worker_id++;
+            _start_worker_id %= _n_workers;
             pthread_mutex_lock(&_need_update_mutex);
             _need_update = true;
             pthread_mutex_unlock(&_need_update_mutex);
+        
+            
             usleep(DELAY);
         }
 
