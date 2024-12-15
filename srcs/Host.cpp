@@ -232,7 +232,7 @@ static void*   start_worker(void* instance)
         return NULL;
     Worker*             worker = static_cast<Worker*>(instance);
     Host*               host = worker->get_host();
-    pthread_mutex_t*    cout_mutex = host->get_cout_mutex();
+    // pthread_mutex_t*    cout_mutex = host->get_cout_mutex();
 
     // pthread_mutex_lock(cout_mutex);
     // std::cout << "Worker " << worker->get_id() << " started." << std::endl;
