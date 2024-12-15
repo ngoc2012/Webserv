@@ -240,6 +240,7 @@ static void*   start_worker(void* instance)
 
     while (!worker->get_terminate_flag())
     {
+        worker->check_timeout();
         if (worker->get_sk_size() == 0)
         {
             worker->wait_for_set_updated();
@@ -249,10 +250,6 @@ static void*   start_worker(void* instance)
         }
         else
         {
-            worker->check_timeout();
-			if (worker->get_sk_size() == 0)
-				continue;
-
             pthread_mutex_lock(set_mutex);
             if (worker->get_set_updated())
             {
