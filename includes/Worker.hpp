@@ -76,6 +76,7 @@ class	Worker
 		void		set_end(void);
 		void		check_timeout(void);
 		void		need_host_update_set(void);
+		void		wait_for_set_updated(void);
 
         pthread_t*  		get_th(void);
         int         		get_id(void) const;

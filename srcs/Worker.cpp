@@ -225,6 +225,15 @@ void		Worker::need_host_update_set(void)
     pthread_mutex_unlock(need_update_mutex);
 }
 
+void		Worker::wait_for_set_updated(void)
+{
+    pthread_mutex_lock(&_set_mutex);
+    while (!_set_updated)
+        pthread_cond_wait(&_cond_set_updated, &_set_mutex);
+    _set_updated = false;
+    pthread_mutex_unlock(&_set_mutex);
+}
+
 pthread_t*   Worker::get_th(void) {return (&_th);}
 int          Worker::get_id(void) const {return (_id);}
 Host*        Worker::get_host(void) const {return (_host);}
