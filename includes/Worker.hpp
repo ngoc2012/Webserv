@@ -87,7 +87,7 @@ class	Worker
 		//pthread_mutex_t*	get_set_updated_mutex(void);
         pthread_cond_t*		get_cond_set_updated(void);
 		bool				get_terminate_flag(void);
-        bool				get_set_updated(void) const;
+        bool				get_set_updated(void);
         std::map<int, Request*>*		get_sk_request(void);
         int         		get_sk_size(void);
 

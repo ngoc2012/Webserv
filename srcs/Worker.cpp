@@ -248,7 +248,14 @@ pthread_mutex_t*    Worker::get_terminate_mutex(void) {return (&_terminate_mutex
 pthread_mutex_t*	Worker::get_set_mutex(void) {return (&_set_mutex);}
 pthread_cond_t*		Worker::get_cond_set_updated(void) {return (&_cond_set_updated);}
 std::map<int, Request*>*		Worker::get_sk_request(void) {return (&_sk_request);}
-bool				Worker::get_set_updated(void) const {return (_set_updated);}
+
+bool				Worker::get_set_updated(void)
+{
+    pthread_mutex_lock(&_set_mutex);
+    bool updated = _set_updated;
+    pthread_mutex_unlock(&_set_mutex);
+    return (updated);
+}
 
 bool				Worker::get_terminate_flag(void)
 {
@@ -270,7 +277,12 @@ void         Worker::set_id(int s) {_id = s;}
 void         Worker::set_workload(int s) {_workload = s;}
 void         Worker::set_host(Host* h) {_host = h;}
 void	     Worker::set_terminate_mutex(pthread_mutex_t m) {_terminate_mutex = m;}
-void		 Worker::set_set_updated(bool u) {_set_updated = u;}
+void		 Worker::set_set_updated(bool u)
+{
+    pthread_mutex_lock(&_set_mutex);
+    _set_updated = u;
+    pthread_mutex_unlock(&_set_mutex);
+}
 
 void	     Worker::set_terminate_flag(bool f)
 {
