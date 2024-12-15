@@ -55,7 +55,7 @@
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 enum	e_method {GET, POST, PUT, DELETE, HEAD, OPTIONS, NONE};
-
+enum    e_message {NORMAL, WARNING, ERROR};
 
 namespace ft {
 
