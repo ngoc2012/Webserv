@@ -232,9 +232,9 @@ static void*   start_worker(void* instance)
     Worker*             worker = static_cast<Worker*>(instance);
     Host*               host = worker->get_host();
     pthread_mutex_t*    cout_mutex = host->get_cout_mutex();
-    pthread_mutex_t*    need_update_mutex = host->get_need_update_mutex();
+    // pthread_mutex_t*    need_update_mutex = host->get_need_update_mutex();
     pthread_mutex_t*    set_mutex = worker->get_set_mutex();
-    pthread_cond_t*		cond_set_updated = worker->get_cond_set_updated();
+    // pthread_cond_t*		cond_set_updated = worker->get_cond_set_updated();
 
     pthread_mutex_lock(cout_mutex);
     std::cout << "Worker " << worker->get_id() << " started." << std::endl;
@@ -246,12 +246,12 @@ static void*   start_worker(void* instance)
             break;
         if (worker->get_sk_size() == 0)
         {
-            pthread_mutex_lock(set_mutex);
-            while (!worker->get_set_updated())
-                pthread_cond_wait(cond_set_updated, set_mutex);
-            worker->set_set_updated(false);
-            pthread_mutex_unlock(set_mutex);
-
+            // pthread_mutex_lock(set_mutex);
+            // while (!worker->get_set_updated())
+            //     pthread_cond_wait(cond_set_updated, set_mutex);
+            // worker->set_set_updated(false);
+            // pthread_mutex_unlock(set_mutex);
+            worker->wait_for_set_updated();
             if (worker->get_terminate_flag())
                 break;
             
