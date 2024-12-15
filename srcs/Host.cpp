@@ -101,7 +101,6 @@ void	Host::start(void)
         pthread_mutex_lock(&_set_mutex);
 		memcpy(&_read_set, &_master_read_set, sizeof(_master_read_set));
 		memcpy(&_write_set, &_master_write_set, sizeof(_master_write_set));
-
         if (select(_max_sk + 1, &_read_set, &_write_set, NULL, NULL) != -1)
         {
             pthread_mutex_unlock(&_set_mutex);
