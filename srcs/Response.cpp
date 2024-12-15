@@ -251,6 +251,7 @@ int     Response::end_response(int ret)
         _fd_out = -1;
         pthread_mutex_unlock(_host->get_fd_mutex());
     }
+    // std:string s = "Response: " + ft::itos(_status_code) + " " + _request->get_url() + " ";
     pthread_mutex_lock(_host->get_cout_mutex());
     ft::timestamp();
     if (_status_code == 200)
