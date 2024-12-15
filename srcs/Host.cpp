@@ -67,8 +67,9 @@ Host::~Host()
     pthread_mutex_destroy(&_need_update_mutex);
     pthread_mutex_destroy(&_sk_worker_mutex);
     pthread_cond_destroy(&_cond_need_update);
-    ft::timestamp();
-    std::cout << "End server" << std::endl;
+    // ft::timestamp();
+    // std::cout << "End server" << std::endl;
+    print(SUCCESS, "End server");
 }
 
 void    Host::wait_for_fd_set_need_update(void)
@@ -183,10 +184,11 @@ void	Host::check_sk_ready(void)
 
 void  	Host::close_connection(int i)
 {
-    pthread_mutex_lock(&_cout_mutex);
-    ft::timestamp();
-    std::cout << BLUE << "Close connection " << i << "                                         " << RESET << std::endl;
-    pthread_mutex_unlock(&_cout_mutex);
+    // pthread_mutex_lock(&_cout_mutex);
+    // ft::timestamp();
+    // std::cout << BLUE << "Close connection " << i << "                                         " << RESET << std::endl;
+    // pthread_mutex_unlock(&_cout_mutex);
+    print(SUCCESS, "Close connection " + ft::itos(i));
     pthread_mutex_lock(&_set_mutex);
 	FD_CLR(i, &_master_read_set);
 	FD_CLR(i, &_master_write_set);
@@ -235,6 +237,7 @@ static void*   start_worker(void* instance)
     // pthread_mutex_lock(cout_mutex);
     // std::cout << "Worker " << worker->get_id() << " started." << std::endl;
     // pthread_mutex_unlock(cout_mutex);
+    host->print(SUCCESS, "Worker " + ft::itos(worker->get_id()) + " started.");
 
     while (!worker->get_terminate_flag())
     {

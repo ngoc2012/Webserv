@@ -111,10 +111,11 @@ void	Worker::check_timeout(void)
         pthread_mutex_unlock(&_timeout_mutex);
         if (dt > it->second->get_timeout())
         {
-            pthread_mutex_lock(_host->get_cout_mutex());
-            ft::timestamp();
-            std::cout << MAGENTA << "Time Out " << it->first << " (" << dt << "/" << it->second->get_timeout() << ") wk: " << _id << "                                  " RESET << std::endl;
-            pthread_mutex_unlock(_host->get_cout_mutex());
+            // pthread_mutex_lock(_host->get_cout_mutex());
+            // ft::timestamp();
+            // std::cout << MAGENTA << "Time Out " << it->first << " (" << dt << "/" << it->second->get_timeout() << ") wk: " << _id << "                                  " RESET << std::endl;
+            // pthread_mutex_unlock(_host->get_cout_mutex());
+            _host->print(WARNING, "Time Out " + ft::itos(it->first) + " (" + ft::itos(dt) + "/" + ft::itos(it->second->get_timeout()) + ") wk: " + ft::itos(_id));
             close_client_sk(it->first);
         }
     }
