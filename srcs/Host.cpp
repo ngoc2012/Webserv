@@ -67,9 +67,9 @@ Host::~Host()
     pthread_mutex_destroy(&_need_update_mutex);
     pthread_mutex_destroy(&_sk_worker_mutex);
     pthread_cond_destroy(&_cond_need_update);
-    // ft::timestamp();
-    // std::cout << "End server" << std::endl;
-    print(SUCCESS, "End server");
+    // Cout mutex destroyed in main
+    ft::timestamp();
+    std::cout << "End server" << std::endl;
 }
 
 void    Host::wait_for_fd_set_need_update(void)
