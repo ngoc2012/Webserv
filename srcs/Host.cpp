@@ -238,10 +238,8 @@ static void*   start_worker(void* instance)
     std::cout << "Worker " << worker->get_id() << " started." << std::endl;
     pthread_mutex_unlock(cout_mutex);
 
-    while (true)
+    while (!worker->get_terminate_flag())
     {
-        if (worker->get_terminate_flag())
-            break;
         if (worker->get_sk_size() == 0)
         {
             worker->wait_for_set_updated();
@@ -261,11 +259,6 @@ static void*   start_worker(void* instance)
                 worker->set_set_updated(false);
                 pthread_mutex_unlock(set_mutex);
                 worker->routine();
-
-                // pthread_mutex_lock(need_update_mutex);
-                // host->set_need_update(true);
-                // pthread_cond_signal(host->get_cond_need_update());
-                // pthread_mutex_unlock(need_update_mutex);
             }
             else
             {
