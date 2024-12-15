@@ -258,9 +258,10 @@ static void*   start_worker(void* instance)
         }
     }
 
-    pthread_mutex_lock(cout_mutex);
-    std::cout << "Worker " << worker->get_id() << " ended." << std::endl;
-    pthread_mutex_unlock(cout_mutex);
+    // pthread_mutex_lock(cout_mutex);
+    // std::cout << "Worker " << worker->get_id() << " ended." << std::endl;
+    // pthread_mutex_unlock(cout_mutex);
+    print(SUCCESS, "Worker " + ft::to_string(worker->get_id()) + " ended.");
 
     pthread_exit(NULL);
     return NULL;
@@ -269,6 +270,7 @@ static void*   start_worker(void* instance)
 void  	Host::print(e_message m, std::string str)
 {
     pthread_mutex_lock(&_cout_mutex);
+    ft::timestamp();
     if (m == ERROR)
         std::cerr << RED << str << RESET << std::endl;
     else if (m == WARNING)
