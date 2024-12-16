@@ -19,9 +19,6 @@ namespace ft {
 
 void	timestamp(void)
 {
-    // std::time_t currentTime = std::time(0);
-    // std::tm* currentTM = std::localtime(&currentTime);
-    // std::cout << CYAN << "[" << currentTM->tm_hour << ":" << currentTM->tm_min << ":" << currentTM->tm_sec << "] " << RESET;
     std::time_t currentTime = std::time(0);
     std::tm currentTM;
     localtime_r(&currentTime, &currentTM); // Use localtime_r for thread safety
