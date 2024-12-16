@@ -64,24 +64,12 @@ Host::~Host()
     pthread_mutex_destroy(&_set_mutex);
     pthread_mutex_destroy(&_end_mutex);
     pthread_mutex_destroy(&_fd_mutex);
-    // pthread_mutex_destroy(&_need_update_mutex);
     pthread_mutex_destroy(&_sk_worker_mutex);
     // pthread_cond_destroy(&_cond_need_update);
     // Cout mutex destroyed in main
     ft::timestamp();
     std::cout << "End server" << std::endl;
 }
-
-// void    Host::wait_for_fd_set_need_update(void)
-// {
-//     struct timespec timeout;
-//     clock_gettime(CLOCK_REALTIME, &timeout);
-//     timeout.tv_sec += 3;
-// 	pthread_mutex_lock(&_need_update_mutex);
-// 	while (!_need_update)
-// 		pthread_cond_timedwait(&_cond_need_update, &_need_update_mutex, &timeout);
-// 	pthread_mutex_unlock(&_need_update_mutex);
-// }
 
 void	Host::start(void)
 {
