@@ -92,8 +92,6 @@ void	Worker::routine(void)
     }
     if (!worked)
         usleep(DELAY);
-    // else
-    //     need_host_update_set();
 }
 
 void	Worker::check_timeout(void)
@@ -111,10 +109,6 @@ void	Worker::check_timeout(void)
         pthread_mutex_unlock(&_timeout_mutex);
         if (dt > it->second->get_timeout())
         {
-            // pthread_mutex_lock(_host->get_cout_mutex());
-            // ft::timestamp();
-            // std::cout << MAGENTA << "Time Out " << it->first << " (" << dt << "/" << it->second->get_timeout() << ") wk: " << _id << "                                  " RESET << std::endl;
-            // pthread_mutex_unlock(_host->get_cout_mutex());
             _host->print(WARNING, "Time Out " + ft::itos(it->first) + " (" + ft::itos(dt) + "/" + ft::itos(it->second->get_timeout()) + ") wk: " + ft::itos(_id));
             close_client_sk(it->first);
         }
@@ -191,8 +185,6 @@ void	Worker::close_client_sk(int fd)
 	delete (_sk_request[fd]);
 	_sk_request.erase(fd);
     pthread_mutex_unlock(&_sk_size_mutex);
-
-    // need_host_update_set();
 }
 
 void	Worker::set_sk_timeout(int i)
@@ -210,16 +202,6 @@ void		Worker::set_end(void)
     pthread_cond_signal(&_cond_set_updated);
     pthread_mutex_unlock(&_set_mutex);
 }
-
-// void		Worker::need_host_update_set(void)
-// {
-//     pthread_mutex_t*    need_update_mutex = _host->get_need_update_mutex();
-
-//     pthread_mutex_lock(need_update_mutex);
-//     _host->set_need_update(true);
-//     pthread_cond_signal(_host->get_cond_need_update());
-//     pthread_mutex_unlock(need_update_mutex);
-// }
 
 void		Worker::wait_for_set_updated(void)
 {
