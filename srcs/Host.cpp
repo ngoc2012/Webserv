@@ -113,6 +113,26 @@ void	Host::start(void)
 	} while (!get_end());
 }
 
+void    Host::round_robin(void)
+{
+    int i = 0;
+    int w_min = (i + _start_worker_id) % _n_workers;
+    int j = (i + _start_worker_id + 1) % _n_workers;
+    while (i < _n_workers - 1)
+    {
+        if (_workers[w_min].get_workload() >= _workers[j].get_workload())
+            w_min = j;
+        j = (j + 1) % _n_workers;
+        i++;
+    }
+	pthread_mutex_lock(&_sk_worker_mutex);
+    _sk_worker[new_sk] = &_workers[w_min];
+	pthread_mutex_unlock(&_sk_worker_mutex);
+    _workers[w_min].new_connection(new_sk, it->second);
+    _start_worker_id++;
+    _start_worker_id %= _n_workers;
+}
+
 void	Host::check_sk_ready(void)
 {
     int     new_sk;
@@ -129,26 +149,7 @@ void	Host::check_sk_ready(void)
             FD_SET(new_sk, &_master_read_set);
             FD_SET(new_sk, &_master_write_set);
             pthread_mutex_unlock(&_set_mutex);
-            
-            
-                
-            int i = 0;
-            int w_min = (i + _start_worker_id) % _n_workers;
-            int j = (i + _start_worker_id + 1) % _n_workers;
-            while (i < _n_workers - 1)
-            {
-                if (_workers[w_min].get_workload() >= _workers[j].get_workload())
-                    w_min = j;
-                j = (j + 1) % _n_workers;
-                i++;
-            }
-			pthread_mutex_lock(&_sk_worker_mutex);
-            _sk_worker[new_sk] = &_workers[w_min];
-			pthread_mutex_unlock(&_sk_worker_mutex);
-            _workers[w_min].new_connection(new_sk, it->second);
-            _start_worker_id++;
-            _start_worker_id %= _n_workers;
-;
+            round_robin(new_sk, it->second);
             usleep(DELAY);
         }
 
