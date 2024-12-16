@@ -83,6 +83,7 @@ class	Host
 		void  								close_connection(int);
 		// void  								wait_for_fd_set_need_update(void);
 		void  								print(e_message, std::string);
+		void								round_robin(void);
 
 		int				                    get_max_clients(void) const;
 		size_t				                get_client_max_body_size(void) const;

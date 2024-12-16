@@ -148,9 +148,7 @@ void	Host::check_sk_ready(void)
             _workers[w_min].new_connection(new_sk, it->second);
             _start_worker_id++;
             _start_worker_id %= _n_workers;
-            // pthread_mutex_lock(&_need_update_mutex);
-            // _need_update = true;
-            // pthread_mutex_unlock(&_need_update_mutex);
+;
             usleep(DELAY);
         }
 
