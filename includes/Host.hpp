@@ -81,6 +81,7 @@ class	Host
 
 		void    		                    start(void);
 		void  								close_connection(int);
+		void  								clear_fd_out(int);
 		// void  								wait_for_fd_set_need_update(void);
 		void  								print(e_message, std::string);
 		void								round_robin(int, Address*);
