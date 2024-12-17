@@ -204,9 +204,6 @@ int     Response::write_body()
     if (_fd_out == -1)
     {
 	_host->print(ERROR, "Error: No file content to send, " + ft::itos(_body_size) + "b sent.");
-        //pthread_mutex_lock(_host->get_cout_mutex());
-        //std::cerr << RED <<  << RESET << std::endl;
-        //pthread_mutex_unlock(_host->get_cout_mutex());
         return (end_response(-1));
     }
     char	buffer[RESPONSE_BUFFER * 1028 + 20];
