@@ -472,7 +472,7 @@ bool	Request::check_location()
             pthread_mutex_unlock(_host->get_cout_mutex());
             return (false);
         }
-	_host->insert_read_fd(fd_out);
+	//_host->insert_read_fd(fd_out);
         std::string     extension = ft::file_extension(_full_file_name);
         std::map<std::string, std::string>*     mimes = _host->get_mimes();
         if (mimes->find(extension) != mimes->end())
