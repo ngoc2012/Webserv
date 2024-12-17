@@ -126,9 +126,9 @@ void	Host::check_sk_ready(void)
     int     new_sk;
     for (std::map<int, Address*>::iterator it = _sk_address.begin();
         it != _sk_address.end(); it++)
-	int		sk = it->first;
+	int		listen_sk = it->first;
 	Address*	addr = it->second;
-        if (FD_ISSET(sk, &_read_set) && !FD_ISSET(sk, &_listen_set))
+        if (FD_ISSET(listen_sk, &_read_set) && FD_ISSET(listen_sk, &_listen_set))
         {
             new_sk = it->second->accept_client_sk();
             if (new_sk < 0)
