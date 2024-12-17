@@ -59,6 +59,7 @@ void	Worker::routine(void)
     bool        worked = false;
     int         ret;
     int         fd;
+    int         fd_out;
 
     pthread_mutex_lock(&_sk_size_mutex);
     std::map<int, Request*>     sk_request = _sk_request;
@@ -82,8 +83,12 @@ void	Worker::routine(void)
         {
             pthread_mutex_unlock(&_set_mutex);
             response = request->get_response();
-	    if (response->get_fd_out() != -1 && !FD_ISSET(response->get_fd_out(), &_read_set))
+	    fd_out = response->get_fd_out();
+	    if (fd_out != -1 && !FD_ISSET(fd_out, &_read_set))
+	    {
+		_host->print(WARNING, "No write fd for response " + ft::itos(fd_out));
 		continue;		    
+	    }
             worked = true;
             ret = response->write();
             if ((ret < 0 && RUPTURE != 0) || (response->get_end() && request->get_close()))
