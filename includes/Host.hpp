@@ -57,7 +57,7 @@ class	Host
 		fd_set      							_write_set;		    // Set of active write fd
 		fd_set      							_master_read_set;	// Set of all read socket
 		fd_set      							_master_write_set;	// Set of all write socket
-		std::set<int>	                				_read_sockets;
+		std::set<int>	                				_listen_sockets;
 		
 		std::map<std::string, Address*>		    _str_address;
 		std::map<int, Worker*>		            _sk_worker;
