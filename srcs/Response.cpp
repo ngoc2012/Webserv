@@ -175,6 +175,8 @@ void     Response::mess_body(std::string title, std::string body)
 
 int     Response::write_str_body()
 {
+	int	ret;
+
         ret = send(_socket, _body.c_str(), _body.size(), 0);
         if (ret <= 0)
         {
@@ -201,7 +203,7 @@ int     Response::write_body()
 	    return write_str_body();
     if (_fd_out == -1)
     {
-	_host->print(ERROR, "Error: No file content to send, " + ft:itos(_body_size) + "b sent.")
+	_host->print(ERROR, "Error: No file content to send, " + ft::itos(_body_size) + "b sent.");
         //pthread_mutex_lock(_host->get_cout_mutex());
         //std::cerr << RED <<  << RESET << std::endl;
         //pthread_mutex_unlock(_host->get_cout_mutex());
