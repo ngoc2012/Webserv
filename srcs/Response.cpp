@@ -227,9 +227,9 @@ int     Response::write_body()
     }
     int     ret1 = send(_socket, buffer, ret, 0);
     if (!ret && ret)
-        _host->print("Error: Send response body interrupted.");
+        _host->print(ERROR, "Error: Send response body interrupted.");
     else if (ret == -1)
-        _host->print("Error: Send body error.");
+        _host->print(ERROR, "Error: Send body error.");
     if (ret1 <= 0)
         return (end_response(ret1));
     _worker->set_sk_timeout(_socket);
