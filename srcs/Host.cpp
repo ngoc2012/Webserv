@@ -65,7 +65,6 @@ Host::~Host()
     pthread_mutex_destroy(&_end_mutex);
     pthread_mutex_destroy(&_fd_mutex);
     pthread_mutex_destroy(&_sk_worker_mutex);
-    // pthread_cond_destroy(&_cond_need_update);
     // Cout mutex destroyed in main
     ft::timestamp();
     std::cout << "End server" << std::endl;
@@ -132,7 +131,7 @@ void	Host::check_sk_ready(void)
     {
     	listen_sk = it->first;
     	listen_addr = it->second;
-        if (FD_ISSET(listen_sk, &_read_set) && FD_ISSET(listen_sk, &_listen_set))
+        if (FD_ISSET(listen_sk, &_read_set))
         {
             new_sk = listen_addr->accept_client_sk();
             if (new_sk < 0)
@@ -219,7 +218,6 @@ void	Host::start_server(void)
             //pthread_mutex_unlock(&_set_mutex);
             FD_SET(listen_sk, &_listen_set);
 	    insert_read_fd(listen_sk);
-	    _listen_sockets
             _sk_address[listen_sk] = ad->second;
 			++ad;
 		}
