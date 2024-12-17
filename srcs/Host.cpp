@@ -167,12 +167,18 @@ void	Host::check_sk_ready(void)
         }
 }
 
-void  	Host::insert_read_fd(int)
+void  	Host::insert_read_fd(int fd)
 {
+	pthread_mutex_lock(&_set_mutex);
+	FD_SET(fd, &_master_read_set);
+	pthread_mutex_unlock(&_set_mutex);
 }
 
-void  	Host::clear_read_fd(int);
+void  	Host::clear_read_fd(int fd);
 {
+    pthread_mutex_lock(&_set_mutex);
+    FD_CLR(fd, &_master_read_set);
+    pthread_mutex_unlock(&_set_mutex);
 }
 
 void  	Host::close_connection(int i)
@@ -201,9 +207,10 @@ void	Host::start_server(void)
 		{
 			if (listen_sk > _max_sk)
                 _max_sk = listen_sk;
-            pthread_mutex_lock(&_set_mutex);
-            FD_SET(listen_sk, &_master_read_set);
-            pthread_mutex_unlock(&_set_mutex);
+            //pthread_mutex_lock(&_set_mutex);
+            //FD_SET(listen_sk, &_master_read_set);
+            //pthread_mutex_unlock(&_set_mutex);
+	    insert_read_fd(listen_sk);
             _sk_address[listen_sk] = ad->second;
 			++ad;
 		}
