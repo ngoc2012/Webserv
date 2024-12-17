@@ -167,6 +167,14 @@ void	Host::check_sk_ready(void)
         }
 }
 
+void  	Host::insert_read_fd(int)
+{
+}
+
+void  	Host::clear_read_fd(int);
+{
+}
+
 void  	Host::close_connection(int i)
 {
     print(SUCCESS, "Close connection " + ft::itos(i));
