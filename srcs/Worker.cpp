@@ -82,7 +82,7 @@ void	Worker::routine(void)
         {
             pthread_mutex_unlock(&_set_mutex);
             response = request->get_response();
-	    if (response->get_fd_out() != -1 && !FD_ISSET(response->get_fd_out(), &_write_set))
+	    if (response->get_fd_out() != -1 && !FD_ISSET(response->get_fd_out(), &_read_set))
 		continue;		    
             worked = true;
             ret = response->write();
