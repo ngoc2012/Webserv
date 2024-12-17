@@ -81,8 +81,8 @@ void	Worker::routine(void)
         else if (FD_ISSET(fd, &_write_set) && request->get_end())
         {
             pthread_mutex_unlock(&_set_mutex);
-            worked = true;
             response = request->get_response();
+            worked = true;
             ret = response->write();
             if ((ret < 0 && RUPTURE != 0) || (response->get_end() && request->get_close()))
                 close_client_sk(fd);
