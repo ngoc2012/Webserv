@@ -46,6 +46,7 @@ Response::~Response()
         close(_fd_out);
         _fd_out = -1;
         pthread_mutex_unlock(_host->get_fd_mutex());
+	_host->clear_read_fd(fd_out);
     }
         
 }
@@ -247,6 +248,7 @@ int     Response::end_response(int ret)
         close(_fd_out);
         _fd_out = -1;
         pthread_mutex_unlock(_host->get_fd_mutex());
+	_host->clear_read_fd(fd_out);
     }
     pthread_mutex_lock(_host->get_cout_mutex());
     ft::timestamp();
