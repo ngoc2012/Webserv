@@ -210,6 +210,7 @@ void	Host::start_server(void)
             //pthread_mutex_lock(&_set_mutex);
             //FD_SET(listen_sk, &_master_read_set);
             //pthread_mutex_unlock(&_set_mutex);
+            FD_SET(listen_sk, &_listen_set);
 	    insert_read_fd(listen_sk);
 	    _listen_sockets
             _sk_address[listen_sk] = ad->second;
