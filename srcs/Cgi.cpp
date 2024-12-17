@@ -65,6 +65,7 @@ Cgi::~Cgi()
     }
     if (_fd_out != -1)
     {
+        _request->get_host()->clear_read_fd(_fd_out);
         _request->get_response()->set_fd_out(-1);
         pthread_mutex_lock(fd_mutex);
         close(_fd_out);
@@ -86,9 +87,9 @@ static void signalHandler(int signum) {
 
 int    Cgi::execute()
 {
-    Host*               host =
-    pthread_mutex_t*	fd_mutex = _request->get_host()->get_fd_mutex();
-    pthread_mutex_t*	cout_mutex = _request->get_host()->get_cout_mutex();
+    Host*               host = _request->get_host();
+    pthread_mutex_t*	fd_mutex = host->get_fd_mutex();
+    pthread_mutex_t*	cout_mutex = host->get_cout_mutex();
 
     try {
 
@@ -121,7 +122,7 @@ int    Cgi::execute()
         std::cerr << "Error: CGI fd_out open error." << std::endl;
         return 500;
     }
-    _host->
+    host->insert_read_fd(_fd_out);
     _response->set_fd_out(_fd_out);
     _pid = fork();
 
