@@ -174,7 +174,7 @@ void  	Host::insert_read_fd(int fd)
 	pthread_mutex_unlock(&_set_mutex);
 }
 
-void  	Host::clear_read_fd(int fd);
+void  	Host::clear_read_fd(int fd)
 {
     pthread_mutex_lock(&_set_mutex);
     FD_CLR(fd, &_master_read_set);
