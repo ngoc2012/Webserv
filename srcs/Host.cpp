@@ -215,9 +215,6 @@ void	Host::start_server(void)
 		{
 			if (listen_sk > _max_sk)
                 _max_sk = listen_sk;
-            //pthread_mutex_lock(&_set_mutex);
-            //FD_SET(listen_sk, &_master_read_set);
-            //pthread_mutex_unlock(&_set_mutex);
             FD_SET(listen_sk, &_listen_set);
 	    insert_read_fd(listen_sk);
             _sk_address[listen_sk] = ad->second;
