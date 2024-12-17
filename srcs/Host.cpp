@@ -176,6 +176,7 @@ void	Host::check_sk_ready(void)
 void  	Host::insert_read_fd(int fd)
 {
 	pthread_mutex_lock(&_set_mutex);
+	print(NORMAL, "read fd insert: " + ft::itos(fd));
 	FD_SET(fd, &_master_read_set);
 	pthread_mutex_unlock(&_set_mutex);
 }
@@ -183,6 +184,7 @@ void  	Host::insert_read_fd(int fd)
 void  	Host::clear_read_fd(int fd)
 {
     pthread_mutex_lock(&_set_mutex);
+    print(NORMAL, "read fd clear: " + ft::itos(fd));
     FD_CLR(fd, &_master_read_set);
     pthread_mutex_unlock(&_set_mutex);
 }
