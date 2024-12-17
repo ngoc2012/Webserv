@@ -52,6 +52,8 @@ class	Response
 
         int 	        write_body(void);
         int 	        write_str_body(void);
+        int 	        read_fd_out(void);
+
 		void            init(void);
 		int 		    end_response(int);
 
