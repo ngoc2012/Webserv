@@ -97,7 +97,7 @@ void	Host::start(void)
         }
         else
             pthread_mutex_unlock(&_set_mutex);
-        //usleep(DELAY);
+        usleep(DELAY);
 	} while (!get_end());
 }
 
