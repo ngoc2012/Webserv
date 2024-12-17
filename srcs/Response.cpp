@@ -198,12 +198,11 @@ int     Response::write_body()
 {
     int     ret;
     if (_body != "")
-    {
-    }
+	    return write_str_body();
     if (_fd_out == -1)
     {
         pthread_mutex_lock(_host->get_cout_mutex());
-        std::cerr << RED << "Error: No file content to send." << RESET << std::endl;
+        std::cerr << RED << "Error: No file content to send, " << _body_size << "b sent." << RESET << std::endl;
         pthread_mutex_unlock(_host->get_cout_mutex());
         return (end_response(-1));
     }
