@@ -247,10 +247,11 @@ int     Response::end_response(int ret)
         close(_fd_out);
         _fd_out = -1;
         pthread_mutex_unlock(_host->get_fd_mutex());
-    	pthread_mutex_lock(&_set_mutex);
+	
+    	pthread_mutex_lock(_host->get_set_mutex());
     	if (FD_ISSET(_fd_out, &_read_set))
 		FD_CLR(_fd_out, &_master_read_set);
-    	pthread_mutex_unlock(&_set_mutex);
+    	pthread_mutex_unlock(_host->get_set_mutex());
     }
     pthread_mutex_lock(_host->get_cout_mutex());
     ft::timestamp();
