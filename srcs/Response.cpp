@@ -180,12 +180,10 @@ int     Response::write_str_body()
         ret = send(_socket, _body.c_str(), _body.size(), 0);
         if (ret <= 0)
         {
-            pthread_mutex_lock(_host->get_cout_mutex());
             if (!ret && _body.size())
-                std::cerr << RED << "Error: Send response body interrupted." << RESET << std::endl;
+        	_host->print(ERROR, "Error: Send response body interrupted.");
             if (ret == -1)
                 std::cerr << RED << "Error: Send body error." << RESET << std::endl;
-            pthread_mutex_unlock(_host->get_cout_mutex());
             return (end_response(ret));
         }
         _worker->set_sk_timeout(_socket);
@@ -226,9 +224,9 @@ int     Response::write_body()
         return (end_response(ret));
     }
     int     ret1 = send(_socket, buffer, ret, 0);
-    if (!ret && ret)
+    if (!ret1 && ret1)
         _host->print(ERROR, "Error: Send response body interrupted.");
-    else if (ret == -1)
+    if (ret1 == -1)
         _host->print(ERROR, "Error: Send body error.");
     if (ret1 <= 0)
         return (end_response(ret1));
