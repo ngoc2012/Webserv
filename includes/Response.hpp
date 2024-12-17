@@ -51,6 +51,7 @@ class	Response
         void	        mess_body(std::string, std::string);
 
         int 	        write_body(void);
+        int 	        write_str_body(void);
 		void            init(void);
 		int 		    end_response(int);
 

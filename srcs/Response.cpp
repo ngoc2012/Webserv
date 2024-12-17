@@ -173,11 +173,8 @@ void     Response::mess_body(std::string title, std::string body)
     _body += "</html>\n";
 }
 
-int     Response::write_body()
+int     Response::write_str_body()
 {
-    int     ret;
-    if (_body != "")
-    {
         ret = send(_socket, _body.c_str(), _body.size(), 0);
         if (ret <= 0)
         {
@@ -195,6 +192,13 @@ int     Response::write_body()
         if (_body == "")
             return (end_response(ret));
         return (ret);
+}
+
+int     Response::write_body()
+{
+    int     ret;
+    if (_body != "")
+    {
     }
     if (_fd_out == -1)
     {
