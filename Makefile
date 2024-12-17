@@ -306,13 +306,13 @@ subjects:
 
 
 helgrind:
-	clear && make re && make clean && valgrind --tool=helgrind --history-level=none ./webserv .3.conf
+	clear && make re && valgrind --tool=helgrind --history-level=none ./webserv .3.conf
 
 valgrind:
-	clear && make re && make clean && valgrind --track-origins=yes --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv .3.conf
+	clear && make re && valgrind --track-origins=yes --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv .3.conf
 
 build:
-	clear && make && make clean && ./webserv .3.conf
+	clear && make && ./webserv .3.conf
 
 tester:
 	clear && ./ubuntu_tester http://127.15.0.1:4242
