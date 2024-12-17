@@ -43,6 +43,7 @@ class	Response
 		bool            _end;
 
         int             _fd_out;
+    	char		_buffer[RESPONSE_BUFFER * 1028 + 20];
 
         int		        write_header(void);
         void	        get_file_size(void);

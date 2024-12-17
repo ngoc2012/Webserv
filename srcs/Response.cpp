@@ -204,8 +204,7 @@ int     Response::write_body()
 	_host->print(ERROR, "Error: No file content to send, " + ft::itos(_body_size) + "b sent.");
         return (end_response(-1));
     }
-    char	buffer[RESPONSE_BUFFER * 1028 + 20];
-    ret = read(_fd_out, buffer, RESPONSE_BUFFER * 1028);
+    ret = read(_fd_out, _buffer, RESPONSE_BUFFER * 1028);
     if (ret <= 0)
     {
         pthread_mutex_lock(_host->get_cout_mutex());
@@ -223,7 +222,7 @@ int     Response::write_body()
         pthread_mutex_unlock(_host->get_cout_mutex());
         return (end_response(ret));
     }
-    int     ret1 = send(_socket, buffer, ret, 0);
+    int     ret1 = send(_socket, _buffer, ret, 0);
     if (!ret1 && ret1)
         _host->print(ERROR, "Error: Send response body interrupted.");
     if (ret1 == -1)
@@ -248,10 +247,10 @@ int     Response::end_response(int ret)
         _fd_out = -1;
         pthread_mutex_unlock(_host->get_fd_mutex());
 	
-    	pthread_mutex_lock(_host->get_set_mutex());
-    	if (FD_ISSET(_fd_out, &_read_set))
-		FD_CLR(_fd_out, &_master_read_set);
-    	pthread_mutex_unlock(_host->get_set_mutex());
+    	//pthread_mutex_lock(_host->get_set_mutex());
+    	//if (FD_ISSET(_fd_out, &_read_set))
+	//	FD_CLR(_fd_out, &_master_read_set);
+    	//pthread_mutex_unlock(_host->get_set_mutex());
     }
     pthread_mutex_lock(_host->get_cout_mutex());
     ft::timestamp();
