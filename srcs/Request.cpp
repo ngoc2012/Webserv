@@ -466,10 +466,8 @@ bool	Request::check_location()
         pthread_mutex_unlock(_host->get_fd_mutex());
         if (fd_out == -1)
         {
-            pthread_mutex_lock(_host->get_cout_mutex());
-            std::cerr << RED << "Error: fd out open error: " << fd_out << RESET << std::endl;
             _status_code = 500;
-            pthread_mutex_unlock(_host->get_cout_mutex());
+	    _host->print(ERROR, "Error: fd out open error: " + ft:itos(fd_out));
             return (false);
         }
 	_host->insert_read_fd(fd_out);
