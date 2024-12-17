@@ -86,7 +86,7 @@ void	Worker::routine(void)
 	    fd_out = response->get_fd_out();
 	    if (fd_out != -1 && !FD_ISSET(fd_out, &_read_set))
 	    {
-		_host->print(WARNING, "No write fd for response " + ft::itos(fd_out));
+		//_host->print(WARNING, "No write fd for response " + ft::itos(fd_out));
 		continue;		    
 	    }
             worked = true;
