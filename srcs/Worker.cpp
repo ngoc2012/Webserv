@@ -82,6 +82,8 @@ void	Worker::routine(void)
         {
             pthread_mutex_unlock(&_set_mutex);
             response = request->get_response();
+	    if (response->get_fd_out() != -1 && !FD_ISSET(response->get_fd_out(), &_write_set))
+		continue;		    
             worked = true;
             ret = response->write();
             if ((ret < 0 && RUPTURE != 0) || (response->get_end() && request->get_close()))
