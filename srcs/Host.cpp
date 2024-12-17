@@ -123,14 +123,18 @@ void    Host::round_robin(int new_sk, Address* address)
 
 void	Host::check_sk_ready(void)
 {
-    int     new_sk;
+    int     	new_sk;
+    int		listen_sk;
+    Address*	listen_addr;
+
     for (std::map<int, Address*>::iterator it = _sk_address.begin();
         it != _sk_address.end(); it++)
-	int		listen_sk = it->first;
-	Address*	addr = it->second;
+    {
+    	listen_sk = it->first;
+    	listen_addr = it->second;
         if (FD_ISSET(listen_sk, &_read_set) && FD_ISSET(listen_sk, &_listen_set))
         {
-            new_sk = it->second->accept_client_sk();
+            new_sk = listen_addr->accept_client_sk();
             if (new_sk < 0)
                 continue;
             pthread_mutex_lock(&_set_mutex);
@@ -139,9 +143,10 @@ void	Host::check_sk_ready(void)
             FD_SET(new_sk, &_master_read_set);
             FD_SET(new_sk, &_master_write_set);
             pthread_mutex_unlock(&_set_mutex);
-            round_robin(new_sk, it->second);
+            round_robin(new_sk, listen_addr);
             usleep(DELAY);
         }
+    }
 
     for (int i = 0; i < _n_workers; i++)
         _workers[i].set_empty_sets();
