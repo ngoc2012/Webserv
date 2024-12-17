@@ -86,6 +86,7 @@ static void signalHandler(int signum) {
 
 int    Cgi::execute()
 {
+    Host*               host =
     pthread_mutex_t*	fd_mutex = _request->get_host()->get_fd_mutex();
     pthread_mutex_t*	cout_mutex = _request->get_host()->get_cout_mutex();
 
@@ -120,6 +121,7 @@ int    Cgi::execute()
         std::cerr << "Error: CGI fd_out open error." << std::endl;
         return 500;
     }
+    _host->
     _response->set_fd_out(_fd_out);
     _pid = fork();
 
