@@ -302,10 +302,18 @@ bool    Host::start_workers() {
 
 bool	Host::is_writable_fd(int)
 {
+    pthread_mutex_lock(&_set_mutex);
+    bool	is_writable = FD_ISSET(fd, _write_set);
+    pthread_mutex_unlock(&_set_mutex);
+    return is_writable;
 }
 
 bool	Host::is_readable_fd(int)
 {
+    pthread_mutex_lock(&_set_mutex);
+    bool	is_readable = FD_ISSET(fd, _write_set);
+    pthread_mutex_unlock(&_set_mutex);
+    return is_readable;
 }
 
 void    Host::status_message(void)
