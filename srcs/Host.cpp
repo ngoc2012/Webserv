@@ -300,18 +300,18 @@ bool    Host::start_workers() {
     return (true);
 }
 
-bool	Host::is_writable_fd(int)
+bool	Host::is_writable_fd(int fd)
 {
     pthread_mutex_lock(&_set_mutex);
-    bool	is_writable = FD_ISSET(fd, _write_set);
+    bool	is_writable = FD_ISSET(fd, &_write_set);
     pthread_mutex_unlock(&_set_mutex);
     return is_writable;
 }
 
-bool	Host::is_readable_fd(int)
+bool	Host::is_readable_fd(int fd)
 {
     pthread_mutex_lock(&_set_mutex);
-    bool	is_readable = FD_ISSET(fd, _write_set);
+    bool	is_readable = FD_ISSET(fd, &_read_set);
     pthread_mutex_unlock(&_set_mutex);
     return is_readable;
 }
