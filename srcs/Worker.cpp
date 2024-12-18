@@ -87,6 +87,7 @@ void	Worker::routine(void)
 	    if (fd_out != -1 && !FD_ISSET(fd_out, &_read_set))
 	    {
 		_host->print(WARNING, "No write fd for response " + ft::itos(fd_out));
+		std::cout << FD_ISSET(fd_out, &_master_read_set) << std::endl;
 		continue;		    
 	    }
             worked = true;
