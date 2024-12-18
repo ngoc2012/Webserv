@@ -300,6 +300,14 @@ bool    Host::start_workers() {
     return (true);
 }
 
+bool	Host::is_writable_fd(int)
+{
+}
+
+bool	Host::is_readable_fd(int)
+{
+}
+
 void    Host::status_message(void)
 {
 	_status_message[100] = "Continue";
