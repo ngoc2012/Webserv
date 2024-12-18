@@ -61,6 +61,7 @@ class	Host
 		std::map<std::string, Address*>		    _str_address;
 		std::map<int, Worker*>		            _sk_worker;
 		std::map<int, Address*>		            _sk_address;
+		std::map<Worker*, int>		            _worker_load;
 		
 		std::map<int, std::string>  		    _status_message;
 		std::map<std::string, std::string>	    _mimes;
