@@ -203,6 +203,7 @@ void  	Host::close_connection(int i)
 		while (!FD_ISSET(_max_sk, &_master_read_set))
 			_max_sk -= 1;
     pthread_mutex_unlock(&_set_mutex);
+
 	pthread_mutex_lock(&_sk_worker_mutex);
 	_sk_worker.erase(i);
 	pthread_mutex_unlock(&_sk_worker_mutex);
@@ -289,6 +290,7 @@ bool    Host::start_workers() {
         _workers[i].set_id(i);
         _workers[i].set_host(this);
         _workers[i].set_workload(0);
+	_worker_load[_workers[i]] = 0;
         if (pthread_create(_workers[i].get_th(), NULL, start_worker, &_workers[i]))
         {
             pthread_mutex_lock(&_cout_mutex);
