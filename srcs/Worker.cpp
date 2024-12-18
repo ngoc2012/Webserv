@@ -72,7 +72,7 @@ void	Worker::routine(void)
         request = it->second;
         pthread_mutex_lock(&_set_mutex);
         //if (FD_ISSET(fd, &_read_set) && !request->get_end())
-        if (_host->is_writable_fd(fd) && !request->get_end())
+        if (!request->get_end() && _host->is_readable_fd(fd))
         {
             pthread_mutex_unlock(&_set_mutex);
             worked = true;
@@ -80,7 +80,8 @@ void	Worker::routine(void)
             if (ret < 0 && RUPTURE != 0)
                 close_client_sk(fd);
         }
-        else if (FD_ISSET(fd, &_write_set) && request->get_end())
+        //else if (FD_ISSET(fd, &_write_set) && request->get_end())
+	else if (request->get_end() && _host->is_writable_fd(fd))
         {
             pthread_mutex_unlock(&_set_mutex);
             response = request->get_response();
