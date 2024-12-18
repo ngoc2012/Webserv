@@ -71,7 +71,8 @@ void	Worker::routine(void)
         fd = it->first;
         request = it->second;
         pthread_mutex_lock(&_set_mutex);
-        if (FD_ISSET(fd, &_read_set) && !request->get_end())
+        //if (FD_ISSET(fd, &_read_set) && !request->get_end())
+        if (_host->is_writable_fd(fd) && !request->get_end())
         {
             pthread_mutex_unlock(&_set_mutex);
             worked = true;
