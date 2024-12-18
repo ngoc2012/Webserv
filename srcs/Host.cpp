@@ -94,7 +94,7 @@ void	Host::start(void)
 	timeout.tv_usec = 0;
         if (select(_max_sk + 1, &_read_set, &_write_set, NULL, &timeout) != -1)
         {
-		print(NORMAL, "select");
+		//print(NORMAL, "select");
             pthread_mutex_unlock(&_set_mutex);
             check_sk_ready();
         }
