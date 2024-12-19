@@ -24,12 +24,12 @@
 Worker::Worker()
 {
     _id = -1;
-    _workload = 0;
+    //_workload = 0;
     _terminate_flag = false;
     _set_updated = false;
     pthread_mutex_init(&_terminate_mutex, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
-    pthread_mutex_init(&_workload_mutex, NULL);
+    //pthread_mutex_init(&_workload_mutex, NULL);
     pthread_mutex_init(&_sk_size_mutex, NULL);
     pthread_mutex_init(&_timeout_mutex, NULL);
     pthread_cond_init(&_cond_set_updated, NULL);
@@ -46,7 +46,7 @@ Worker::~Worker()
         delete (it->second);
     pthread_mutex_destroy(&_terminate_mutex);
     pthread_mutex_destroy(&_set_mutex);
-    pthread_mutex_destroy(&_workload_mutex);
+    //pthread_mutex_destroy(&_workload_mutex);
     pthread_mutex_destroy(&_sk_size_mutex);
     pthread_mutex_destroy(&_timeout_mutex);
     pthread_cond_destroy(&_cond_set_updated);
@@ -127,9 +127,9 @@ void	Worker::check_timeout(void)
 
 void	Worker::set_empty_sets(void)
 {
-    pthread_mutex_lock(&_workload_mutex);
-    _workload = 0;
-    pthread_mutex_unlock(&_workload_mutex);
+    //pthread_mutex_lock(&_workload_mutex);
+    //_workload = 0;
+    //pthread_mutex_unlock(&_workload_mutex);
     FD_ZERO(&_tmp_read_set);
     FD_ZERO(&_tmp_write_set);
     pthread_mutex_lock(&_set_mutex);
@@ -141,17 +141,17 @@ void	Worker::set_empty_sets(void)
 void	Worker::set_sk_tmp_read_set(int sk)
 {
     FD_SET(sk, &_tmp_read_set);
-    pthread_mutex_lock(&_workload_mutex);
-    _workload++;
-    pthread_mutex_unlock(&_workload_mutex);
+    //pthread_mutex_lock(&_workload_mutex);
+    //_workload++;
+    //pthread_mutex_unlock(&_workload_mutex);
 }
 
 void	Worker::set_sk_tmp_write_set(int sk)
 {
     FD_SET(sk, &_tmp_write_set);
-    pthread_mutex_lock(&_workload_mutex);
-    _workload++;
-    pthread_mutex_unlock(&_workload_mutex);
+    //pthread_mutex_lock(&_workload_mutex);
+    //_workload++;
+    //pthread_mutex_unlock(&_workload_mutex);
 }
 
 void	Worker::update_sets(void)

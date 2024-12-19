@@ -31,7 +31,7 @@ class	Worker
 	private:
         
 		int         _id;
-		int         _workload;  // Workload metric
+		//int         _workload;  // Workload metric
 		pthread_t   _th;
 	
 		Host*       _host;
@@ -50,7 +50,7 @@ class	Worker
 
 		pthread_mutex_t		_set_mutex;
 		pthread_mutex_t		_terminate_mutex;
-		pthread_mutex_t		_workload_mutex;
+		//pthread_mutex_t		_workload_mutex;
 		pthread_mutex_t		_sk_size_mutex;
 		pthread_mutex_t		_timeout_mutex;
 		//pthread_mutex_t		_set_updated_mutex;
@@ -80,7 +80,7 @@ class	Worker
 
         pthread_t*  		get_th(void);
         int         		get_id(void) const;
-        int         		get_workload(void);
+        /int         		get_workload(void);
         Host*       		get_host(void) const;
         pthread_mutex_t*	get_terminate_mutex(void);
         pthread_mutex_t*	get_set_mutex(void);
@@ -91,7 +91,7 @@ class	Worker
         std::map<int, Request*>*		get_sk_request(void);
 
         void        set_id(int);
-        void        set_workload(int);
+        //void        set_workload(int);
         void        set_host(Host*);
 		void		set_terminate_mutex(pthread_mutex_t);
 		void		set_terminate_flag(bool);
