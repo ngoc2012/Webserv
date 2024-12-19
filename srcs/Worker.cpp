@@ -174,9 +174,9 @@ void	Worker::close_client_sk(int fd)
     if (FD_ISSET(fd, &_read_set))
     {
         pthread_mutex_unlock(&_set_mutex);
-        pthread_mutex_lock(&_workload_mutex);
-        _workload--;
-        pthread_mutex_unlock(&_workload_mutex);
+        //pthread_mutex_lock(&_workload_mutex);
+        //_workload--;
+        //pthread_mutex_unlock(&_workload_mutex);
     }
     else
         pthread_mutex_unlock(&_set_mutex);
