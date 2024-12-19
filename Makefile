@@ -306,10 +306,10 @@ subjects:
 
 
 helgrind:
-	clear && make re && valgrind --tool=helgrind --history-level=none ./webserv .3.conf
+	clear && make && valgrind --tool=helgrind --history-level=none ./webserv .3.conf
 
 valgrind:
-	clear && make re && valgrind --track-origins=yes --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv .3.conf
+	clear && make && valgrind --track-origins=yes --track-fds=yes --leak-check=full --show-leak-kinds=all ./webserv .3.conf
 
 build:
 	clear && make && ./webserv .3.conf
