@@ -247,7 +247,8 @@ static void*   start_worker(void* instance)
     while (!worker->get_terminate_flag())
     {
         worker->check_timeout();
-        if (worker->get_sk_size() == 0)
+        //if (worker->get_sk_size() == 0)
+        if (host->get_load(worker) == 0)
         {
             worker->wait_for_set_updated();
             if (worker->get_terminate_flag())
@@ -578,6 +579,11 @@ void	Host::mimes(void)
     _set_mimes.insert("video/x-ms-asf");
     _set_mimes.insert("video/x-ms-wmv");
     _set_mimes.insert("video/x-msvideo");
+}
+
+int				                Host::get_load(Worker* w)
+{
+	return _worker_load[w];
 }
 
 int			                        Host::get_max_clients(void) const {return (_max_clients);}
