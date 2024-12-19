@@ -111,7 +111,8 @@ void    Host::round_robin(int new_sk, Address* address)
     int j = (i + _start_worker_id + 1) % _n_workers;
     while (i < _n_workers - 1)
     {
-        if (_workers[w_min].get_workload() >= _workers[j].get_workload())
+        //if (_workers[w_min].get_workload() >= _workers[j].get_workload())
+        if (_worker_load[&_workers[w_min]] >= _worker_load[&_workers[j]])
             w_min = j;
         j = (j + 1) % _n_workers;
         i++;
