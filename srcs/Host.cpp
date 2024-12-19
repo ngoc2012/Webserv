@@ -205,6 +205,7 @@ void  	Host::close_connection(int i)
 			_max_sk -= 1;
     pthread_mutex_unlock(&_set_mutex);
 
+    _worker_load[_sk_worker[i]]--;
 	pthread_mutex_lock(&_sk_worker_mutex);
 	_sk_worker.erase(i);
 	pthread_mutex_unlock(&_sk_worker_mutex);
