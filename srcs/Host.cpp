@@ -168,7 +168,8 @@ void	Host::check_sk_ready(void)
             it->second->set_sk_tmp_write_set(it->first);
     }
     for (int i = 0; i < _n_workers; i++)
-        if (_workers[i].get_workload() || _workers[i].get_sk_size())
+        //if (_workers[i].get_workload() || _workers[i].get_sk_size())
+    	if (_worker_load[&_workers[i]])
         {
             _workers[i].set_set_updated(true);
             pthread_mutex_lock(_workers[i].get_set_mutex());
