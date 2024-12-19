@@ -93,6 +93,8 @@ class	Host
 		int				                    get_max_clients(void) const;
 		size_t				                get_client_max_body_size(void) const;
 		size_t				                get_client_body_buffer_size(void) const;
+		int				                    get_load(void);
+
         std::map<std::string, std::string>*	get_mimes(void);
         std::set<std::string>*	            get_set_mimes(void);
         std::map<int, std::string>*  		get_status_message(void);
