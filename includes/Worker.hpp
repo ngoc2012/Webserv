@@ -89,7 +89,6 @@ class	Worker
 		bool				get_terminate_flag(void);
         bool				get_set_updated(void);
         std::map<int, Request*>*		get_sk_request(void);
-        //int         		get_sk_size(void);
 
         void        set_id(int);
         void        set_workload(int);

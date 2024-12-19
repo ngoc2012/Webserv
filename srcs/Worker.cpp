@@ -253,14 +253,6 @@ bool				Worker::get_terminate_flag(void)
     return (w);
 }
 
-//int         		Worker::get_sk_size(void)
-//{
-//    pthread_mutex_lock(&_sk_size_mutex);
-//    int     w = _sk_request.size();
-//    pthread_mutex_unlock(&_sk_size_mutex);
-//    return (w);
-//}
-
 void         Worker::set_id(int s) {_id = s;}
 void         Worker::set_workload(int s) {_workload = s;}
 void         Worker::set_host(Host* h) {_host = h;}
