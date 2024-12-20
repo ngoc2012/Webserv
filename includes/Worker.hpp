@@ -50,10 +50,8 @@ class	Worker
 
 		pthread_mutex_t		_set_mutex;
 		pthread_mutex_t		_terminate_mutex;
-		//pthread_mutex_t		_workload_mutex;
 		pthread_mutex_t		_sk_size_mutex;
 		pthread_mutex_t		_timeout_mutex;
-		//pthread_mutex_t		_set_updated_mutex;
 		pthread_cond_t		_cond_set_updated;
 		bool				_set_updated;
 
@@ -72,7 +70,6 @@ class	Worker
 		void		set_empty_sets(void);
 		void		set_sk_tmp_read_set(int);
 		void		set_sk_tmp_write_set(int);
-		// void		update_sets(void);
 		void		set_end(void);
 		void		check_timeout(void);
 		void		need_host_update_set(void);
@@ -80,7 +77,6 @@ class	Worker
 
         pthread_t*  		get_th(void);
         int         		get_id(void) const;
-        //int         		get_workload(void);
         Host*       		get_host(void) const;
         pthread_mutex_t*	get_terminate_mutex(void);
         pthread_mutex_t*	get_set_mutex(void);
@@ -90,7 +86,6 @@ class	Worker
         std::map<int, Request*>*		get_sk_request(void);
 
         void        set_id(int);
-        //void        set_workload(int);
         void        set_host(Host*);
 		void		set_terminate_mutex(pthread_mutex_t);
 		void		set_terminate_flag(bool);

@@ -149,16 +149,7 @@ void	Worker::set_sk_tmp_read_set(int sk)
 void	Worker::set_sk_tmp_write_set(int sk)
 {
     FD_SET(sk, &_tmp_write_set);
-    //pthread_mutex_lock(&_workload_mutex);
-    //_workload++;
-    //pthread_mutex_unlock(&_workload_mutex);
 }
-
-// void	Worker::update_sets(void)
-// {
-//     memcpy(&_read_set, &_tmp_read_set, sizeof(_tmp_read_set));
-//     memcpy(&_write_set, &_tmp_write_set, sizeof(_tmp_write_set));
-// }
 
 void	Worker::new_connection(int new_sk, Address* a)
 {
@@ -225,13 +216,6 @@ void		Worker::wait_for_set_updated(void)
 pthread_t*   Worker::get_th(void) {return (&_th);}
 int          Worker::get_id(void) const {return (_id);}
 Host*        Worker::get_host(void) const {return (_host);}
-//int          Worker::get_workload(void)
-//{
-//    pthread_mutex_lock(&_workload_mutex);
-//    int     w = _workload;
-//    pthread_mutex_unlock(&_workload_mutex);
-//    return (w);
-//}
 pthread_mutex_t*    Worker::get_terminate_mutex(void) {return (&_terminate_mutex);}
 pthread_mutex_t*	Worker::get_set_mutex(void) {return (&_set_mutex);}
 pthread_cond_t*		Worker::get_cond_set_updated(void) {return (&_cond_set_updated);}
@@ -254,7 +238,6 @@ bool				Worker::get_terminate_flag(void)
 }
 
 void         Worker::set_id(int s) {_id = s;}
-//void         Worker::set_workload(int s) {_workload = s;}
 void         Worker::set_host(Host* h) {_host = h;}
 void	     Worker::set_terminate_mutex(pthread_mutex_t m) {_terminate_mutex = m;}
 void		 Worker::set_set_updated(bool u)
