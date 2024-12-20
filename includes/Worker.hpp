@@ -80,7 +80,7 @@ class	Worker
 
         pthread_t*  		get_th(void);
         int         		get_id(void) const;
-        /int         		get_workload(void);
+        //int         		get_workload(void);
         Host*       		get_host(void) const;
         pthread_mutex_t*	get_terminate_mutex(void);
         pthread_mutex_t*	get_set_mutex(void);
