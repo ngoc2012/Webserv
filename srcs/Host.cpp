@@ -63,7 +63,7 @@ Host::~Host()
     pthread_mutex_destroy(&_set_mutex);
     pthread_mutex_destroy(&_end_mutex);
     pthread_mutex_destroy(&_fd_mutex);
-    // pthread_mutex_destroy(&_sk_worker_mutex);
+    pthread_mutex_destroy(&_sk_worker_mutex);
     // Cout mutex destroyed in main
     ft::timestamp();
     std::cout << "End server" << std::endl;
