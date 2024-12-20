@@ -202,12 +202,11 @@ void  	Host::close_connection(int i)
     if (i == _max_sk)
 		while (!FD_ISSET(_max_sk, &_master_read_set))
 			_max_sk -= 1;
-    pthread_mutex_unlock(&_set_mutex);
-
-    _worker_load[_sk_worker[i]]--;
+     _worker_load[_sk_worker[i]]--;
 	// pthread_mutex_lock(&_sk_worker_mutex);
 	_sk_worker.erase(i);
 	// pthread_mutex_unlock(&_sk_worker_mutex);
+    pthread_mutex_unlock(&_set_mutex);
 }
 
 void	Host::start_server(void)
