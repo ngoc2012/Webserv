@@ -39,7 +39,7 @@ Host::Host()
     pthread_mutex_init(&_set_mutex, NULL);
     pthread_mutex_init(&_end_mutex, NULL);
     pthread_mutex_init(&_fd_mutex, NULL);
-    pthread_mutex_init(&_need_update_mutex, NULL);
+    // pthread_mutex_init(&_need_update_mutex, NULL);
     pthread_mutex_init(&_sk_worker_mutex, NULL);
     _timeout = TIMEOUT;
     mimes();
