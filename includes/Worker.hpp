@@ -84,7 +84,6 @@ class	Worker
         Host*       		get_host(void) const;
         pthread_mutex_t*	get_terminate_mutex(void);
         pthread_mutex_t*	get_set_mutex(void);
-		//pthread_mutex_t*	get_set_updated_mutex(void);
         pthread_cond_t*		get_cond_set_updated(void);
 		bool				get_terminate_flag(void);
         bool				get_set_updated(void);
