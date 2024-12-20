@@ -44,7 +44,7 @@ class	Host
 		pthread_mutex_t							_cout_mutex;
 		pthread_mutex_t							_set_mutex;
 		pthread_mutex_t							_end_mutex;
-		pthread_mutex_t							_fd_mutex;
+		pthread_mutex_t							_fd_mutex;			// Workers should not open and close a fd at the same time ???
 		pthread_mutex_t							_sk_worker_mutex; // Worker should remove sk closed in sk_worker
 		int										_timeout;
 
