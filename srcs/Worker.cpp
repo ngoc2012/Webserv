@@ -116,32 +116,6 @@ void	Worker::check_timeout(void)
     }
 }
 
-// void	Worker::set_empty_sets(void)
-// {
-//     //pthread_mutex_lock(&_workload_mutex);
-//     //_workload = 0;
-//     //pthread_mutex_unlock(&_workload_mutex);
-//     FD_ZERO(&_tmp_read_set);
-//     FD_ZERO(&_tmp_write_set);
-//     pthread_mutex_lock(&_set_mutex);
-//     FD_ZERO(&_read_set);
-//     FD_ZERO(&_write_set);
-//     pthread_mutex_unlock(&_set_mutex);
-// }
-
-// void	Worker::set_sk_tmp_read_set(int sk)
-// {
-//     FD_SET(sk, &_tmp_read_set);
-//     //pthread_mutex_lock(&_workload_mutex);
-//     //_workload++;
-//     //pthread_mutex_unlock(&_workload_mutex);
-// }
-
-// void	Worker::set_sk_tmp_write_set(int sk)
-// {
-//     FD_SET(sk, &_tmp_write_set);
-// }
-
 void	Worker::new_connection(int new_sk, Address* a)
 {
     set_sk_timeout(new_sk);

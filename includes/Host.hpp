@@ -47,7 +47,7 @@ class	Host
 		pthread_mutex_t							_end_mutex;
 		pthread_mutex_t							_fd_mutex;
 		pthread_mutex_t							_need_update_mutex;
-		pthread_mutex_t							_sk_worker_mutex;
+		// pthread_mutex_t							_sk_worker_mutex;
 		// pthread_cond_t							_cond_need_update;
 		int										_timeout;
 
