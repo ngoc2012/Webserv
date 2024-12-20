@@ -118,8 +118,8 @@ void    Host::round_robin(int new_sk, Address* address)
     }
     pthread_mutex_lock(&_sk_worker_mutex);
     _sk_worker[new_sk] = &_workers[w_min];
-    pthread_mutex_unlock(&_sk_worker_mutex);
     _workers[w_min].new_connection(new_sk, address);
+    pthread_mutex_unlock(&_sk_worker_mutex);
     _worker_load[&_workers[w_min]]++;
     _start_worker_id++;
     _start_worker_id %= _n_workers;
