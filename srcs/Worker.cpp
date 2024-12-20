@@ -71,7 +71,6 @@ void	Worker::routine(void)
         fd = it->first;
         request = it->second;
         pthread_mutex_lock(&_set_mutex);
-        //if (FD_ISSET(fd, &_read_set) && !request->get_end())
         if (!request->get_end() && _host->is_readable_fd(fd))
         {
             pthread_mutex_unlock(&_set_mutex);
@@ -80,18 +79,10 @@ void	Worker::routine(void)
             if (ret < 0 && RUPTURE != 0)
                 close_client_sk(fd);
         }
-        //else if (FD_ISSET(fd, &_write_set) && request->get_end())
 	else if (request->get_end() && _host->is_writable_fd(fd))
         {
             pthread_mutex_unlock(&_set_mutex);
             response = request->get_response();
-	    //fd_out = response->get_fd_out();
-	    //if (fd_out != -1 && !FD_ISSET(fd_out, &_read_set))
-	    //{
-	    //    _host->print(WARNING, "No write fd for response " + ft::itos(fd_out));
-	    //    std::cout << FD_ISSET(fd_out, &_master_read_set) << std::endl;
-	    //    continue;		    
-	    //}
             worked = true;
             ret = response->write();
             if ((ret < 0 && RUPTURE != 0) || (response->get_end() && request->get_close()))
