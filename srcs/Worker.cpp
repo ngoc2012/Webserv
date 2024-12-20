@@ -59,34 +59,44 @@ void	Worker::routine(void)
     bool        worked = false;
     int         ret;
     int         fd;
+    //int         fd_out;
 
+    // pthread_mutex_lock(&_sk_size_mutex);
     std::map<int, Request*>     sk_request = _sk_request;
+    // pthread_mutex_unlock(&_sk_size_mutex);
 
     for (std::map<int, Request*>::iterator it = sk_request.begin();
         it != sk_request.end(); it++)
     {   
         fd = it->first;
         request = it->second;
-        pthread_mutex_lock(&_set_mutex);
+        // pthread_mutex_lock(&_set_mutex);
         if (!request->get_end() && _host->is_readable_fd(fd))
         {
-            pthread_mutex_unlock(&_set_mutex);
+            // pthread_mutex_unlock(&_set_mutex);
             worked = true;
             ret = request->read();
             if (ret < 0 && RUPTURE != 0)
                 close_client_sk(fd);
         }
-	else if (request->get_end() && _host->is_writable_fd(fd))
+	    else if (request->get_end() && _host->is_writable_fd(fd))
         {
-            pthread_mutex_unlock(&_set_mutex);
+            // pthread_mutex_unlock(&_set_mutex);
             response = request->get_response();
+            // fd_out = response->get_fd_out();
+            // if (fd_out != -1 && !FD_ISSET(fd_out, &_read_set))
+            // {
+            // _host->print(WARNING, "No write fd for response " + ft::itos(fd_out));
+            // std::cout << FD_ISSET(fd_out, &_master_read_set) << std::endl;
+            // continue;		    
+            // }
             worked = true;
             ret = response->write();
             if ((ret < 0 && RUPTURE != 0) || (response->get_end() && request->get_close()))
                 close_client_sk(fd);
         }
-        else
-            pthread_mutex_unlock(&_set_mutex);
+        // else
+        //     pthread_mutex_unlock(&_set_mutex);
     }
     if (!worked)
         usleep(DELAY);
@@ -94,7 +104,9 @@ void	Worker::routine(void)
 
 void	Worker::check_timeout(void)
 {
+    // pthread_mutex_lock(&_sk_size_mutex);
     std::map<int, Request*>     sk_request = _sk_request;
+    // pthread_mutex_unlock(&_sk_size_mutex);
 
     for (std::map<int, Request*>::iterator it = sk_request.begin(), next = it;
         it != sk_request.end(); it++)
@@ -110,6 +122,32 @@ void	Worker::check_timeout(void)
         }
     }
 }
+
+// void	Worker::set_empty_sets(void)
+// {
+//     //pthread_mutex_lock(&_workload_mutex);
+//     //_workload = 0;
+//     //pthread_mutex_unlock(&_workload_mutex);
+//     FD_ZERO(&_tmp_read_set);
+//     FD_ZERO(&_tmp_write_set);
+//     pthread_mutex_lock(&_set_mutex);
+//     FD_ZERO(&_read_set);
+//     FD_ZERO(&_write_set);
+//     pthread_mutex_unlock(&_set_mutex);
+// }
+
+// void	Worker::set_sk_tmp_read_set(int sk)
+// {
+//     FD_SET(sk, &_tmp_read_set);
+//     //pthread_mutex_lock(&_workload_mutex);
+//     //_workload++;
+//     //pthread_mutex_unlock(&_workload_mutex);
+// }
+
+// void	Worker::set_sk_tmp_write_set(int sk)
+// {
+//     FD_SET(sk, &_tmp_write_set);
+// }
 
 void	Worker::new_connection(int new_sk, Address* a)
 {
