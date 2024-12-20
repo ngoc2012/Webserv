@@ -196,7 +196,7 @@ void		Worker::wait_for_set_updated(void)
 pthread_t*   Worker::get_th(void) {return (&_th);}
 int          Worker::get_id(void) const {return (_id);}
 Host*        Worker::get_host(void) const {return (_host);}
-pthread_mutex_t*    Worker::get_terminate_mutex(void) {return (&_terminate_mutex);}
+// pthread_mutex_t*    Worker::get_terminate_mutex(void) {return (&_terminate_mutex);}
 pthread_mutex_t*	Worker::get_set_mutex(void) {return (&_set_mutex);}
 pthread_cond_t*		Worker::get_cond_set_updated(void) {return (&_cond_set_updated);}
 std::map<int, Request*>*		Worker::get_sk_request(void) {return (&_sk_request);}
