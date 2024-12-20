@@ -40,19 +40,17 @@ class	Host
 		int				                        _start_worker_id;
 		int				                        _n_workers;
 		Worker*				                    _workers;
-		// bool									_need_update;
 		
 		pthread_mutex_t							_cout_mutex;
 		pthread_mutex_t							_set_mutex;
 		pthread_mutex_t							_end_mutex;
 		pthread_mutex_t							_fd_mutex;
-		pthread_mutex_t							_need_update_mutex;
-		// pthread_mutex_t							_sk_worker_mutex;
-		// pthread_cond_t							_cond_need_update;
+		// pthread_mutex_t							_need_update_mutex;
+		pthread_mutex_t							_sk_worker_mutex;
 		int										_timeout;
 
 		int										_max_sk;		    // Max of all fd
-		fd_set              		            			_listen_set;
+		fd_set              		            _listen_set;
 		fd_set      							_read_set;		    // Set of active read fd
 		fd_set      							_write_set;		    // Set of active write fd
 		fd_set      							_master_read_set;	// Set of all read socket
@@ -107,8 +105,8 @@ class	Host
         pthread_mutex_t*					get_fd_mutex(void);
 		// pthread_mutex_t*					get_sk_worker_mutex(void);
         bool								get_end(void);
-		pthread_mutex_t*					get_need_update_mutex(void);
-		pthread_cond_t*						get_cond_need_update(void);
+		// pthread_mutex_t*					get_need_update_mutex(void);
+		// pthread_cond_t*						get_cond_need_update(void);
 		// bool								get_need_update(void) const;
 		std::map<int, Address*>*			get_sk_address(void);
 		std::map<int, Worker*>*				get_sk_worker(void);
