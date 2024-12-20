@@ -38,10 +38,10 @@ class	Worker
 		int			_sk_ready;
 		int			_max_sk;		    // Max of all fd
 		
-		fd_set      _tmp_read_set;		// Set of active read fd
-		fd_set      _tmp_write_set;		// Set of active write fd
-		fd_set      _read_set;		    // Set of active read fd
-		fd_set      _write_set;		    // Set of active write fd
+		// fd_set      _tmp_read_set;		// Set of active read fd
+		// fd_set      _tmp_write_set;		// Set of active write fd
+		// fd_set      _read_set;		    // Set of active read fd
+		// fd_set      _write_set;		    // Set of active write fd
 		volatile bool		_terminate_flag;
 
 		std::map<int, Request*>		_sk_request;
