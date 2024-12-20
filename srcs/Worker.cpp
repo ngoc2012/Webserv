@@ -146,7 +146,9 @@ void	Worker::new_connection(int new_sk, Address* a)
 {
     set_sk_timeout(new_sk);
     // pthread_mutex_lock(&_sk_size_mutex);
+    pthread_mutex_lock(&_set_mutex);
 	_sk_request[new_sk] = new Request(new_sk, this, a);
+    pthread_mutex_unlock(&_set_mutex);
     // pthread_mutex_unlock(&_sk_size_mutex);
 }
 
@@ -154,8 +156,10 @@ void	Worker::close_client_sk(int fd)
 {   
     _host->close_connection(fd);
     // pthread_mutex_lock(&_sk_size_mutex);
+    pthread_mutex_lock(&_set_mutex);
 	delete (_sk_request[fd]);
 	_sk_request.erase(fd);
+    pthread_mutex_unlock(&_set_mutex);
     // pthread_mutex_unlock(&_sk_size_mutex);
 }
 

@@ -40,7 +40,7 @@ Host::Host()
     pthread_mutex_init(&_end_mutex, NULL);
     pthread_mutex_init(&_fd_mutex, NULL);
     pthread_mutex_init(&_need_update_mutex, NULL);
-    pthread_mutex_init(&_sk_worker_mutex, NULL);
+    // pthread_mutex_init(&_sk_worker_mutex, NULL);
     // pthread_cond_init(&_cond_need_update, NULL);
     _timeout = TIMEOUT;
     mimes();
@@ -64,7 +64,7 @@ Host::~Host()
     pthread_mutex_destroy(&_set_mutex);
     pthread_mutex_destroy(&_end_mutex);
     pthread_mutex_destroy(&_fd_mutex);
-    pthread_mutex_destroy(&_sk_worker_mutex);
+    // pthread_mutex_destroy(&_sk_worker_mutex);
     // Cout mutex destroyed in main
     ft::timestamp();
     std::cout << "End server" << std::endl;
@@ -116,10 +116,10 @@ void    Host::round_robin(int new_sk, Address* address)
         j = (j + 1) % _n_workers;
         i++;
     }
-    pthread_mutex_lock(&_sk_worker_mutex);
+    // pthread_mutex_lock(&_sk_worker_mutex);
     _sk_worker[new_sk] = &_workers[w_min];
     _workers[w_min].new_connection(new_sk, address);
-    pthread_mutex_unlock(&_sk_worker_mutex);
+    // pthread_mutex_unlock(&_sk_worker_mutex);
     _worker_load[&_workers[w_min]]++;
     _start_worker_id++;
     _start_worker_id %= _n_workers;
@@ -155,9 +155,9 @@ void	Host::check_sk_ready(void)
     // for (int i = 0; i < _n_workers; i++)
     //     _workers[i].set_empty_sets();
 
-    pthread_mutex_lock(&_sk_worker_mutex);
+    // pthread_mutex_lock(&_sk_worker_mutex);
     std::map<int, Worker*>		sk_worker = _sk_worker;
-    pthread_mutex_unlock(&_sk_worker_mutex);
+    // pthread_mutex_unlock(&_sk_worker_mutex);
 
     // for (std::map<int, Worker*>::iterator it = sk_worker.begin();
     //     it != sk_worker.end(); it++)
@@ -205,9 +205,9 @@ void  	Host::close_connection(int i)
     pthread_mutex_unlock(&_set_mutex);
 
     _worker_load[_sk_worker[i]]--;
-	pthread_mutex_lock(&_sk_worker_mutex);
+	// pthread_mutex_lock(&_sk_worker_mutex);
 	_sk_worker.erase(i);
-	pthread_mutex_unlock(&_sk_worker_mutex);
+	// pthread_mutex_unlock(&_sk_worker_mutex);
 }
 
 void	Host::start_server(void)
@@ -599,7 +599,7 @@ int		                            Host::get_timeout(void) const {return (_timeout
 pthread_mutex_t*					Host::get_cout_mutex(void) {return (&_cout_mutex);}
 pthread_mutex_t*					Host::get_end_mutex(void) {return (&_end_mutex);}
 pthread_mutex_t*					Host::get_fd_mutex(void) {return (&_fd_mutex);}
-pthread_mutex_t*					Host::get_sk_worker_mutex(void) {return (&_sk_worker_mutex);}
+// pthread_mutex_t*					Host::get_sk_worker_mutex(void) {return (&_sk_worker_mutex);}
 
 bool								Host::get_end(void)
 {

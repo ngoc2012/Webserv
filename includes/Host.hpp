@@ -105,7 +105,7 @@ class	Host
         pthread_mutex_t*					get_cout_mutex(void);
         pthread_mutex_t*					get_end_mutex(void);
         pthread_mutex_t*					get_fd_mutex(void);
-		pthread_mutex_t*					get_sk_worker_mutex(void);
+		// pthread_mutex_t*					get_sk_worker_mutex(void);
         bool								get_end(void);
 		pthread_mutex_t*					get_need_update_mutex(void);
 		pthread_cond_t*						get_cond_need_update(void);
