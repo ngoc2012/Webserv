@@ -31,17 +31,12 @@ class	Worker
 	private:
         
 		int         _id;
-		//int         _workload;  // Workload metric
 		pthread_t   _th;
 	
 		Host*       _host;
 		int			_sk_ready;
 		int			_max_sk;		    // Max of all fd
 		
-		// fd_set      _tmp_read_set;		// Set of active read fd
-		// fd_set      _tmp_write_set;		// Set of active write fd
-		// fd_set      _read_set;		    // Set of active read fd
-		// fd_set      _write_set;		    // Set of active write fd
 		volatile bool		_terminate_flag;
 
 		std::map<int, Request*>		_sk_request;
@@ -67,12 +62,8 @@ class	Worker
 		void		new_connection(int, Address*);
 		void		close_client_sk(int);
 		void		set_sk_timeout(int);
-		// void		set_empty_sets(void);
-		// void		set_sk_tmp_read_set(int);
-		// void		set_sk_tmp_write_set(int);
 		void		set_end(void);
 		void		check_timeout(void);
-		// void		need_host_update_set(void);
 		void		wait_for_set_updated(void);
 
         pthread_t*  		get_th(void);
