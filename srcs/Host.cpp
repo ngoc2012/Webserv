@@ -151,21 +151,10 @@ void	Host::check_sk_ready(void)
         }
     }
 
-    // for (int i = 0; i < _n_workers; i++)
-    //     _workers[i].set_empty_sets();
-
     // pthread_mutex_lock(&_sk_worker_mutex);
     std::map<int, Worker*>		sk_worker = _sk_worker;
     // pthread_mutex_unlock(&_sk_worker_mutex);
 
-    // for (std::map<int, Worker*>::iterator it = sk_worker.begin();
-    //     it != sk_worker.end(); it++)
-    // {
-    //     if (FD_ISSET(it->first, &_read_set))
-    //         it->second->set_sk_tmp_read_set(it->first);
-    //     if (FD_ISSET(it->first, &_write_set))
-    //         it->second->set_sk_tmp_write_set(it->first);
-    // }
     for (int i = 0; i < _n_workers; i++)
     	if (_worker_load[&_workers[i]])
         {
