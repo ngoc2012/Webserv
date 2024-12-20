@@ -45,8 +45,7 @@ class	Host
 		pthread_mutex_t							_set_mutex;
 		pthread_mutex_t							_end_mutex;
 		pthread_mutex_t							_fd_mutex;
-		// pthread_mutex_t							_need_update_mutex;
-		pthread_mutex_t							_sk_worker_mutex;
+		pthread_mutex_t							_sk_worker_mutex; // Worker should remove sk closed in sk_worker
 		int										_timeout;
 
 		int										_max_sk;		    // Max of all fd
