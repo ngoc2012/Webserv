@@ -161,26 +161,26 @@ void	Worker::new_connection(int new_sk, Address* a)
 
 void	Worker::close_client_sk(int fd)
 {   
-    pthread_mutex_lock(&_set_mutex);
-    if (FD_ISSET(fd, &_read_set))
-    {
-        pthread_mutex_unlock(&_set_mutex);
-        //pthread_mutex_lock(&_workload_mutex);
-        //_workload--;
-        //pthread_mutex_unlock(&_workload_mutex);
-    }
-    else
-        pthread_mutex_unlock(&_set_mutex);
-    pthread_mutex_lock(&_set_mutex);
-    if (FD_ISSET(fd, &_write_set))
-    {
-        pthread_mutex_unlock(&_set_mutex);
-        //pthread_mutex_lock(&_workload_mutex);
-        //_workload--;
-        //pthread_mutex_unlock(&_workload_mutex);
-    }
-    else
-        pthread_mutex_unlock(&_set_mutex);
+    // pthread_mutex_lock(&_set_mutex);
+    // if (FD_ISSET(fd, &_read_set))
+    // {
+    //     pthread_mutex_unlock(&_set_mutex);
+    //     //pthread_mutex_lock(&_workload_mutex);
+    //     //_workload--;
+    //     //pthread_mutex_unlock(&_workload_mutex);
+    // }
+    // else
+    //     pthread_mutex_unlock(&_set_mutex);
+    // pthread_mutex_lock(&_set_mutex);
+    // if (FD_ISSET(fd, &_write_set))
+    // {
+    //     pthread_mutex_unlock(&_set_mutex);
+    //     //pthread_mutex_lock(&_workload_mutex);
+    //     //_workload--;
+    //     //pthread_mutex_unlock(&_workload_mutex);
+    // }
+    // else
+    //     pthread_mutex_unlock(&_set_mutex);
     _host->close_connection(fd);
     pthread_mutex_lock(&_sk_size_mutex);
 	delete (_sk_request[fd]);
