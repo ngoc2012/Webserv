@@ -45,7 +45,6 @@ class	Worker
 
 		pthread_mutex_t		_set_mutex;
 		pthread_mutex_t		_terminate_mutex;
-		pthread_mutex_t		_sk_size_mutex;
 		pthread_mutex_t		_timeout_mutex;
 		pthread_cond_t		_cond_set_updated;
 		bool				_set_updated;

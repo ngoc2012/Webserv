@@ -24,19 +24,13 @@
 Worker::Worker()
 {
     _id = -1;
-    //_workload = 0;
     _terminate_flag = false;
     _set_updated = false;
     pthread_mutex_init(&_terminate_mutex, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
-    //pthread_mutex_init(&_workload_mutex, NULL);
     pthread_mutex_init(&_sk_size_mutex, NULL);
     pthread_mutex_init(&_timeout_mutex, NULL);
     pthread_cond_init(&_cond_set_updated, NULL);
-    // FD_ZERO(&_tmp_read_set);
-    // FD_ZERO(&_tmp_write_set);
-    // FD_ZERO(&_read_set);
-    // FD_ZERO(&_write_set);
 }
 
 Worker::~Worker()
@@ -46,8 +40,7 @@ Worker::~Worker()
         delete (it->second);
     pthread_mutex_destroy(&_terminate_mutex);
     pthread_mutex_destroy(&_set_mutex);
-    //pthread_mutex_destroy(&_workload_mutex);
-    pthread_mutex_destroy(&_sk_size_mutex);
+    // pthread_mutex_destroy(&_sk_size_mutex);
     pthread_mutex_destroy(&_timeout_mutex);
     pthread_cond_destroy(&_cond_set_updated);
 }
