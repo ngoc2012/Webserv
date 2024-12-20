@@ -67,12 +67,12 @@ class	Worker
 		void		new_connection(int, Address*);
 		void		close_client_sk(int);
 		void		set_sk_timeout(int);
-		void		set_empty_sets(void);
-		void		set_sk_tmp_read_set(int);
-		void		set_sk_tmp_write_set(int);
+		// void		set_empty_sets(void);
+		// void		set_sk_tmp_read_set(int);
+		// void		set_sk_tmp_write_set(int);
 		void		set_end(void);
 		void		check_timeout(void);
-		void		need_host_update_set(void);
+		// void		need_host_update_set(void);
 		void		wait_for_set_updated(void);
 
         pthread_t*  		get_th(void);
@@ -87,7 +87,7 @@ class	Worker
 
         void        set_id(int);
         void        set_host(Host*);
-		void		set_terminate_mutex(pthread_mutex_t);
+		// void		set_terminate_mutex(pthread_mutex_t);
 		void		set_terminate_flag(bool);
         void		set_set_updated(bool);
 };

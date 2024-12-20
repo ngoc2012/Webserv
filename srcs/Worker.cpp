@@ -219,7 +219,7 @@ bool				Worker::get_terminate_flag(void)
 
 void         Worker::set_id(int s) {_id = s;}
 void         Worker::set_host(Host* h) {_host = h;}
-void	     Worker::set_terminate_mutex(pthread_mutex_t m) {_terminate_mutex = m;}
+// void	     Worker::set_terminate_mutex(pthread_mutex_t m) {_terminate_mutex = m;}
 void		 Worker::set_set_updated(bool u)
 {
     pthread_mutex_lock(&_set_mutex);
