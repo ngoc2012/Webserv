@@ -78,7 +78,6 @@ class	Worker
         pthread_t*  		get_th(void);
         int         		get_id(void) const;
         Host*       		get_host(void) const;
-        // pthread_mutex_t*	get_terminate_mutex(void);
         pthread_mutex_t*	get_set_mutex(void);
         pthread_cond_t*		get_cond_set_updated(void);
 		bool				get_terminate_flag(void);
