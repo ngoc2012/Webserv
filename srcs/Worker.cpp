@@ -97,9 +97,9 @@ void	Worker::routine(void)
 
 void	Worker::check_timeout(void)
 {
-    // pthread_mutex_lock(&_sk_size_mutex);
+    pthread_mutex_lock(&_set_mutex);
     std::map<int, Request*>     sk_request = _sk_request;
-    // pthread_mutex_unlock(&_sk_size_mutex);
+    pthread_mutex_unlock(&_set_mutex);
 
     for (std::map<int, Request*>::iterator it = sk_request.begin(), next = it;
         it != sk_request.end(); it++)
