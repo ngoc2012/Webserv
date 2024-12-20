@@ -172,7 +172,7 @@ void	Host::check_sk_ready(void)
         {
             _workers[i].set_set_updated(true);
             pthread_mutex_lock(_workers[i].get_set_mutex());
-            _workers[i].update_sets();
+            // _workers[i].update_sets();
             pthread_cond_signal(_workers[i].get_cond_set_updated());
             pthread_mutex_unlock(_workers[i].get_set_mutex());
         }

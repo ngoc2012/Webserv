@@ -72,7 +72,7 @@ class	Worker
 		void		set_empty_sets(void);
 		void		set_sk_tmp_read_set(int);
 		void		set_sk_tmp_write_set(int);
-		void		update_sets(void);
+		// void		update_sets(void);
 		void		set_end(void);
 		void		check_timeout(void);
 		void		need_host_update_set(void);

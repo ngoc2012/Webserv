@@ -154,11 +154,11 @@ void	Worker::set_sk_tmp_write_set(int sk)
     //pthread_mutex_unlock(&_workload_mutex);
 }
 
-void	Worker::update_sets(void)
-{
-    memcpy(&_read_set, &_tmp_read_set, sizeof(_tmp_read_set));
-    memcpy(&_write_set, &_tmp_write_set, sizeof(_tmp_write_set));
-}
+// void	Worker::update_sets(void)
+// {
+//     memcpy(&_read_set, &_tmp_read_set, sizeof(_tmp_read_set));
+//     memcpy(&_write_set, &_tmp_write_set, sizeof(_tmp_write_set));
+// }
 
 void	Worker::new_connection(int new_sk, Address* a)
 {
