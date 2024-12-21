@@ -592,22 +592,13 @@ bool								Host::get_end(void)
     pthread_mutex_unlock(&_end_mutex);
     return (e);
 }
-std::map<int, Address*>*			Host::get_sk_address(void) {return (&_sk_address);}
-std::map<int, Worker*>*				Host::get_sk_worker(void) {return (&_sk_worker);}
+std::map<int, Address*>*	Host::get_sk_address(void) {return (&_sk_address);}
+std::map<int, Worker*>*		Host::get_sk_worker(void) {return (&_sk_worker);}
 
-void			Host::set_client_max_body_size(size_t n)
-{
-    _client_max_body_size = n;
-}
-void			Host::set_client_body_buffer_size(size_t n)
-{
-    _client_body_buffer_size = n;
-}
-void			Host::set_parser_error(bool e) {_parser_error = e;}
-void		    Host::set_str_address(std::map<std::string, Address*> a)
-{
-    _str_address = a;
-}
+void Host::set_client_max_body_size(size_t n) {_client_max_body_size = n;}
+void Host::set_client_body_buffer_size(size_t n) {_client_body_buffer_size = n;}
+void Host::set_parser_error(bool e) {_parser_error = e;}
+void Host::set_str_address(std::map<std::string, Address*> a){_str_address = a;}
 void	        Host::set_n_workers(int w) {_n_workers = w;}
 void	        Host::set_large_client_header_buffer(size_t l)
 {
