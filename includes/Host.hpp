@@ -88,6 +88,7 @@ class	Host
         void round_robin(int, Address*);
         bool is_writable_fd(int);
         bool is_readable_fd(int);
+        bool get_end(void);
         
         int get_max_clients(void) const;
         int get_load(Worker* w);
@@ -102,11 +103,10 @@ class	Host
         std::set<std::string>*	            get_set_mimes(void);
         std::map<int, std::string>*         get_status_message(void);
         Worker*				    get_workers(void) const;
-        pthread_mutex_t* get_cout_mutex(void);
-        pthread_mutex_t* get_end_mutex(void);
-        pthread_mutex_t* get_fd_mutex(void);
-        pthread_mutex_t* get_sk_worker_mutex(void);
-        bool get_end(void);
+        pthread_mutex_t*         get_cout_mutex(void);
+        pthread_mutex_t*         get_end_mutex(void);
+        pthread_mutex_t*         get_fd_mutex(void);
+        pthread_mutex_t*         get_sk_worker_mutex(void);
         std::map<int, Address*>* get_sk_address(void);
         std::map<int, Worker*>*	 get_sk_worker(void);
         
