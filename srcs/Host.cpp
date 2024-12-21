@@ -37,7 +37,7 @@ Host::Host()
     _max_sk = -1;
     pthread_mutex_init(&_cout_mutex, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
-    pthread_mutex_init(&_end_mutex, NULL);
+    //pthread_mutex_init(&_end_mutex, NULL);
     pthread_mutex_init(&_fd_mutex, NULL);
     pthread_mutex_init(&_sk_worker_mutex, NULL);
     _timeout = TIMEOUT;
@@ -60,7 +60,7 @@ Host::~Host()
         delete [] _workers;
     pthread_mutex_destroy(&_cout_mutex);
     pthread_mutex_destroy(&_set_mutex);
-    pthread_mutex_destroy(&_end_mutex);
+    //pthread_mutex_destroy(&_end_mutex);
     pthread_mutex_destroy(&_fd_mutex);
     pthread_mutex_destroy(&_sk_worker_mutex);
     // Cout mutex destroyed in main
@@ -586,7 +586,7 @@ std::set<std::string>*	    Host::get_set_mimes(void) {return (&_set_mimes);}
 std::map<int, std::string>* Host::get_status_message(void) {return (&_status_message);}
 Worker*				        Host::get_workers(void) const {return (_workers);}
 pthread_mutex_t*	Host::get_cout_mutex(void) {return (&_cout_mutex);}
-pthread_mutex_t*	Host::get_end_mutex(void) {return (&_end_mutex);}
+//pthread_mutex_t*	Host::get_end_mutex(void) {return (&_end_mutex);}
 pthread_mutex_t*	Host::get_fd_mutex(void) {return (&_fd_mutex);}
 pthread_mutex_t*	Host::get_sk_worker_mutex(void) {return (&_sk_worker_mutex);}
 
