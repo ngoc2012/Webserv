@@ -599,13 +599,13 @@ void Host::set_client_max_body_size(size_t n) {_client_max_body_size = n;}
 void Host::set_client_body_buffer_size(size_t n) {_client_body_buffer_size = n;}
 void Host::set_parser_error(bool e) {_parser_error = e;}
 void Host::set_str_address(std::map<std::string, Address*> a){_str_address = a;}
-void	        Host::set_n_workers(int w) {_n_workers = w;}
-void	        Host::set_large_client_header_buffer(size_t l)
+void Host::set_n_workers(int w) {_n_workers = w;}
+void Host::set_large_client_header_buffer(size_t l)
 {
     _large_client_header_buffer = l;
 }
-void	        Host::set_timeout(int t) {_timeout = t;}
-void	        Host::set_end(bool t)
+void Host::set_timeout(int t) {_timeout = t;}
+void Host::set_end(bool t)
 {
     pthread_mutex_lock(&_end_mutex);
     _end = t;
