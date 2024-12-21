@@ -590,13 +590,13 @@ pthread_mutex_t*	Host::get_cout_mutex(void) {return (&_cout_mutex);}
 pthread_mutex_t*	Host::get_fd_mutex(void) {return (&_fd_mutex);}
 pthread_mutex_t*	Host::get_sk_worker_mutex(void) {return (&_sk_worker_mutex);}
 
-bool								Host::get_end(void)
-{
-    pthread_mutex_lock(&_end_mutex);
-    bool e = _end;
-    pthread_mutex_unlock(&_end_mutex);
-    return (e);
-}
+//bool								Host::get_end(void)
+//{
+//    pthread_mutex_lock(&_end_mutex);
+//    bool e = _end;
+//    pthread_mutex_unlock(&_end_mutex);
+//    return (e);
+//}
 std::map<int, Address*>*	Host::get_sk_address(void) {return (&_sk_address);}
 std::map<int, Worker*>*		Host::get_sk_worker(void) {return (&_sk_worker);}
 
@@ -610,10 +610,10 @@ void Host::set_large_client_header_buffer(size_t l)
     _large_client_header_buffer = l;
 }
 void Host::set_timeout(int t) {_timeout = t;}
-void Host::set_end(bool t)
-{
-    pthread_mutex_lock(&_end_mutex);
-    _end = t;
-    pthread_mutex_unlock(&_end_mutex);
-}
+//void Host::set_end(bool t)
+//{
+//    pthread_mutex_lock(&_end_mutex);
+//    _end = t;
+//    pthread_mutex_unlock(&_end_mutex);
+//}
 void Host::set_stop(int t) {_stop = t;}
