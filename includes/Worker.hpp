@@ -45,6 +45,7 @@ class	Worker
 
 		pthread_mutex_t		_set_mutex;
 		pthread_mutex_t		_terminate_mutex;
+		pthread_mutex_t		_fd_out_mutex;	// Host should know if fd_out exist
 		pthread_mutex_t		_timeout_mutex;
 		pthread_cond_t		_cond_set_updated;
 		bool				_set_updated;
