@@ -307,22 +307,22 @@ bool	Host::is_readable_fd(int fd)
 
 void    Host::status_message(void)
 {
-	_status_message[100] = "Continue";
-	_status_message[200] = "OK";
-	_status_message[201] = "Created";
-	_status_message[204] = "No Content";
+    _status_message[100] = "Continue";
+    _status_message[200] = "OK";
+    _status_message[201] = "Created";
+    _status_message[204] = "No Content";
     _status_message[301] = "Moved Permanently";
     _status_message[302] = "Found";
     _status_message[303] = "See Other";
     _status_message[307] = "Temporary Redirect";
     _status_message[308] = "Permanent Redirect";
-	_status_message[400] = "Bad Request";
-	_status_message[403] = "Forbidden";
-	_status_message[404] = "Not Found";
-	_status_message[405] = "Method Not Allowed";
-	_status_message[413] = "Payload Too Large";
+    _status_message[400] = "Bad Request";
+    _status_message[403] = "Forbidden";
+    _status_message[404] = "Not Found";
+    _status_message[405] = "Method Not Allowed";
+    _status_message[413] = "Payload Too Large";
     _status_message[499] = "Client Closed Request";
-	_status_message[500] = "Internal Server Error";
+    _status_message[500] = "Internal Server Error";
     _status_message[502] = "Bad Gateway";
     _status_message[504] = "Gateway Timeout";
 }
@@ -586,17 +586,9 @@ std::set<std::string>*	    Host::get_set_mimes(void) {return (&_set_mimes);}
 std::map<int, std::string>* Host::get_status_message(void) {return (&_status_message);}
 Worker*				        Host::get_workers(void) const {return (_workers);}
 pthread_mutex_t*	Host::get_cout_mutex(void) {return (&_cout_mutex);}
-//pthread_mutex_t*	Host::get_end_mutex(void) {return (&_end_mutex);}
 pthread_mutex_t*	Host::get_fd_mutex(void) {return (&_fd_mutex);}
 pthread_mutex_t*	Host::get_sk_worker_mutex(void) {return (&_sk_worker_mutex);}
 
-//bool								Host::get_end(void)
-//{
-//    pthread_mutex_lock(&_end_mutex);
-//    bool e = _end;
-//    pthread_mutex_unlock(&_end_mutex);
-//    return (e);
-//}
 std::map<int, Address*>*	Host::get_sk_address(void) {return (&_sk_address);}
 std::map<int, Worker*>*		Host::get_sk_worker(void) {return (&_sk_worker);}
 
@@ -610,10 +602,4 @@ void Host::set_large_client_header_buffer(size_t l)
     _large_client_header_buffer = l;
 }
 void Host::set_timeout(int t) {_timeout = t;}
-//void Host::set_end(bool t)
-//{
-//    pthread_mutex_lock(&_end_mutex);
-//    _end = t;
-//    pthread_mutex_unlock(&_end_mutex);
-//}
 void Host::set_stop(int t) {_stop = t;}
