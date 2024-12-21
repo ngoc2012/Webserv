@@ -566,6 +566,8 @@ void	Host::mimes(void)
 
 int    Host::get_load(Worker* w) {return _worker_load[w];}
 int    Host::get_max_clients(void) const {return (_max_clients);}
+int    Host::get_n_workers(void) const {return (_n_workers);}
+int	   Host::get_timeout(void) const {return (_timeout);}
 size_t Host::get_client_max_body_size(void) const
 {
     return (_client_max_body_size);
@@ -575,12 +577,12 @@ size_t Host::get_client_body_buffer_size(void) const
     return (_client_body_buffer_size);
 }
 std::map<std::string, std::string>*	Host::get_mimes(void) {return (&_mimes);}
-std::set<std::string>*	            Host::get_set_mimes(void) {return (&_set_mimes);}
-std::map<int, std::string>*  		Host::get_status_message(void) {return (&_status_message);}
-Worker*				                Host::get_workers(void) const {return (_workers);}
-int 				                Host::get_n_workers(void) const {return (_n_workers);}
+std::set<std::string>*	    Host::get_set_mimes(void) {return (&_set_mimes);}
+std::map<int, std::string>* Host::get_status_message(void) {return (&_status_message);}
+Worker*				        Host::get_workers(void) const {return (_workers);}
+
 size_t								Host::get_large_client_header_buffer(void) const {return (_large_client_header_buffer);}
-int		                            Host::get_timeout(void) const {return (_timeout);}
+
 pthread_mutex_t*	Host::get_cout_mutex(void) {return (&_cout_mutex);}
 pthread_mutex_t*	Host::get_end_mutex(void) {return (&_end_mutex);}
 pthread_mutex_t*	Host::get_fd_mutex(void) {return (&_fd_mutex);}
