@@ -22,7 +22,8 @@ void	main_signal_handler(int sig)
 {
 	if (sig == SIGINT)
 	{
-        g_host->set_end(true);
+        // g_host->set_end(true);
+        g_host->set_stop(1);
         pthread_mutex_lock(g_host->get_cout_mutex());
         std::cout << "\b\b";
         pthread_mutex_unlock(g_host->get_cout_mutex());

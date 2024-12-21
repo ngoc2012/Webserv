@@ -616,3 +616,4 @@ void Host::set_end(bool t)
     _end = t;
     pthread_mutex_unlock(&_end_mutex);
 }
+void Host::set_stop(int t) {_stop = t;}
