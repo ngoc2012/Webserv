@@ -34,12 +34,10 @@ Host::Host()
     _start_worker_id = 0;
     _n_workers = 1;
     _max_sk = -1;
-	// _need_update = true;
     pthread_mutex_init(&_cout_mutex, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
     pthread_mutex_init(&_end_mutex, NULL);
     pthread_mutex_init(&_fd_mutex, NULL);
-    // pthread_mutex_init(&_need_update_mutex, NULL);
     pthread_mutex_init(&_sk_worker_mutex, NULL);
     _timeout = TIMEOUT;
     mimes();
@@ -585,7 +583,7 @@ int		                            Host::get_timeout(void) const {return (_timeout
 pthread_mutex_t*					Host::get_cout_mutex(void) {return (&_cout_mutex);}
 pthread_mutex_t*					Host::get_end_mutex(void) {return (&_end_mutex);}
 pthread_mutex_t*					Host::get_fd_mutex(void) {return (&_fd_mutex);}
-// pthread_mutex_t*					Host::get_sk_worker_mutex(void) {return (&_sk_worker_mutex);}
+pthread_mutex_t*					Host::get_sk_worker_mutex(void) {return (&_sk_worker_mutex);}
 
 bool								Host::get_end(void)
 {

@@ -53,8 +53,8 @@ class	Host
 		fd_set              		            _listen_set;
 		fd_set      							_read_set;
 		fd_set      							_write_set;
-		fd_set      							_master_read_set;	// Set of all read socket
-		fd_set      							_master_write_set;	// Set of all write socket
+		fd_set      							_master_read_set;
+		fd_set      							_master_write_set;
 		
 		std::map<std::string, Address*>		    _str_address;
 		std::map<int, Worker*>		            _sk_worker;
@@ -82,7 +82,7 @@ class	Host
 		void  								close_connection(int);
 		void  								insert_read_fd(int);
 		void  								clear_read_fd(int);
-		// void  								wait_for_fd_set_need_update(void);
+		
 		void  								print(e_message, std::string);
 		void								round_robin(int, Address*);
 		bool								is_writable_fd(int);
@@ -103,11 +103,8 @@ class	Host
         pthread_mutex_t*					get_cout_mutex(void);
         pthread_mutex_t*					get_end_mutex(void);
         pthread_mutex_t*					get_fd_mutex(void);
-		// pthread_mutex_t*					get_sk_worker_mutex(void);
+		pthread_mutex_t*					get_sk_worker_mutex(void);
         bool								get_end(void);
-		// pthread_mutex_t*					get_need_update_mutex(void);
-		// pthread_cond_t*						get_cond_need_update(void);
-		// bool								get_need_update(void) const;
 		std::map<int, Address*>*			get_sk_address(void);
 		std::map<int, Worker*>*				get_sk_worker(void);
 
@@ -119,7 +116,6 @@ class	Host
         void	set_large_client_header_buffer(size_t);
 		void	set_timeout(int);
 		void	set_end(bool);
-		// void	set_need_update(bool);
 };
 
 #endif
