@@ -12,7 +12,7 @@
 
 #include <set>
 #include <map>
-#include <stdatomic.h>
+#include <signal.h>
 
 #include "webserv.hpp"
 
