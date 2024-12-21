@@ -97,7 +97,8 @@ void	Host::start(void)
         else
             pthread_mutex_unlock(&_set_mutex);
         usleep(DELAY);
-    } while (!get_end());
+    //} while (!get_end());
+    } while (!_stop);
 }
 
 void    Host::round_robin(int new_sk, Address* address)

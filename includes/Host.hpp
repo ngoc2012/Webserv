@@ -34,7 +34,7 @@ class	Host
         size_t _client_max_body_size;
         size_t _client_body_buffer_size;
         size_t _large_client_header_buffer;
-	volatile sig_atomic_t _stop;
+	    volatile sig_atomic_t _stop;
         
         bool    _parser_error;
         bool    _end;
@@ -118,6 +118,7 @@ class	Host
         void set_large_client_header_buffer(size_t);
         void set_timeout(int);
         void set_end(bool);
+        void set_stop(int);
 };
 
 #endif
