@@ -25,6 +25,7 @@ Host::Host(const Host& src) { *this = src; }
 Host::Host()
 {
     _end = false;
+    _stop = 0;
     _max_clients = 128;
     _client_max_body_size = 1024;
     _client_body_buffer_size = 128;
