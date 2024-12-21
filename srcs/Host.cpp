@@ -70,18 +70,18 @@ Host::~Host()
 void	Host::start(void)
 {
     
-	if (_parser_error)
-		return ;
-	FD_ZERO(&_listen_set);
-	FD_ZERO(&_master_read_set);
-	FD_ZERO(&_master_write_set);
-	start_server();
-	if (!start_workers())
-		return ;
-	if (!_sk_address.size())
-		return ;
-	do
-	{
+    if (_parser_error)
+    	return ;
+    FD_ZERO(&_listen_set);
+    FD_ZERO(&_master_read_set);
+    FD_ZERO(&_master_write_set);
+    start_server();
+    if (!start_workers())
+    	return ;
+    if (!_sk_address.size())
+    	return ;
+    do
+    {
         pthread_mutex_lock(&_set_mutex);
         memcpy(&_read_set, &_master_read_set, sizeof(_master_read_set));
         memcpy(&_write_set, &_master_write_set, sizeof(_master_write_set));
@@ -96,7 +96,7 @@ void	Host::start(void)
         else
             pthread_mutex_unlock(&_set_mutex);
         usleep(DELAY);
-	} while (!get_end());
+    } while (!get_end());
 }
 
 void    Host::round_robin(int new_sk, Address* address)
