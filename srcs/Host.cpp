@@ -181,15 +181,15 @@ void  	Host::close_connection(int i)
 {
     print(SUCCESS, "Close connection " + ft::itos(i));
     pthread_mutex_lock(&_set_mutex);
-	FD_CLR(i, &_master_read_set);
-	FD_CLR(i, &_master_write_set);
+    FD_CLR(i, &_master_read_set);
+    FD_CLR(i, &_master_write_set);
     if (i == _max_sk)
-		while (!FD_ISSET(_max_sk, &_master_read_set))
-			_max_sk -= 1;
-     _worker_load[_sk_worker[i]]--;
-	// pthread_mutex_lock(&_sk_worker_mutex);
-	_sk_worker.erase(i);
-	// pthread_mutex_unlock(&_sk_worker_mutex);
+        while (!FD_ISSET(_max_sk, &_master_read_set))
+            _max_sk -= 1;
+    pthread_mutex_lock(&_sk_worker_mutex);
+    _worker_load[_sk_worker[i]]--;
+    _sk_worker.erase(i);
+    pthread_mutex_unlock(&_sk_worker_mutex);
     pthread_mutex_unlock(&_set_mutex);
 }
 
