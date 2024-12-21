@@ -28,12 +28,11 @@ class	Configuration;
 
 class	Host
 {
-	private:
-
-		int				                        _max_clients;
-		size_t				                    _client_max_body_size;
-		size_t				                    _client_body_buffer_size;
-		size_t									_large_client_header_buffer;
+    private:
+        int	_max_clients;
+	size_t	_client_max_body_size;
+	size_t	_client_body_buffer_size;
+	size_t  _large_client_header_buffer;
 	
 		bool				                    _parser_error;
 		bool									_end;
