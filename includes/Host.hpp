@@ -44,14 +44,15 @@ class	Host
 		pthread_mutex_t							_cout_mutex;
 		pthread_mutex_t							_set_mutex;
 		pthread_mutex_t							_end_mutex;
-		pthread_mutex_t							_fd_mutex;			// ???
-		pthread_mutex_t							_sk_worker_mutex; // Worker should remove sk closed in sk_worker
+		pthread_mutex_t							_fd_mutex;
+		// Worker should remove sk closed in sk_worker
+		pthread_mutex_t							_sk_worker_mutex;
 		int										_timeout;
 
-		int										_max_sk;		    // Max of all fd
+		int										_max_sk;
 		fd_set              		            _listen_set;
-		fd_set      							_read_set;		    // Set of active read fd
-		fd_set      							_write_set;		    // Set of active write fd
+		fd_set      							_read_set;
+		fd_set      							_write_set;
 		fd_set      							_master_read_set;	// Set of all read socket
 		fd_set      							_master_write_set;	// Set of all write socket
 		
