@@ -34,18 +34,19 @@ class	Host
 	size_t	_client_body_buffer_size;
 	size_t  _large_client_header_buffer;
 	
-		bool				                    _parser_error;
-		bool									_end;
-		int				                        _start_worker_id;
-		int				                        _n_workers;
-		Worker*				                    _workers;
+	bool    _parser_error;
+	bool	_end;
+	int     _start_worker_id;
+	int     _n_workers;
+	Worker* _workers;
 		
-		pthread_mutex_t							_cout_mutex;
-		pthread_mutex_t							_set_mutex;
-		pthread_mutex_t							_end_mutex;
-		pthread_mutex_t							_fd_mutex;
-		// Worker should remove sk closed in sk_worker
-		pthread_mutex_t							_sk_worker_mutex;
+	pthread_mutex_t _cout_mutex;
+	// Worker should remove sk closed in read and write set
+	pthread_mutex_t _set_mutex;
+	pthread_mutex_t _end_mutex;
+	pthread_mutex_t _fd_mutex;
+	// Worker should remove sk closed in sk_worker
+	pthread_mutex_t							_sk_worker_mutex;
 		int										_timeout;
 
 		int										_max_sk;
