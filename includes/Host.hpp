@@ -12,6 +12,7 @@
 
 #include <set>
 #include <map>
+#include <stdatomic.h>
 
 #include "webserv.hpp"
 
