@@ -111,10 +111,10 @@ void    Host::round_robin(int new_sk, Address* address)
         j = (j + 1) % _n_workers;
         i++;
     }
-    // pthread_mutex_lock(&_sk_worker_mutex);
+    pthread_mutex_lock(&_sk_worker_mutex);
     _sk_worker[new_sk] = &_workers[w_min];
     _workers[w_min].new_connection(new_sk, address);
-    // pthread_mutex_unlock(&_sk_worker_mutex);
+    pthread_mutex_unlock(&_sk_worker_mutex);
     _worker_load[&_workers[w_min]]++;
     _start_worker_id++;
     _start_worker_id %= _n_workers;
@@ -147,9 +147,9 @@ void	Host::check_sk_ready(void)
         }
     }
 
-    // pthread_mutex_lock(&_sk_worker_mutex);
+    pthread_mutex_lock(&_sk_worker_mutex);
     std::map<int, Worker*>		sk_worker = _sk_worker;
-    // pthread_mutex_unlock(&_sk_worker_mutex);
+    pthread_mutex_unlock(&_sk_worker_mutex);
 
     for (int i = 0; i < _n_workers; i++)
     	if (_worker_load[&_workers[i]])
