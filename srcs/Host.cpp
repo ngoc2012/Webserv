@@ -568,7 +568,7 @@ void	Host::mimes(void)
 int    Host::get_load(Worker* w) {return _worker_load[w];}
 int    Host::get_max_clients(void) const {return (_max_clients);}
 int    Host::get_n_workers(void) const {return (_n_workers);}
-int	   Host::get_timeout(void) const {return (_timeout);}
+int    Host::get_timeout(void) const {return (_timeout);}
 size_t Host::get_large_client_header_buffer(void) const
 {
     return (_large_client_header_buffer);
@@ -584,13 +584,13 @@ size_t Host::get_client_body_buffer_size(void) const
 std::map<std::string, std::string>*	Host::get_mimes(void) {return (&_mimes);}
 std::set<std::string>*	    Host::get_set_mimes(void) {return (&_set_mimes);}
 std::map<int, std::string>* Host::get_status_message(void) {return (&_status_message);}
-Worker*				        Host::get_workers(void) const {return (_workers);}
-pthread_mutex_t*	Host::get_cout_mutex(void) {return (&_cout_mutex);}
-pthread_mutex_t*	Host::get_fd_mutex(void) {return (&_fd_mutex);}
-pthread_mutex_t*	Host::get_sk_worker_mutex(void) {return (&_sk_worker_mutex);}
+Worker*		 Host::get_workers(void) const {return (_workers);}
+pthread_mutex_t* Host::get_cout_mutex(void) {return (&_cout_mutex);}
+pthread_mutex_t* Host::get_fd_mutex(void) {return (&_fd_mutex);}
+pthread_mutex_t* Host::get_sk_worker_mutex(void) {return (&_sk_worker_mutex);}
 
-std::map<int, Address*>*	Host::get_sk_address(void) {return (&_sk_address);}
-std::map<int, Worker*>*		Host::get_sk_worker(void) {return (&_sk_worker);}
+std::map<int, Address*>* Host::get_sk_address(void) {return (&_sk_address);}
+std::map<int, Worker*>*	 Host::get_sk_worker(void) {return (&_sk_worker);}
 
 void Host::set_client_max_body_size(size_t n) {_client_max_body_size = n;}
 void Host::set_client_body_buffer_size(size_t n) {_client_body_buffer_size = n;}
