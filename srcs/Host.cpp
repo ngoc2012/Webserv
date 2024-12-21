@@ -570,7 +570,10 @@ size_t Host::get_client_max_body_size(void) const
 {
     return (_client_max_body_size);
 }
-size_t			                    Host::get_client_body_buffer_size(void) const {return (_client_body_buffer_size);}
+size_t Host::get_client_body_buffer_size(void) const
+{
+    return (_client_body_buffer_size);
+}
 std::map<std::string, std::string>*	Host::get_mimes(void) {return (&_mimes);}
 std::set<std::string>*	            Host::get_set_mimes(void) {return (&_set_mimes);}
 std::map<int, std::string>*  		Host::get_status_message(void) {return (&_status_message);}
