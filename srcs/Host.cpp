@@ -197,25 +197,23 @@ void  	Host::close_connection(int i)
 
 void	Host::start_server(void)
 {
-	int	listen_sk;
-	for (std::map<std::string, Address*>::iterator ad = _str_address.begin();
-		ad != _str_address.end();)
+    int	listen_sk;
+    for (std::map<std::string, Address*>::iterator ad = _str_address.begin();
+    ad != _str_address.end();)
     {
         listen_sk = (ad->second)->listen_socket();
-		if (listen_sk > 0)
-		{
-			if (listen_sk > _max_sk)
+        if (listen_sk > 0)
+        {
+            if (listen_sk > _max_sk)
                 _max_sk = listen_sk;
             FD_SET(listen_sk, &_listen_set);
-	    insert_read_fd(listen_sk);
+            insert_read_fd(listen_sk);
             _sk_address[listen_sk] = ad->second;
-			++ad;
-		}
-		else
-		{
-			delete (ad->second);
-			_str_address.erase(ad++);
-		}
+            ++ad;
+        } else {
+            delete (ad->second);
+            _str_address.erase(ad++);
+        }
     }
 }
 

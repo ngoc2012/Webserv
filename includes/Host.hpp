@@ -46,7 +46,7 @@ class	Host
         // Worker should remove sk closed in read and write set
         pthread_mutex_t _set_mutex;
 	// Main should end host loop ?? volatile sig_atomic_t
-        //pthread_mutex_t _fd_mutex;
+        pthread_mutex_t _fd_mutex;
         // Worker should remove sk closed in sk_worker
         pthread_mutex_t _sk_worker_mutex;
         int     _timeout;
