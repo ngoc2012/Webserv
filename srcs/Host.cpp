@@ -276,7 +276,6 @@ bool    Host::start_workers() {
     {
         _workers[i].set_id(i);
         _workers[i].set_host(this);
-        //_workers[i].set_workload(0);
 	_worker_load[&_workers[i]] = 0;
         if (pthread_create(_workers[i].get_th(), NULL, start_worker, &_workers[i]))
         {
