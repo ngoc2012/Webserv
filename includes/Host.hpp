@@ -34,7 +34,7 @@ class	Host
         size_t _client_max_body_size;
         size_t _client_body_buffer_size;
         size_t _large_client_header_buffer;
-	volatile sig_atomic_t _stop;
+        volatile sig_atomic_t _stop;
         
         bool    _parser_error;
         bool    _end;
@@ -45,9 +45,9 @@ class	Host
         pthread_mutex_t _cout_mutex;
         // Worker should remove sk closed in read and write set
         pthread_mutex_t _set_mutex;
-	// Worker should stop when server stopped
+        // Worker should stop when server stopped
         pthread_mutex_t _stop_mutex;
-	// Move to fd_out_mutex???
+        // Move to fd_out_mutex???
         pthread_mutex_t _fd_mutex;
         // Worker should remove sk closed in sk_worker
         pthread_mutex_t _sk_worker_mutex;
@@ -102,7 +102,7 @@ class	Host
         std::map<std::string, std::string>* get_mimes(void);
         std::set<std::string>*	            get_set_mimes(void);
         std::map<int, std::string>*         get_status_message(void);
-        Worker*				    get_workers(void) const;
+        Worker*				     get_workers(void) const;
         pthread_mutex_t*         get_cout_mutex(void);
         pthread_mutex_t*         get_fd_mutex(void);
         pthread_mutex_t*         get_sk_worker_mutex(void);
