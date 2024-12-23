@@ -155,7 +155,7 @@ void	Host::check_sk_ready(void)
     pthread_mutex_unlock(&_sk_worker_mutex);
 
     for (int i = 0; i < _n_workers; i++)
-    	if (_worker_load[&_workers[i]])
+    	if (_workers[i].get_load())
         {
             _workers[i].set_set_updated(true);
             pthread_mutex_lock(_workers[i].get_set_mutex());
@@ -191,7 +191,8 @@ void  	Host::close_connection(int i)
             _max_sk -= 1;
     pthread_mutex_unlock(&_set_mutex);
     pthread_mutex_lock(&_sk_worker_mutex);
-    _worker_load[_sk_worker[i]]--;
+    //_worker_load[_sk_worker[i]]--;
+    _sk_worker[i].set_workload(-1);
     _sk_worker.erase(i);
     pthread_mutex_unlock(&_sk_worker_mutex);
 }
@@ -276,7 +277,7 @@ bool    Host::start_workers() {
         _workers[i].set_id(i);
         _workers[i].set_host(this);
         pthread_mutex_lock(&_sk_worker_mutex);
-        _worker_load[&_workers[i]] = 0;
+        //_worker_load[&_workers[i]] = 0;
         pthread_mutex_unlock(&_sk_worker_mutex);
         if (pthread_create(_workers[i].get_th(), NULL, start_worker, &_workers[i]))
         {
