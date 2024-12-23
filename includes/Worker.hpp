@@ -62,14 +62,13 @@ class	Worker
         Worker();
         virtual ~Worker();
         
-        void    	routine(void);
-        
-        void		new_connection(int, Address*);
-        void		close_client_sk(int);
-        void		set_sk_timeout(int);
-        void		set_end(void);
-        void		check_timeout(void);
-        void		wait_for_set_updated(void);
+        void routine(void);
+        void new_connection(int, Address*);
+        void close_client_sk(int);
+        void set_sk_timeout(int);
+        void set_end(void);
+        void check_timeout(void);
+        void wait_for_set_updated(void);
     
         pthread_t*        get_th(void);
         int               get_id(void) const;
@@ -80,10 +79,11 @@ class	Worker
         bool              get_set_updated(void);
         std::map<int, Request*>* get_sk_request(void);
         
-        void        set_id(int);
-        void        set_host(Host*);
-        void		set_terminate_flag(bool);
-        void		set_set_updated(bool);
+        void set_workload(int);
+        void set_id(int);
+        void set_host(Host*);
+        void set_terminate_flag(bool);
+        void set_set_updated(bool);
 };
 
 #endif
