@@ -34,6 +34,7 @@ class	Host
         size_t _client_max_body_size;
         size_t _client_body_buffer_size;
         size_t _large_client_header_buffer;
+        
         volatile sig_atomic_t _stop;
         
         bool    _parser_error;
