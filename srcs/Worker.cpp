@@ -27,9 +27,9 @@ Worker::Worker()
     _terminate_flag = false;
     _set_updated = false;
     _workload = 0;
-    pthread_mutex_init(&_terminate_mutex, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
-    // pthread_mutex_init(&_sk_size_mutex, NULL);
+    pthread_mutex_init(&_workload, NULL);
+    pthread_mutex_init(&_terminate_mutex, NULL);
     pthread_mutex_init(&_timeout_mutex, NULL);
     pthread_cond_init(&_cond_set_updated, NULL);
 }
@@ -39,9 +39,9 @@ Worker::~Worker()
     for (std::map<int, Request*>::iterator it = _sk_request.begin();
             it != _sk_request.end(); ++it)
         delete (it->second);
-    pthread_mutex_destroy(&_terminate_mutex);
     pthread_mutex_destroy(&_set_mutex);
-    // pthread_mutex_destroy(&_sk_size_mutex);
+    pthread_mutex_destroy(&_workload);
+    pthread_mutex_destroy(&_terminate_mutex);
     pthread_mutex_destroy(&_timeout_mutex);
     pthread_cond_destroy(&_cond_set_updated);
 }
@@ -55,9 +55,9 @@ void	Worker::routine(void)
     int         fd;
     //int         fd_out;
 
-    // pthread_mutex_lock(&_sk_size_mutex);
+    pthread_mutex_lock(&_set_mutex);
     std::map<int, Request*>     sk_request = _sk_request;
-    // pthread_mutex_unlock(&_sk_size_mutex);
+    pthread_mutex_unlock(&_set_mutex);
 
     for (std::map<int, Request*>::iterator it = sk_request.begin();
         it != sk_request.end(); it++)
@@ -122,7 +122,7 @@ void	Worker::new_connection(int new_sk, Address* a)
     set_sk_timeout(new_sk);
     // pthread_mutex_lock(&_sk_size_mutex);
     pthread_mutex_lock(&_set_mutex);
-	_sk_request[new_sk] = new Request(new_sk, this, a);
+    _sk_request[new_sk] = new Request(new_sk, this, a);
     pthread_mutex_unlock(&_set_mutex);
     // pthread_mutex_unlock(&_sk_size_mutex);
 }
