@@ -28,7 +28,7 @@ Worker::Worker()
     _set_updated = false;
     _workload = 0;
     pthread_mutex_init(&_set_mutex, NULL);
-    pthread_mutex_init(&_workload, NULL);
+    pthread_mutex_init(&_workload_mutex, NULL);
     pthread_mutex_init(&_terminate_mutex, NULL);
     pthread_mutex_init(&_timeout_mutex, NULL);
     pthread_cond_init(&_cond_set_updated, NULL);
@@ -40,7 +40,7 @@ Worker::~Worker()
             it != _sk_request.end(); ++it)
         delete (it->second);
     pthread_mutex_destroy(&_set_mutex);
-    pthread_mutex_destroy(&_workload);
+    pthread_mutex_destroy(&_workload_mutex);
     pthread_mutex_destroy(&_terminate_mutex);
     pthread_mutex_destroy(&_timeout_mutex);
     pthread_cond_destroy(&_cond_set_updated);
