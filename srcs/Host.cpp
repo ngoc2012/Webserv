@@ -566,7 +566,7 @@ void	Host::mimes(void)
     _set_mimes.insert("video/x-msvideo");
 }
 
-int    Host::get_load(Worker* w) {return _worker_load[w];}
+//int    Host::get_load(Worker* w) {return _worker_load[w];}
 int    Host::get_max_clients(void) const {return (_max_clients);}
 int    Host::get_n_workers(void) const {return (_n_workers);}
 int    Host::get_timeout(void) const {return (_timeout);}
