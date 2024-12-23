@@ -26,6 +26,7 @@ Worker::Worker()
     _id = -1;
     _terminate_flag = false;
     _set_updated = false;
+    _workload = 0;
     pthread_mutex_init(&_terminate_mutex, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
     // pthread_mutex_init(&_sk_size_mutex, NULL);

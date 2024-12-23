@@ -45,6 +45,7 @@ class	Worker
         std::map<int, Address*> _sk_address;
         
         pthread_mutex_t _set_mutex;
+        pthread_mutex_t _workload_mutex;
         pthread_mutex_t _terminate_mutex;
         // Host should know if fd_out exist
         // Cgi should write to fd_out
