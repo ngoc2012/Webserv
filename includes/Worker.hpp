@@ -77,7 +77,7 @@ class	Worker
         pthread_cond_t*	  get_cond_set_updated(void);
         bool              get_terminate_flag(void);
         bool              get_set_updated(void);
-        int               get_workload(void)
+        int               get_workload(void);
         std::map<int, Request*>* get_sk_request(void);
         
         void set_workload(int);

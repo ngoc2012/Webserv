@@ -155,7 +155,7 @@ void	Host::check_sk_ready(void)
     pthread_mutex_unlock(&_sk_worker_mutex);
 
     for (int i = 0; i < _n_workers; i++)
-    	if (_workers[i].get_load())
+    	if (_workers[i].get_workload())
         {
             _workers[i].set_set_updated(true);
             pthread_mutex_lock(_workers[i].get_set_mutex());
