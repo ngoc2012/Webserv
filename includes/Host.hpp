@@ -95,6 +95,7 @@ class	Host
         int get_load(Worker* w);
         int get_n_workers(void) const;
         int get_timeout(void) const;
+        int get_stop(void);
         
         size_t get_client_max_body_size(void) const;
         size_t get_client_body_buffer_size(void) const;

@@ -97,7 +97,7 @@ void	Host::start(void)
         else
             pthread_mutex_unlock(&_set_mutex);
         usleep(DELAY);
-    } while (!_stop);
+    } while (!get_stop());
 }
 
 void    Host::round_robin(int new_sk, Address* address)
@@ -578,6 +578,14 @@ size_t Host::get_client_max_body_size(void) const
 size_t Host::get_client_body_buffer_size(void) const
 {
     return (_client_body_buffer_size);
+}
+int  Host::get_stop(void)
+{
+    int t;
+    pthread_mutex_lock(&_stop_mutex);
+    t = _stop;
+    pthread_mutex_unlock(&_stop_mutex);
+    return (t);
 }
 std::map<std::string, std::string>*	Host::get_mimes(void) {return (&_mimes);}
 std::set<std::string>*	    Host::get_set_mimes(void) {return (&_set_mimes);}
