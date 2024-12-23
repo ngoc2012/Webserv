@@ -192,7 +192,7 @@ void  	Host::close_connection(int i)
     pthread_mutex_unlock(&_set_mutex);
     pthread_mutex_lock(&_sk_worker_mutex);
     //_worker_load[_sk_worker[i]]--;
-    _sk_worker[i].set_workload(-1);
+    _sk_worker[i]->set_workload(-1);
     _sk_worker.erase(i);
     pthread_mutex_unlock(&_sk_worker_mutex);
 }
