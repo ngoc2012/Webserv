@@ -186,16 +186,16 @@ bool				Worker::get_terminate_flag(void)
     return (w);
 }
 
-void         Worker::set_id(int s) {_id = s;}
-void         Worker::set_host(Host* h) {_host = h;}
-void		 Worker::set_set_updated(bool u)
+void Worker::set_id(int s) {_id = s;}
+void Worker::set_host(Host* h) {_host = h;}
+void Worker::set_set_updated(bool u)
 {
     pthread_mutex_lock(&_set_mutex);
     _set_updated = u;
     pthread_mutex_unlock(&_set_mutex);
 }
 
-void	     Worker::set_terminate_flag(bool f)
+void Worker::set_terminate_flag(bool f)
 {
     pthread_mutex_lock(&_terminate_mutex);
     _terminate_flag = f;

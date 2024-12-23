@@ -71,13 +71,13 @@ class	Worker
         void		check_timeout(void);
         void		wait_for_set_updated(void);
     
-        pthread_t*  		get_th(void);
-        int         		get_id(void) const;
-        Host*       		get_host(void) const;
-        pthread_mutex_t*	get_set_mutex(void);
-        pthread_cond_t*		get_cond_set_updated(void);
-        bool			get_terminate_flag(void);
-        bool			get_set_updated(void);
+        pthread_t*        get_th(void);
+        int               get_id(void) const;
+        Host*             get_host(void) const;
+        pthread_mutex_t*  get_set_mutex(void);
+        pthread_cond_t*	  get_cond_set_updated(void);
+        bool              get_terminate_flag(void);
+        bool              get_set_updated(void);
         std::map<int, Request*>* get_sk_request(void);
         
         void        set_id(int);
