@@ -35,6 +35,7 @@ class	Worker
         
         Host* _host;
         int   _sk_ready;
+        int   _workload;
         int   _max_sk;		    // Max of all fd
         
         volatile bool _terminate_flag;
