@@ -185,7 +185,21 @@ bool				Worker::get_terminate_flag(void)
     pthread_mutex_unlock(&_terminate_mutex);
     return (w);
 }
+int Worker::get_workload(void)
+{
+    int w;
+    pthread_mutex_lock(&_workload_mutex);
+    w = _workload;
+    pthread_mutex_unlock(&_workload_mutex);
+    return w;
+}
 
+void Worker::set_workload(int i)
+{
+    pthread_mutex_lock(&_workload_mutex);
+    _workload += i;
+    pthread_mutex_unlock(&_workload_mutex);
+}
 void Worker::set_id(int s) {_id = s;}
 void Worker::set_host(Host* h) {_host = h;}
 void Worker::set_set_updated(bool u)
