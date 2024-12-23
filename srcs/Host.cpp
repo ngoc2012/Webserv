@@ -107,7 +107,8 @@ void    Host::round_robin(int new_sk, Address* address)
     int j = (i + _start_worker_id + 1) % _n_workers;
     while (i < _n_workers - 1)
     {
-        if (_worker_load[&_workers[w_min]] >= _worker_load[&_workers[j]])
+        //if (_worker_load[&_workers[w_min]] >= _worker_load[&_workers[j]])
+        if (_workers[w_min].get_workload() >= _workers[j].get_workload())
             w_min = j;
         j = (j + 1) % _n_workers;
         i++;
@@ -116,7 +117,8 @@ void    Host::round_robin(int new_sk, Address* address)
     _sk_worker[new_sk] = &_workers[w_min];
     _workers[w_min].new_connection(new_sk, address);
     pthread_mutex_unlock(&_sk_worker_mutex);
-    _worker_load[&_workers[w_min]]++;
+    //_worker_load[&_workers[w_min]]++;
+    _workers[w_min].set_workload(1);
     _start_worker_id++;
     _start_worker_id %= _n_workers;
 }
