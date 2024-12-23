@@ -45,6 +45,8 @@ class	Host
         pthread_mutex_t _cout_mutex;
         // Worker should remove sk closed in read and write set
         pthread_mutex_t _set_mutex;
+	// Worker should stop when server stopped
+        pthread_mutex_t _stop_mutex;
 	// Move to fd_out_mutex???
         pthread_mutex_t _fd_mutex;
         // Worker should remove sk closed in sk_worker
