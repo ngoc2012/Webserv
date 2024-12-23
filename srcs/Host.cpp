@@ -37,7 +37,7 @@ Host::Host()
     _max_sk = -1;
     pthread_mutex_init(&_cout_mutex, NULL);
     pthread_mutex_init(&_set_mutex, NULL);
-    //pthread_mutex_init(&_end_mutex, NULL);
+    pthread_mutex_init(&_stop_mutex, NULL);
     pthread_mutex_init(&_fd_mutex, NULL);
     pthread_mutex_init(&_sk_worker_mutex, NULL);
     _timeout = TIMEOUT;
@@ -60,7 +60,7 @@ Host::~Host()
         delete [] _workers;
     pthread_mutex_destroy(&_cout_mutex);
     pthread_mutex_destroy(&_set_mutex);
-    //pthread_mutex_destroy(&_end_mutex);
+    pthread_mutex_destroy(&_stop_mutex);
     pthread_mutex_destroy(&_fd_mutex);
     pthread_mutex_destroy(&_sk_worker_mutex);
     // Cout mutex destroyed in main
@@ -598,4 +598,9 @@ void Host::set_large_client_header_buffer(size_t l)
     _large_client_header_buffer = l;
 }
 void Host::set_timeout(int t) {_timeout = t;}
-void Host::set_stop(int t) {_stop = t;}
+void Host::set_stop(int t)
+{
+    pthread_mutex_lock(&_stop_mutex);
+    _stop = t;
+    pthread_mutex_unlock(&_stop_mutex);
+}
