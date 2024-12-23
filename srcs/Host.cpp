@@ -232,7 +232,8 @@ static void*   start_worker(void* instance)
     {
         worker->check_timeout();
         //if (worker->get_sk_size() == 0)
-        if (host->get_load(worker) == 0)
+        //if (host->get_load(worker) == 0)
+        if (!worker->get_workload())
         {
             worker->wait_for_set_updated();
             if (worker->get_terminate_flag())
