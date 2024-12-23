@@ -273,7 +273,9 @@ bool    Host::start_workers() {
     {
         _workers[i].set_id(i);
         _workers[i].set_host(this);
+        pthread_mutex_lock(&_sk_worker_mutex);
         _worker_load[&_workers[i]] = 0;
+        pthread_mutex_unlock(&_sk_worker_mutex);
         if (pthread_create(_workers[i].get_th(), NULL, start_worker, &_workers[i]))
         {
             pthread_mutex_lock(&_cout_mutex);
