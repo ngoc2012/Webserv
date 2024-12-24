@@ -54,7 +54,6 @@ int     Address::listen_socket(void)
                    (char *)&off, sizeof(off)) < 0)
 	{
 		_host->print(ERROR, "Error: listen_socket: setsockopt() failed." + _ip_address + ft::itos(_port));
-        // std::cout << "Error: listen_socket: setsockopt() failed " << _ip_address << ":" << _port << std::endl;
 		return (-1);
 	}
 	fcntl(_listen_socket, F_SETFL, O_NONBLOCK);

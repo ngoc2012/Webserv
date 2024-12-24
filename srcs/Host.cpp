@@ -223,8 +223,8 @@ static void*   start_worker(void* instance)
 {
     if (!instance)
         return NULL;
-    Worker*             worker = static_cast<Worker*>(instance);
-    Host*               host = worker->get_host();
+    Worker* worker = static_cast<Worker*>(instance);
+    Host*   host = worker->get_host();
 
     host->print(SUCCESS, "Worker " + ft::itos(worker->get_id()) + " started.");
 
