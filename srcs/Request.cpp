@@ -470,7 +470,7 @@ bool	Request::check_location()
 	    _host->print(ERROR, "Error: fd out open error: " + ft::itos(fd_out));
             return (false);
         }
-	_host->insert_read_fd(fd_out);
+        // _host->insert_read_fd(fd_out);
         std::string     extension = ft::file_extension(_full_file_name);
         std::map<std::string, std::string>*     mimes = _host->get_mimes();
         if (mimes->find(extension) != mimes->end())
