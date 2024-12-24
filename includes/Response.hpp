@@ -43,7 +43,7 @@ class	Response
 		bool            _end;
 
         int             _fd_out;
-    	char		_buffer[RESPONSE_BUFFER * 1028 + 20];
+    	char            _buffer[RESPONSE_BUFFER * 1028 + 20];
 
         int		        write_header(void);
         void	        get_file_size(void);
@@ -53,7 +53,7 @@ class	Response
 
         int 	        write_body(void);
         int 	        write_str_body(void);
-        int 	        read_fd_out(void);
+        // int 	        read_fd_out(void);
 
 		void            init(void);
 		int 		    end_response(int);
