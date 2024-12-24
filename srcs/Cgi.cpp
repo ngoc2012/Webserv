@@ -55,7 +55,7 @@ Cgi::~Cgi()
 {
     if (_pid != -1)
         kill(_pid, SIGTERM);
-    pthread_mutex_t*	fd_mutex = _request->get_host()->get_fd_mutex();
+    // pthread_mutex_t*	fd_mutex = _request->get_host()->get_fd_mutex();
     if (_envs)
     {
         int i = 0;
@@ -67,10 +67,10 @@ Cgi::~Cgi()
     {
         _request->get_host()->clear_read_fd(_fd_out);
         _request->get_response()->set_fd_out(-1);
-        pthread_mutex_lock(fd_mutex);
+        // pthread_mutex_lock(fd_mutex);
         close(_fd_out);
         _fd_out = -1;
-        pthread_mutex_unlock(fd_mutex);
+        // pthread_mutex_unlock(fd_mutex);
     }
     if (_tmp_file != "" && std::remove(_tmp_file.c_str()))
     {
@@ -88,7 +88,7 @@ static void signalHandler(int signum) {
 int    Cgi::execute()
 {
     Host*               host = _request->get_host();
-    pthread_mutex_t*	fd_mutex = host->get_fd_mutex();
+    // pthread_mutex_t*	fd_mutex = host->get_fd_mutex();
     pthread_mutex_t*	cout_mutex = host->get_cout_mutex();
 
     try {
@@ -134,11 +134,11 @@ int    Cgi::execute()
     else if (!_pid)
     {
         signal(SIGTERM, signalHandler);
-        pthread_mutex_lock(fd_mutex);
+        // pthread_mutex_lock(fd_mutex);
         close(_pipe[1]);
         if (dup2(_pipe[0], STDIN_FILENO) == -1)
         {
-            pthread_mutex_unlock(fd_mutex);
+            // pthread_mutex_unlock(fd_mutex);
             pthread_mutex_lock(cout_mutex);
             std::cerr << "Error: dup2" << std::endl;
             pthread_mutex_unlock(cout_mutex);
@@ -146,14 +146,14 @@ int    Cgi::execute()
         }
         if (dup2(_fd_out, STDOUT_FILENO) == -1)
         {
-            pthread_mutex_unlock(fd_mutex);
+            // pthread_mutex_unlock(fd_mutex);
             pthread_mutex_lock(cout_mutex);
             std::cerr << "Error: dup2" << std::endl;
             pthread_mutex_unlock(cout_mutex);
             return 500;
         }
         close(_pipe[0]);
-        pthread_mutex_unlock(fd_mutex);
+        // pthread_mutex_unlock(fd_mutex);
         
         char*   argv[3];
         argv[0] = (char*) _pass.c_str();
@@ -193,16 +193,16 @@ int    Cgi::execute()
                 pthread_mutex_unlock(cout_mutex);
                 return 500;
             }
-            pthread_mutex_lock(fd_mutex);
+            // pthread_mutex_lock(fd_mutex);
             close(fd_in);
             fd_in = -1;
             _request->set_fd_in(-1);
-            pthread_mutex_unlock(fd_mutex);
+            // pthread_mutex_unlock(fd_mutex);
         }
-        pthread_mutex_lock(fd_mutex);
+        // pthread_mutex_lock(fd_mutex);
         close(_pipe[1]);
         close(_pipe[0]);
-        pthread_mutex_unlock(fd_mutex);
+        // pthread_mutex_unlock(fd_mutex);
         
         int     timeout = _request->get_timeout() - 1;
         if (timeout < 1)

@@ -65,9 +65,9 @@ void    Request::clean(void)
         delete (_cgi);
     if (_fd_in > 0)
     {
-        pthread_mutex_lock(_host->get_fd_mutex());
+        // pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_in);
-        pthread_mutex_unlock(_host->get_fd_mutex());
+        // pthread_mutex_unlock(_host->get_fd_mutex());
         _fd_in = -1;
     }
     if (_tmp_file != "" && std::remove(_tmp_file.c_str()))
@@ -113,9 +113,9 @@ Request::~Request()
     clean();
     if (_socket > 0)
     {
-        pthread_mutex_lock(_host->get_fd_mutex());
+        // pthread_mutex_lock(_host->get_fd_mutex());
         close(_socket);
-        pthread_mutex_unlock(_host->get_fd_mutex());
+        // pthread_mutex_unlock(_host->get_fd_mutex());
     }
 }
 
@@ -461,9 +461,9 @@ bool	Request::check_location()
             _response.set_content_type("text/html");
             return (true);
         }
-        pthread_mutex_lock(_host->get_fd_mutex());
+        // pthread_mutex_lock(_host->get_fd_mutex());
         int     fd_out = open(_full_file_name.c_str(), O_RDONLY);
-        pthread_mutex_unlock(_host->get_fd_mutex());
+        // pthread_mutex_unlock(_host->get_fd_mutex());
         if (fd_out == -1)
         {
             _status_code = 500;
@@ -496,10 +496,10 @@ void	Request::process_fd_in()
         case PUT:
             if (_status_code == 200)
             {
-                pthread_mutex_lock(_host->get_fd_mutex());
+                // pthread_mutex_lock(_host->get_fd_mutex());
                 _fd_in = open(_full_file_name.c_str(),
                         O_CREAT | O_WRONLY | O_TRUNC, 0664);
-                pthread_mutex_unlock(_host->get_fd_mutex());
+                // pthread_mutex_unlock(_host->get_fd_mutex());
                 if (_fd_in == -1)
                 {
                     pthread_mutex_lock(_host->get_cout_mutex());
