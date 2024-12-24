@@ -79,7 +79,7 @@ void	Worker::routine(void)
             if (!_host->is_readable_fd(response->get_fd_out()))
             {
                 _host->print(WARNING, "No write fd for response " + ft::itos(response->get_fd_out()));
-                continue;		    
+                continue;
             }
             worked = true;
             ret = response->write();
