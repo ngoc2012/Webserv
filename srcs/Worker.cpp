@@ -78,7 +78,7 @@ void	Worker::routine(void)
             response = request->get_response();
             if (!_host->is_readable_fd(response->get_fd_out()))
             {
-                _host->print(WARNING, "No write fd for response " + ft::itos(response->get_fd_out()));
+                _host->print(WARNING, "No readable fd for response " + ft::itos(response->get_fd_out()));
                 continue;
             }
             worked = true;
