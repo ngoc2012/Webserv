@@ -20,16 +20,16 @@ Address::Address() {}
 Address::Address(const Address& src) { *this = src; }
 Address&	Address::operator=( Address const & src )
 {
-	(void) src;
-	return (*this);
+    (void) src;
+    return (*this);
 }
 Address::~Address()
 {
-	for (std::vector<Server*>::iterator it = _servers.begin();
-		it != _servers.end(); ++it)
-		delete (*it);
-	if (_listen_socket > 0)
-		close(_listen_socket);
+    for (std::vector<Server*>::iterator it = _servers.begin();
+       it != _servers.end(); ++it)
+       delete (*it);
+    if (_listen_socket > 0)
+        close(_listen_socket);
 }
 Address::Address(Host* host, std::string ip, short unsigned int p):
     _host(host),
@@ -46,14 +46,15 @@ int     Address::listen_socket(void)
 	_listen_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_listen_socket < 0)
 	{
-        std::cout << "Error: listen_socket: socket() failed " << _ip_address << ":" << _port << std::endl;
+		_host->print(ERROR, "Error: listen_socket: socket() failed." + _ip_address + ft::itos(_port));
 		return (-1);
 	}
 	int    off = 0;
 	if (setsockopt(_listen_socket, SOL_SOCKET,  SO_REUSEADDR,
                    (char *)&off, sizeof(off)) < 0)
 	{
-        std::cout << "Error: listen_socket: setsockopt() failed " << _ip_address << ":" << _port << std::endl;
+		_host->print(ERROR, "Error: listen_socket: setsockopt() failed." + _ip_address + ft::itos(_port));
+        // std::cout << "Error: listen_socket: setsockopt() failed " << _ip_address << ":" << _port << std::endl;
 		return (-1);
 	}
 	fcntl(_listen_socket, F_SETFL, O_NONBLOCK);
