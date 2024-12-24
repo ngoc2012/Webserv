@@ -67,15 +67,14 @@ int	    Address::bind_addr()
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(_port);
 	addr.sin_addr.s_addr = inet_addr(_ip_address.c_str());
-	// std::cout << "Binding to " << _ip_address << ":" << _port << std::endl;
 	if (bind(_listen_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0)
 	{
-		_host->print(ERROR, "Error: bind() failed." + _ip_address + ft::itos(_port));
+		_host->print(ERROR, "Error: bind() failed: " + _ip_address + ":" + ft::itos(_port));
 		return (-1);
 	}
 	if (listen(_listen_socket, _host->get_max_clients()) < 0)
 	{
-		_host->print(ERROR, "Error: listen() failed." + _ip_address + ft::itos(_port));
+		_host->print(ERROR, "Error: listen() failed." + _ip_address + ":" + ft::itos(_port));
 		return (-1);
 	}
 	_host->print(SUCCESS, "Listening at " + _ip_address + ":" + ft::itos(_port));
