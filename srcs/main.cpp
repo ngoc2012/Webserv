@@ -51,7 +51,11 @@ int	main(int argc, char *argv[])
     g_host = &host;
     host.start();
     for (int i = 0; i < host.get_n_workers(); i++)
+    {
+        std::cout << "End worker " << i << std::endl;
         host.get_workers()[i].set_end();
+    }
+        
     for (int i = 0; i < host.get_n_workers(); i++)
         pthread_join(*(host.get_workers()[i].get_th()), NULL);
     return (0);
