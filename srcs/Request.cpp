@@ -520,9 +520,7 @@ void	Request::process_fd_in()
             // pthread_mutex_unlock(_host->get_fd_mutex());
             if (_fd_in == -1)
             {
-                pthread_mutex_lock(_host->get_cout_mutex());
-                std::cerr << RED << "Error: Can not open file " << _tmp_file << "." << RESET << std::endl;
-                pthread_mutex_unlock(_host->get_cout_mutex());
+                _host->print(ERROR, "Error: fd in open error: " + _tmp_file);
                 _status_code = 500;
                 end_request(7);
             }
@@ -530,10 +528,8 @@ void	Request::process_fd_in()
         case DELETE:
             if (_status_code == 200 && std::remove(_full_file_name.c_str()))
             {
+                _host->print(ERROR, "Error: Can not delete file: " + _full_file_name);
                 _status_code = 500;
-                pthread_mutex_lock(_host->get_cout_mutex());
-                std::cerr << RED << "Error: Can not delete file " << _full_file_name << "." << RESET << std::endl;
-                pthread_mutex_unlock(_host->get_cout_mutex());
                 end_request(8);
             }
             break;
