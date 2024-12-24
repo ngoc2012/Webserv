@@ -293,6 +293,8 @@ bool    Host::start_workers() {
 
 bool	Host::is_writable_fd(int fd)
 {
+    if (fd < 0)
+	return false;
     pthread_mutex_lock(&_set_mutex);
     bool	is_writable = FD_ISSET(fd, &_write_set);
     pthread_mutex_unlock(&_set_mutex);
@@ -301,6 +303,8 @@ bool	Host::is_writable_fd(int fd)
 
 bool	Host::is_readable_fd(int fd)
 {
+    if (fd < 0)
+	return false;
     pthread_mutex_lock(&_set_mutex);
     bool	is_readable = FD_ISSET(fd, &_read_set);
     pthread_mutex_unlock(&_set_mutex);

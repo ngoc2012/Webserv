@@ -77,13 +77,12 @@ void	Worker::routine(void)
         {
             // pthread_mutex_unlock(&_set_mutex);
             response = request->get_response();
-            // fd_out = response->get_fd_out();
-            // if (fd_out != -1 && !FD_ISSET(fd_out, &_read_set))
-            // {
-            // _host->print(WARNING, "No write fd for response " + ft::itos(fd_out));
-            // std::cout << FD_ISSET(fd_out, &_master_read_set) << std::endl;
-            // continue;		    
-            // }
+            fd_out = response->get_fd_out();
+            if (!_host->is_readable_fd(fd_out))
+            {
+                _host->print(WARNING, "No write fd for response " + ft::itos(fd_out));
+                continue;		    
+            }
             worked = true;
             ret = response->write();
             if ((ret < 0 && RUPTURE != 0) || (response->get_end() && request->get_close()))
