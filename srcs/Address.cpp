@@ -70,25 +70,28 @@ int	    Address::bind_addr()
 	// std::cout << "Binding to " << _ip_address << ":" << _port << std::endl;
 	if (bind(_listen_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0)
 	{
-		pthread_mutex_lock(_host->get_cout_mutex());
-		ft::timestamp();
-        std::cout << "Error: bind_addr: bind() failed " << _ip_address << ":" << _port << std::endl;
-		pthread_mutex_unlock(_host->get_cout_mutex());
+		_host->print(ERROR, "Error: bind() failed." + _ip_address + ft::itos(_port));
+		// pthread_mutex_lock(_host->get_cout_mutex());
+		// ft::timestamp();
+        // std::cout << "Error: bind_addr: bind() failed " << _ip_address << ":" << _port << std::endl;
+		// pthread_mutex_unlock(_host->get_cout_mutex());
 		return (-1);
 	}
 	if (listen(_listen_socket, _host->get_max_clients()) < 0)
 	{
-		pthread_mutex_lock(_host->get_cout_mutex());
-		ft::timestamp();
-        std::cout << "Error: bind_addr: listen() failed " << _ip_address << ":" << _port << std::endl;
-		pthread_mutex_unlock(_host->get_cout_mutex());
+		_host->print(ERROR, "Error: listen() failed." + _ip_address + ft::itos(_port));
+		// pthread_mutex_lock(_host->get_cout_mutex());
+		// ft::timestamp();
+        // std::cout << "Error: bind_addr: listen() failed " << _ip_address << ":" << _port << std::endl;
+		// pthread_mutex_unlock(_host->get_cout_mutex());
 		return (-1);
 	}
-	pthread_mutex_lock(_host->get_cout_mutex());
-	ft::timestamp();
-	std::cout << "Listening at " << _ip_address << ":" << _port
-		<< " (socket : " << _listen_socket << ")" << std::endl;
-	pthread_mutex_unlock(_host->get_cout_mutex());
+	_host->print(SUCCESS, "Listening at " + _ip_address + ":" + ft::itos(_port));
+	// pthread_mutex_lock(_host->get_cout_mutex());
+	// ft::timestamp();
+	// std::cout << "Listening at " << _ip_address << ":" << _port
+	// 	<< " (socket : " << _listen_socket << ")" << std::endl;
+	// pthread_mutex_unlock(_host->get_cout_mutex());
 	return (_listen_socket);
 }
 
