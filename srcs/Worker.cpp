@@ -63,7 +63,6 @@ void	Worker::routine(void)
     {   
         fd = it->first;
         request = it->second;
-        // pthread_mutex_lock(&_set_mutex);
         if (!request->get_end() && _host->is_readable_fd(fd))
         {
             // pthread_mutex_unlock(&_set_mutex);
