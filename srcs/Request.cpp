@@ -503,9 +503,6 @@ void	Request::process_fd_in()
                 if (_fd_in == -1)
                 {
                     _host->print(ERROR, "Error: fd in open error: " + _full_file_name);
-                    // pthread_mutex_lock(_host->get_cout_mutex());
-                    // std::cerr << RED << "Error: Can not open file " << _full_file_name << "." << RESET << std::endl;
-                    // pthread_mutex_unlock(_host->get_cout_mutex());
                     _status_code = 403;
                 }
             }
@@ -559,28 +556,28 @@ int     Request::end_request(int ret)
     return (ret);
 }
 
-Host*               Request::get_host(void) const {return (_host);}
-Server*	            Request::get_server(void) const {return (_server);}
-e_method            Request::get_method(void) const {return (_method);}
-std::string         Request::get_url(void) const {return (_url);}
-Response*           Request::get_response(void) {return (&_response);}
-Cgi*                Request::get_cgi(void) const {return (_cgi);}
-int                 Request::get_status_code(void) const {return (_status_code);}
-std::string	    Request::get_content_type(void) const {return (_content_type);}
-size_t		    Request::get_content_length(void) const {return (_content_length);}
-size_t		    Request::get_body_size(void) const {return (_body_size);}
-std::string*	Request::get_str_header(void) {return (&_str_header);}
-std::string	    Request::get_full_file_name(void) const {return (_full_file_name);}
-Location*	    Request::get_location(void) const {return (_location);}
-int		        Request::get_fd_in(void) const {return (_fd_in);}
-std::string	    Request::get_session_id(void) const {return (_session_id);}
-bool		    Request::get_end(void) const {return (_end);}
-bool		    Request::get_chunked(void) const {return (_chunked);}
-int		        Request::get_timeout(void) const {return (_timeout);}
+Host*        Request::get_host(void) const {return (_host);}
+Server*	     Request::get_server(void) const {return (_server);}
+e_method     Request::get_method(void) const {return (_method);}
+std::string  Request::get_url(void) const {return (_url);}
+Response*    Request::get_response(void) {return (&_response);}
+Cgi*         Request::get_cgi(void) const {return (_cgi);}
+int          Request::get_status_code(void) const {return (_status_code);}
+std::string  Request::get_content_type(void) const {return (_content_type);}
+size_t       Request::get_content_length(void) const {return (_content_length);}
+size_t       Request::get_body_size(void) const {return (_body_size);}
+std::string* Request::get_str_header(void) {return (&_str_header);}
+std::string  Request::get_full_file_name(void) const {return (_full_file_name);}
+Location*    Request::get_location(void) const {return (_location);}
+int          Request::get_fd_in(void) const {return (_fd_in);}
+std::string  Request::get_session_id(void) const {return (_session_id);}
+bool         Request::get_end(void) const {return (_end);}
+bool         Request::get_chunked(void) const {return (_chunked);}
+int          Request::get_timeout(void) const {return (_timeout);}
 std::map<std::string, std::string>*     Request::get_fields(void) {return (&_fields);}
-bool		    Request::get_close(void) const {return (_close);}
-Worker*			Request::get_worker(void) const {return (_worker);}
-int				Request::get_socket(void) const {return (_socket);}
+bool         Request::get_close(void) const {return (_close);}
+Worker*      Request::get_worker(void) const {return (_worker);}
+int          Request::get_socket(void) const {return (_socket);}
 
-void		    Request::set_fd_in(int f) {_fd_in = f;}
-void            Request::set_cgi(Cgi* c) {_cgi = c;}
+void         Request::set_fd_in(int f) {_fd_in = f;}
+void         Request::set_cgi(Cgi* c) {_cgi = c;}
