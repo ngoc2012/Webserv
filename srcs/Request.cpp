@@ -502,9 +502,10 @@ void	Request::process_fd_in()
                 // pthread_mutex_unlock(_host->get_fd_mutex());
                 if (_fd_in == -1)
                 {
-                    pthread_mutex_lock(_host->get_cout_mutex());
-                    std::cerr << RED << "Error: Can not open file " << _full_file_name << "." << RESET << std::endl;
-                    pthread_mutex_unlock(_host->get_cout_mutex());
+                    _host->print(ERROR, "Error: fd in open error: " + _full_file_name);
+                    // pthread_mutex_lock(_host->get_cout_mutex());
+                    // std::cerr << RED << "Error: Can not open file " << _full_file_name << "." << RESET << std::endl;
+                    // pthread_mutex_unlock(_host->get_cout_mutex());
                     _status_code = 403;
                 }
             }
@@ -512,11 +513,11 @@ void	Request::process_fd_in()
         case POST:
             _tmp_file = tmp_file_prefix + "0";
             struct stat buffer;
-            pthread_mutex_lock(_host->get_fd_mutex());
+            // pthread_mutex_lock(_host->get_fd_mutex());
             while (stat(_tmp_file.c_str(), &buffer) == 0)
                 _tmp_file = tmp_file_prefix + ft::itos(++i);
             _fd_in = open(_tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0664);
-            pthread_mutex_unlock(_host->get_fd_mutex());
+            // pthread_mutex_unlock(_host->get_fd_mutex());
             if (_fd_in == -1)
             {
                 pthread_mutex_lock(_host->get_cout_mutex());
@@ -549,9 +550,9 @@ int     Request::end_request(int ret)
         _status_code = 413;
     if (_fd_in > 0)
     {
-        pthread_mutex_lock(_host->get_fd_mutex());
+        // pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_in);
-        pthread_mutex_unlock(_host->get_fd_mutex());
+        // pthread_mutex_unlock(_host->get_fd_mutex());
         _fd_in = -1;
     }
     _end = true;
