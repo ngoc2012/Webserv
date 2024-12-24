@@ -126,12 +126,10 @@ void	Worker::new_connection(int new_sk, Address* a)
 void	Worker::close_client_sk(int fd)
 {   
     _host->close_connection(fd);
-    // pthread_mutex_lock(&_sk_size_mutex);
     pthread_mutex_lock(&_set_mutex);
-	delete (_sk_request[fd]);
-	_sk_request.erase(fd);
+    delete (_sk_request[fd]);
+    _sk_request.erase(fd);
     pthread_mutex_unlock(&_set_mutex);
-    // pthread_mutex_unlock(&_sk_size_mutex);
 }
 
 void	Worker::set_sk_timeout(int i)
@@ -162,9 +160,9 @@ void		Worker::wait_for_set_updated(void)
 pthread_t*   Worker::get_th(void) {return (&_th);}
 int          Worker::get_id(void) const {return (_id);}
 Host*        Worker::get_host(void) const {return (_host);}
-pthread_mutex_t*	Worker::get_set_mutex(void) {return (&_set_mutex);}
-pthread_cond_t*		Worker::get_cond_set_updated(void) {return (&_cond_set_updated);}
-std::map<int, Request*>*		Worker::get_sk_request(void) {return (&_sk_request);}
+pthread_mutex_t* Worker::get_set_mutex(void) {return (&_set_mutex);}
+pthread_cond_t*	 Worker::get_cond_set_updated(void) {return (&_cond_set_updated);}
+std::map<int, Request*>* Worker::get_sk_request(void) {return (&_sk_request);}
 
 bool				Worker::get_set_updated(void)
 {
