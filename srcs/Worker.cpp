@@ -116,11 +116,9 @@ void	Worker::check_timeout(void)
 void	Worker::new_connection(int new_sk, Address* a)
 {
     set_sk_timeout(new_sk);
-    // pthread_mutex_lock(&_sk_size_mutex);
     pthread_mutex_lock(&_set_mutex);
     _sk_request[new_sk] = new Request(new_sk, this, a);
     pthread_mutex_unlock(&_set_mutex);
-    // pthread_mutex_unlock(&_sk_size_mutex);
 }
 
 void	Worker::close_client_sk(int fd)
@@ -157,14 +155,14 @@ void		Worker::wait_for_set_updated(void)
     pthread_mutex_unlock(&_set_mutex);
 }
 
-pthread_t*   Worker::get_th(void) {return (&_th);}
-int          Worker::get_id(void) const {return (_id);}
-Host*        Worker::get_host(void) const {return (_host);}
+pthread_t*       Worker::get_th(void) {return (&_th);}
+int              Worker::get_id(void) const {return (_id);}
+Host*            Worker::get_host(void) const {return (_host);}
 pthread_mutex_t* Worker::get_set_mutex(void) {return (&_set_mutex);}
 pthread_cond_t*	 Worker::get_cond_set_updated(void) {return (&_cond_set_updated);}
 std::map<int, Request*>* Worker::get_sk_request(void) {return (&_sk_request);}
 
-bool				Worker::get_set_updated(void)
+bool Worker::get_set_updated(void)
 {
     pthread_mutex_lock(&_set_mutex);
     bool updated = _set_updated;
@@ -172,7 +170,7 @@ bool				Worker::get_set_updated(void)
     return (updated);
 }
 
-bool				Worker::get_terminate_flag(void)
+bool Worker::get_terminate_flag(void)
 {
     pthread_mutex_lock(&_terminate_mutex);
     bool     w = _terminate_flag;
