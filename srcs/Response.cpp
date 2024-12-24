@@ -42,7 +42,7 @@ Response::~Response()
 {
     if (_fd_out != -1)
     {
-	_host->clear_read_fd(_fd_out);
+        // _host->clear_read_fd(_fd_out);
         // pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_out);
         _fd_out = -1;
@@ -244,7 +244,7 @@ int     Response::end_response(int ret)
 {
     if (_fd_out > 0)
     {
-	_host->clear_read_fd(_fd_out);
+        // _host->clear_read_fd(_fd_out);
         // pthread_mutex_lock(_host->get_fd_mutex());
         close(_fd_out);
         _fd_out = -1;

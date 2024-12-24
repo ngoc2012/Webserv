@@ -65,7 +65,7 @@ Cgi::~Cgi()
     }
     if (_fd_out != -1)
     {
-        _request->get_host()->clear_read_fd(_fd_out);
+        // _request->get_host()->clear_read_fd(_fd_out);
         _request->get_response()->set_fd_out(-1);
         // pthread_mutex_lock(fd_mutex);
         close(_fd_out);
