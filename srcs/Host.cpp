@@ -231,8 +231,6 @@ static void*   start_worker(void* instance)
     while (!worker->get_terminate_flag())
     {
         worker->check_timeout();
-        //if (worker->get_sk_size() == 0)
-        //if (host->get_load(worker) == 0)
         if (!worker->get_workload())
         {
             worker->wait_for_set_updated();
@@ -277,15 +275,9 @@ bool    Host::start_workers() {
     {
         _workers[i].set_id(i);
         _workers[i].set_host(this);
-        // pthread_mutex_lock(&_sk_worker_mutex);
-        //_worker_load[&_workers[i]] = 0;
-        // pthread_mutex_unlock(&_sk_worker_mutex);
         if (pthread_create(_workers[i].get_th(), NULL, start_worker, &_workers[i]))
         {
             print(ERROR, "Error creating worker thread");
-            // pthread_mutex_lock(&_cout_mutex);
-            // std::cerr << RED << "Error creating select thread" << RESET << std::endl;
-            // pthread_mutex_unlock(&_cout_mutex);
             return (false);
         }
     }
