@@ -52,7 +52,7 @@ int	main(int argc, char *argv[])
     host.start();
     for (int i = 0; i < host.get_n_workers(); i++)
     {
-        std::cout << "End worker " << i << std::endl;
+        host.print(SUCCESS, "Joining worker " + std::to_string(i));
         host.get_workers()[i].set_end();
     }
         
