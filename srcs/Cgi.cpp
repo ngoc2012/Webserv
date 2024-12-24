@@ -105,7 +105,7 @@ int    Cgi::execute()
     struct stat buffer;
     int i = 0;
 	
-    pthread_mutex_lock(fd_mutex);
+    // pthread_mutex_lock(fd_mutex);
     if (pipe(_pipe) == -1) {
         pthread_mutex_lock(cout_mutex);
         std::cerr << "Error: pipe" << std::endl;
@@ -115,7 +115,7 @@ int    Cgi::execute()
     while (stat(_tmp_file.c_str(), &buffer) == 0)
         _tmp_file = tmp_file_prefix + ft::itos(++i);
     _fd_out = open(_tmp_file.c_str(), O_CREAT | O_RDWR | O_TRUNC, 0664);
-	pthread_mutex_unlock(fd_mutex);
+	// pthread_mutex_unlock(fd_mutex);
 
     if (_fd_out == -1)
     {
