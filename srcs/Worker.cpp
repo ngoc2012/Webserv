@@ -53,7 +53,6 @@ void	Worker::routine(void)
     bool        worked = false;
     int         ret;
     int         fd;
-    //int         fd_out;
 
     pthread_mutex_lock(&_set_mutex);
     std::map<int, Request*>     sk_request = _sk_request;
@@ -77,10 +76,9 @@ void	Worker::routine(void)
         {
             // pthread_mutex_unlock(&_set_mutex);
             response = request->get_response();
-            fd_out = response->get_fd_out();
-            if (!_host->is_readable_fd(fd_out))
+            if (!_host->is_readable_fd(response->get_fd_out()))
             {
-                _host->print(WARNING, "No write fd for response " + ft::itos(fd_out));
+                _host->print(WARNING, "No write fd for response " + ft::itos(response->get_fd_out()));
                 continue;		    
             }
             worked = true;
