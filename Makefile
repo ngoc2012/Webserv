@@ -316,6 +316,8 @@ build:
 
 docker:
 	docker build -t webserv .
+	docker run --rm -v ./:/app webserv
+
 
 tester:
 	clear && ./ubuntu_tester http://127.15.0.1:4242
