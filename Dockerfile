@@ -12,5 +12,4 @@ COPY ./build.sh .
 RUN chmod +x build.sh
 
 # Set the entry point to run the compiled program
-# ENTRYPOINT [ "./build.sh" ]
 ENTRYPOINT ["/bin/sh", "-c", "chmod +x /app/build.sh && /app/build.sh"]
