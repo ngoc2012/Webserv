@@ -7,10 +7,7 @@ RUN apk update && apk add --no-cache g++ make
 # Set the working directory
 WORKDIR /app
 
-# Compile the C++ code using c++
-RUN make
-
-# Clean up: Remove the object files
+RUN ls -la
 RUN make re
 RUN make clean
 

@@ -316,7 +316,7 @@ build:
 
 docker:
 	docker build -t webserv .
-	docker run --rm -v ./:/app webserv
+	docker run --rm -v .:/app webserv
 	cp webserv ../Resume/webserv/conf/
 
 tester:
