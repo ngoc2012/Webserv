@@ -9,5 +9,7 @@ WORKDIR /app
 
 COPY ./build.sh .
 
+RUN chmod +x build.sh
+
 # Set the entry point to run the compiled program
 ENTRYPOINT [ "./build.sh" ]
