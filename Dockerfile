@@ -2,9 +2,11 @@
 FROM alpine:latest
 
 # Install g++ and other necessary packages
-RUN apk update && apk add --no-cache g++ make
+RUN apk update && \
+    apk add --no-cache g++ make && \
+    rm -rf /var/cache/apk/*
 
-# Set the working directory
+    # Set the working directory
 WORKDIR /app
 
 COPY ./build.sh .
