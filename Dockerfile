@@ -11,7 +11,8 @@ WORKDIR /app
 RUN make
 
 # Clean up: Remove the object files
+RUN make re
 RUN make clean
 
 # Set the entry point to run the compiled program
-ENTRYPOINT ["./webserv"]
+# ENTRYPOINT ["./webserv"]
