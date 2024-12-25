@@ -7,7 +7,7 @@ RUN apk update && apk add --no-cache g++ make
 # Set the working directory
 WORKDIR /app
 
-RUN ls -la
+RUN cat Makefile
 RUN make re
 RUN make clean
 
