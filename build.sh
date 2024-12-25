@@ -2,4 +2,4 @@
 
 make re && make clean
 
-./webserv
+./webserv .3.conf
