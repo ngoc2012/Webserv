@@ -216,13 +216,17 @@ int     Response::write_body()
             _host->print(ERROR, "Error: Read fd out: " + ft::itos(_fd_out) + "|" + strerror(errno));
             if (errno == ENOENT)
                 _host->print(ERROR, "The file does not exist.");
-            else if (errno == EACCES) {
+            else if (errno == EACCES)
                 _host->print(ERROR, "Permission denied.");
             return (end_response(ret));
         }
         if (!ret)
+        {
+            _host->print(ERROR, "Error: Read fd out interrupted.");
             return (ret);
-            std::cerr << RED << "Error: Nothing more to send." << RESET << std::endl;
+        }
+            
+        // std::cerr << RED << "Error: Nothing more to send." << RESET << std::endl;
         // pthread_mutex_unlock(_host->get_cout_mutex());
         
     }
