@@ -210,22 +210,21 @@ int     Response::write_body()
     if (ret <= 0)
     {
         // pthread_mutex_lock(_host->get_cout_mutex());
-        if (ret == -1)
+        // if (ret == -1)
+        if (ret < 0)
         {
             _host->print(ERROR, "Error: Read fd out: " + ft::itos(_fd_out) + "|" + strerror(errno));
-            // std::cerr << RED << "Error: Read fd out: " << _fd_out << "|" << strerror(errno) << RESET << std::endl;
-            if (errno == ENOENT) {
+            if (errno == ENOENT)
                 _host->print(ERROR, "The file does not exist.");
-                // std::cerr << "The file does not exist." << std::endl;
-            } else if (errno == EACCES) {
+            else if (errno == EACCES) {
                 _host->print(ERROR, "Permission denied.");
-                // std::cerr << "Permission denied." << std::endl;
-            }
+            return (end_response(ret));
         }
         if (!ret)
+            return (ret);
             std::cerr << RED << "Error: Nothing more to send." << RESET << std::endl;
         // pthread_mutex_unlock(_host->get_cout_mutex());
-        return (end_response(ret));
+        
     }
     int     ret1 = send(_socket, buffer, ret, 0);
     if (!ret1 && ret1)
