@@ -323,7 +323,12 @@ down:
 
 cleanAll:
 	-docker system prune
-	
+	-docker stop $$(docker ps -qa)
+	-docker rm $$(docker ps -qa)
+	-docker rmi -f $$(docker images -qa)
+	-docker volume rm $$(docker volume ls -q)
+	-docker network rm $$(docker network ls -q)
+
 tester:
 	clear && ./ubuntu_tester http://127.15.0.1:4242
 
