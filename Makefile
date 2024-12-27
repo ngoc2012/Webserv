@@ -314,10 +314,13 @@ valgrind:
 build:
 	clear && make && ./webserv .3.conf
 
-docker:
+up:
 	docker build -t webserv .
 	docker run --rm --name webserv -v .:/app webserv
 	cp webserv ../Resume/webserv/conf/
+
+down:
+	docker rm webserv
 
 tester:
 	clear && ./ubuntu_tester http://127.15.0.1:4242
