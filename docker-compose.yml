@@ -1,7 +1,6 @@
 services:
   webserv:
-    container_name: con_webserv
-    image: webserv
+    container_name: webserv
     volumes:
       - .:/app
     restart: always
