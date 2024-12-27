@@ -1,6 +1,10 @@
 services:
   webserv:
     container_name: webserv
+    build:
+      context: .
+      dockerfile: Dockerfile
+      no_cache: false
     volumes:
       - .:/app
-    restart: always
+    restart: no
