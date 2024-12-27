@@ -317,6 +317,7 @@ build:
 up:
 	docker build -t webserv .
 	docker run --name con_webserv -v .:/app webserv
+	cp ./webserv ../Resume/webserv/conf/
 
 down:
 	docker stop con_webserv
