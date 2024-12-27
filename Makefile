@@ -316,12 +316,14 @@ build:
 
 up:
 	docker build -t webserv .
-	docker run --name webserv -v .:/app webserv
-	cp webserv ../Resume/webserv/conf/
+	docker run --name con_webserv -v .:/app webserv
 
 down:
-	docker stop webserv
+	docker stop con_webserv
 
+cleanAll:
+	-docker system prune
+	
 tester:
 	clear && ./ubuntu_tester http://127.15.0.1:4242
 
