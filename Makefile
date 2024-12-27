@@ -315,13 +315,12 @@ build:
 	clear && make && ./webserv .3.conf
 
 up:
-	docker build -t webserv .
-	docker run --name con_webserv -v .:/app webserv
-	cp ./webserv ../Resume/webserv/conf/
+	@docker compose -f ./docker-compose.yml up -d --build
+	@docker compose -f ./docker-compose.yml logs -f
 
 down:
-	docker stop con_webserv
-
+	@docker compose -f ./docker-compose.yml down
+	
 cleanAll:
 	-docker system prune
 	-docker stop $$(docker ps -qa)
