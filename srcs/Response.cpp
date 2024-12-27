@@ -222,7 +222,7 @@ int     Response::write_body()
         }
         if (!ret)
         {
-            _host->print(ERROR, "Error: Read fd out interrupted.");
+            _host->print(ERROR, "Error: Read fd out " + ft::itos(_fd_out) + " interrupted.");
             return (ret);
         }
             
