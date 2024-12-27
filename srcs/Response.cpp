@@ -222,7 +222,8 @@ int     Response::write_body()
         }
         if (!ret)
         {
-            _host->print(ERROR, "Error: Read fd out " + ft::itos(_fd_out) + " interrupted." + _request->get_full_file_name());
+            std::string mess = "Error: Read fd out " + ft::itos(_fd_out) + " interrupted." + _request->get_full_file_name() + " " + ft::itos(_status_code) + " " + ft::itos(_content_length) + " " + ft::itos(_body_size);
+            _host->print(ERROR, mess);
             return (ret);
         }
             
