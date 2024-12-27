@@ -6,7 +6,7 @@ RUN apk update && \
     apk add --no-cache g++ make && \
     rm -rf /var/cache/apk/*
 
-    # Set the working directory
+# Set the working directory
 WORKDIR /app
 
 COPY ./build.sh .
