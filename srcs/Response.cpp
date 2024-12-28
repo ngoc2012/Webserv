@@ -289,7 +289,7 @@ Host*     Response::get_host(void) const {return (_host);}
 Request*  Response::get_request(void) const {return (_request);}
 bool      Response::get_end_header(void) const {return (_end_header);}
 size_t    Response::get_content_length(void) const {return (_content_length);}
-size_t    Response::get_body_size(void) const {return (_body_size;}
+size_t    Response::get_body_size(void) const {return (_body_size);}
 std::string  Response::get_content_type(void) const {return (_content_type);}
 std::string* Response::get_header(void) {return (&_header);}
 bool         Response::get_end(void) const {return (_end);}
