@@ -76,7 +76,8 @@ void	Worker::routine(void)
             response = request->get_response();
             worked = true;
             ret = response->write();
-            if ((ret < 0 && RUPTURE != 0) || (response->get_end() && request->get_close()))
+            if ((ret < 0 && RUPTURE != 0) || (response->get_end() && request->get_close())\
+            || (ret == 0 && request->get_close()))
                 close_client_sk(fd);
         }
         // else
