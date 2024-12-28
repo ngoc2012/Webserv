@@ -72,8 +72,8 @@ class	Response
         Host*		    get_host(void) const;
         Request*	    get_request(void) const;
         bool            get_end_header(void) const;
-		size_t		    get_content_length(void) const;
-		size_t		    get_body_size(void) const;
+	size_t		    get_content_length(void) const;
+	size_t		    get_body_size(void) const;
         std::string	    get_content_type(void) const;
 		std::string*	get_header(void);
         bool            get_end(void) const;

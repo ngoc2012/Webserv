@@ -283,23 +283,24 @@ int     Response::end_response(int ret)
     return (ret);
 }
 
-int		        Response::get_status_code(void) const {return (_status_code);}
-int             Response::get_fd_out(void) const {return (_fd_out);}
-Host*		    Response::get_host(void) const {return (_host);}
-Request*	    Response::get_request(void) const {return (_request);}
-bool            Response::get_end_header(void) const {return (_end_header);}
-size_t		    Response::get_content_length(void) const {return (_content_length);}
-std::string	    Response::get_content_type(void) const {return (_content_type);}
-std::string*	Response::get_header(void) {return (&_header);}
-bool            Response::get_end(void) const {return (_end);}
+int       Response::get_status_code(void) const {return (_status_code);}
+int       Response::get_fd_out(void) const {return (_fd_out);}
+Host*     Response::get_host(void) const {return (_host);}
+Request*  Response::get_request(void) const {return (_request);}
+bool      Response::get_end_header(void) const {return (_end_header);}
+size_t    Response::get_content_length(void) const {return (_content_length);}
+size_t    Response::get_body_size(void) const {return (_body_size;}
+std::string  Response::get_content_type(void) const {return (_content_type);}
+std::string* Response::get_header(void) {return (&_header);}
+bool         Response::get_end(void) const {return (_end);}
 
-void		Response::set_socket(int s) {_socket = s;}
-void		Response::set_host(Host* h) {_host = h;}
-void		Response::set_worker(Worker* w) {_worker = w;}
-void		Response::set_server(Server* s) {_server = s;}
-void		Response::set_request(Request* r) {_request = r;}
-void		Response::set_status_code(int e) {_status_code = e;}
-void        Response::set_fd_out(int f) {_fd_out = f;}
-void		Response::set_content_length(size_t l) {_content_length = l;}
-void	    Response::set_body(std::string s) {_body = s;}
-void        Response::set_content_type(std::string t) {_content_type = t;}
+void Response::set_socket(int s) {_socket = s;}
+void Response::set_host(Host* h) {_host = h;}
+void Response::set_worker(Worker* w) {_worker = w;}
+void Response::set_server(Server* s) {_server = s;}
+void Response::set_request(Request* r) {_request = r;}
+void Response::set_status_code(int e) {_status_code = e;}
+void Response::set_fd_out(int f) {_fd_out = f;}
+void Response::set_content_length(size_t l) {_content_length = l;}
+void Response::set_body(std::string s) {_body = s;}
+void Response::set_content_type(std::string t) {_content_type = t;}
