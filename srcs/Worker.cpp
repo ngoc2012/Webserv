@@ -73,13 +73,7 @@ void	Worker::routine(void)
         }
 	    else if (request->get_end() && _host->is_writable_fd(fd))
         {
-            // pthread_mutex_unlock(&_set_mutex);
             response = request->get_response();
-            // if (!_host->is_readable_fd(response->get_fd_out()))
-            // {
-            //     _host->print(WARNING, "No readable fd for response " + ft::itos(response->get_fd_out()));
-            //     continue;
-            // }
             worked = true;
             ret = response->write();
             if ((ret < 0 && RUPTURE != 0) || (response->get_end() && request->get_close()))
