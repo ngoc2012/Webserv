@@ -268,9 +268,9 @@ int     Response::end_response(int ret)
     std::cout << _request->get_location()->get_method_str(_request->get_method()) << " ";
     std::cout << _request->get_url() << " ";
     std::cout << _status_code << " ";
-    std::cout << "Request: " << _request->get_body_size() << "b, ";
-    std::cout << "Response: " << _body_size << "b ";
-    std::cout << "Content length: " << _content_length << "b ";
+    // std::cout << "Request: " << _request->get_body_size() << "b, ";
+    // std::cout << "Response: " << _body_size << "b ";
+    // std::cout << "Content length: " << _content_length << "b ";
     std::cout << "[wk: " << _worker->get_id() << "] ";
     std::cout << "[sk: " << _socket << "]" << RESET << std::endl;
     pthread_mutex_unlock(_host->get_cout_mutex());
