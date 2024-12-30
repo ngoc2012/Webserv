@@ -231,6 +231,8 @@ int     Response::write_body()
                 _host->print(SUCCESS, "Re-open file " + _request->get_full_file_name() + " for retry.");
                 close(_fd_out);
                 _fd_out = open(_request->get_full_file_name().c_str(), O_RDONLY);
+                if (_fd_out == -1)
+                    return (end_response(ret));
                 offset = lseek(_fd_out, _body_size, SEEK_SET);
                 if (offset == -1) {
                     perror("lseek");
