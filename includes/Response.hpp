@@ -26,51 +26,51 @@ class	Configuration;
 
 class	Response
 {
-	private:
-		int		        _socket;
-		Host*		    _host;
-		Worker*		    _worker;
-		Server*		    _server;
-		Request*	    _request;
-
-		std::string	    _header;
-		std::string	    _body;
-		int		        _status_code;
-		std::string	    _content_type;
-		size_t		    _content_length;
-		size_t		    _body_size;
+    private:
+        int		    _socket;
+        Host*		    _host;
+        Worker*		    _worker;
+        Server*		    _server;
+        Request*	    _request;
+        
+        std::string	    _header;
+        std::string	    _body;
+        int		        _status_code;
+        std::string	    _content_type;
+        size_t		    _content_length;
+        size_t		    _body_size;
         bool            _end_header;
-		bool            _end;
-
+        bool            _end;
+        
         int             _fd_out;
-    	char            _buffer[RESPONSE_BUFFER * 1028 + 20];
-
+        char            _buffer[RESPONSE_BUFFER * 1028 + 20];
+        
         int		        write_header(void);
         void	        get_file_size(void);
-		void			body_generate(void);
-		void			set_session_id(Header&);
+        void			body_generate(void);
+        void			set_session_id(Header&);
         void	        mess_body(std::string, std::string);
-
+        
         int 	        write_body(void);
         int 	        write_str_body(void);
         // int 	        read_fd_out(void);
-
-		void            init(void);
-		int 		    end_response(int);
-
-		Response(const Response&);
-		Response	&operator=(const Response& op);
-	public:
-		Response();
-		virtual ~Response();
-
-		int 		    write(void);
-		void			header_generate(void);
-
+        
+        void            init(void);
+        int 		    end_response(int);
+        
+        Response(const Response&);
+        Response	&operator=(const Response& op);
+    public:
+        Response();
+        virtual ~Response();
+        
+        int 		    write(void);
+        void			header_generate(void);
+        
         int		        get_status_code(void) const;
         int             get_fd_out(void) const;
-        Host*		    get_host(void) const;
-        Request*	    get_request(void) const;
+        Host*       get_host(void) const;
+        Request*    get_request(void) const;
         bool            get_end_header(void) const;
 	size_t		    get_content_length(void) const;
 	size_t		    get_body_size(void) const;
