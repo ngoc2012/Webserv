@@ -60,6 +60,7 @@ void    Response::init(void)
     _content_length = 0;
     _body_size = 0;
     _fd_out = -1;
+    _retries = 0;
     _end_header = false;
     _end = false;
 }
