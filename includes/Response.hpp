@@ -35,8 +35,8 @@ class	Response
         
         std::string	_header;
         std::string	_body;
-        int		_status_code;
         std::string	_content_type;
+        int		_status_code;
         size_t		_content_length;
         size_t		_body_size;
         bool            _end_header;
@@ -45,18 +45,18 @@ class	Response
         int             _fd_out;
         char            _buffer[RESPONSE_BUFFER * 1028 + 20];
         
-        int		        write_header(void);
-        void	        get_file_size(void);
-        void			body_generate(void);
-        void			set_session_id(Header&);
-        void	        mess_body(std::string, std::string);
+        int   write_header(void);
+        void  get_file_size(void);
+        void  body_generate(void);
+        void  set_session_id(Header&);
+        void  mess_body(std::string, std::string);
         
         int 	        write_body(void);
         int 	        write_str_body(void);
         // int 	        read_fd_out(void);
         
         void            init(void);
-        int 		    end_response(int);
+        int 		end_response(int);
         
         Response(const Response&);
         Response	&operator=(const Response& op);
