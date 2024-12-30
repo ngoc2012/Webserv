@@ -198,6 +198,8 @@ int     Response::write_str_body()
 int     Response::write_body()
 {
     int     ret;
+    off_t offset;
+
     if (_body != "")
 	    return write_str_body();
     if (_fd_out == -1)
@@ -224,10 +226,19 @@ int     Response::write_body()
         {
             std::string mess = "Error: Read fd out " + ft::itos(_fd_out) + " interrupted." + _request->get_full_file_name() + " " + ft::itos(_status_code) + " " + ft::itos(_content_length) + " " + ft::itos(_body_size);
             _host->print(ERROR, mess);
-	    close(_fd_out);
-	    _fd_out = open(_request->get_full_file_name().c_str(), O_RDONLY);
-	    return (ret);
-            //return (end_response(ret));
+	    if (_body_size  < _content_length)
+	    {
+                _host->print(SUCCESS, "Re-open file " + _request->get_full_file_name() + " for retry.");
+                close(_fd_out);
+                _fd_out = open(_request->get_full_file_name().c_str(), O_RDONLY);
+                offset = lseek(fd, 10, SEEK_SET);
+                if (offset == -1) {
+                    perror("lseek");
+                    close(fd);
+                    return (end_response(ret));
+                }
+	    }
+            return (ret);
         }
             
         // std::cerr << RED << "Error: Nothing more to send." << RESET << std::endl;
