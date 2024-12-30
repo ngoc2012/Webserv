@@ -60,7 +60,7 @@ void    Response::init(void)
     _content_length = 0;
     _body_size = 0;
     _fd_out = -1;
-    _retries = 0;
+    _retry = 0;
     _end_header = false;
     _end = false;
 }
@@ -230,6 +230,8 @@ int     Response::write_body()
 	    if (_body_size  < _content_length)
 	    {
                 _host->print(SUCCESS, "Re-open file " + _request->get_full_file_name() + " for retry.");
+                if (_retry++ > RETRY)
+                    return (end_response(ret));
                 close(_fd_out);
                 _fd_out = open(_request->get_full_file_name().c_str(), O_RDONLY);
                 if (_fd_out == -1)
