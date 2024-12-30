@@ -43,6 +43,7 @@ class	Response
         bool            _end;
         
         int             _fd_out;
+        int             _retries;
         char            _buffer[RESPONSE_BUFFER * 1028 + 20];
         
         int   write_header(void);
