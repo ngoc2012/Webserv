@@ -27,18 +27,18 @@ class	Configuration;
 class	Response
 {
     private:
-        int		    _socket;
-        Host*		    _host;
-        Worker*		    _worker;
-        Server*		    _server;
-        Request*	    _request;
+        int             _socket;
+        Host*	        _host;
+        Worker*	        _worker;
+        Server*	        _server;
+        Request*        _request;
         
-        std::string	    _header;
-        std::string	    _body;
-        int		        _status_code;
-        std::string	    _content_type;
-        size_t		    _content_length;
-        size_t		    _body_size;
+        std::string	_header;
+        std::string	_body;
+        int		_status_code;
+        std::string	_content_type;
+        size_t		_content_length;
+        size_t		_body_size;
         bool            _end_header;
         bool            _end;
         
