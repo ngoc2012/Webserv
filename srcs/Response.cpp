@@ -224,7 +224,10 @@ int     Response::write_body()
         {
             std::string mess = "Error: Read fd out " + ft::itos(_fd_out) + " interrupted." + _request->get_full_file_name() + " " + ft::itos(_status_code) + " " + ft::itos(_content_length) + " " + ft::itos(_body_size);
             _host->print(ERROR, mess);
-            return (end_response(ret));
+	    close(_fd_out);
+	    _fd_out = open(_request->get_full_file_name().c_str(), O_RDONLY);
+	    return (ret);
+            //return (end_response(ret));
         }
             
         // std::cerr << RED << "Error: Nothing more to send." << RESET << std::endl;
