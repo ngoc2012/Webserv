@@ -27,6 +27,9 @@
 # define KILOBYTE 1024
 # define RESPONSE_BUFFER 64
 # define TIMEOUT 5
+# ifndef RETRY
+#   define RETRY 5
+# endif
 # ifndef DELAY
 #   define DELAY 0 // ms * n_workers
 # endif
