@@ -245,10 +245,6 @@ int     Response::write_body()
 	    }
             return (ret);
         }
-            
-        // std::cerr << RED << "Error: Nothing more to send." << RESET << std::endl;
-        // pthread_mutex_unlock(_host->get_cout_mutex());
-        
     }
     int     ret1 = send(_socket, buffer, ret, 0);
     if (!ret1 && ret1)
