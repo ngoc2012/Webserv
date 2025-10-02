@@ -35,7 +35,7 @@
 # endif
 
 # ifndef RUPTURE
-#   define RUPTURE 0 // Close connection after send or recv failure
+#   define RUPTURE 1 // Close connection after send or recv failure
 # endif
 
 # define NPOS std::string::npos
