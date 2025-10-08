@@ -44,7 +44,9 @@ class	Response
         
         int             _fd_out;
         int             _retry;
-        char            _buffer[RESPONSE_BUFFER * 1028 + 20];
+        char            _buffer[RESPONSE_BUFFER * 1028];
+        size_t         _buffer_size;
+        size_t         _buffer_sent;
         
         int   write_header(void);
         void  get_file_size(void);
@@ -89,6 +91,8 @@ class	Response
 		void			set_content_length(size_t);
 		void			set_body(std::string);
         void            set_content_type(std::string);
+
+        bool            is_flush_done() const;
 };
 
 #endif

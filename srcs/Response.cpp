@@ -63,6 +63,8 @@ void    Response::init(void)
     _retry = 0;
     _end_header = false;
     _end = false;
+    _buffer_size = 0;
+    _buffer_sent = 0;
 }
 
 int     Response::write()
@@ -196,100 +198,101 @@ int     Response::write_str_body()
         return (ret);
 }
 
-int     Response::write_body()
+int Response::write_body()
 {
-    int     ret;
-    off_t offset;
+    ssize_t n;
 
     if (_body != "")
-	    return write_str_body();
+        return write_str_body();
     if (_fd_out == -1)
-    {
-        _host->print(ERROR, "Error: No file content to send, " + ft::itos(_body_size) + "b sent.");
-        return (end_response(-1));
+        return end_response(-1);
+
+    // ---- If we have unsent data in buffer, send it first ----
+    if (_buffer_sent < _buffer_size) {
+        n = send(_socket, _buffer + _buffer_sent, _buffer_size - _buffer_sent, 0);
+        if (n < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+                return 0; // wait for socket to be writable
+            _host->print(ERROR, "Send error: " + std::string(strerror(errno)));
+            return end_response(-1);
+        }
+        if (n == 0)
+            return end_response(-1);
+
+        _buffer_sent += n;
+        _body_size += n;
+
+        if (_buffer_sent < _buffer_size) {
+            _host->print(WARNING, "Partial send: " + ft::itos(_buffer_sent) +
+                         "/" + ft::itos(_buffer_size) + " bytes to socket " +
+                         ft::itos(_socket));
+            if (_retry++ > RETRY) return end_response(-1);
+            return 0; // still data left
+        }
+
+        // All data sent — reset counters
+        _buffer_sent = 0;
+        _buffer_size = 0;
     }
 
-    char	buffer[RESPONSE_BUFFER * 1028 + 20];
-
-    ret = read(_fd_out, buffer, RESPONSE_BUFFER * 1028);
-    if (ret < 0)
-    {
-        if (errno == EINTR) {
-            // interrupted by signal, try again later
+    // ---- Read next chunk from file ----
+    int bytes_read = read(_fd_out, _buffer, sizeof(_buffer));
+    if (bytes_read < 0) {
+        if (errno == EINTR)
             return 0;
-        }
-        _host->print(ERROR, "Error: Read fd out: " + ft::itos(_fd_out) + " | " + strerror(errno));
-        if (errno == ENOENT) _host->print(ERROR, "The file does not exist.");
-        else if (errno == EACCES) _host->print(ERROR, "Permission denied.");
+        _host->print(ERROR, "Read error: " + std::string(strerror(errno)));
         return end_response(-1);
     }
-        // // pthread_mutex_lock(_host->get_cout_mutex());
-        // // if (ret == -1)
-        // if (ret < 0)
-        // {
-        //     _host->print(ERROR, "Error: Read fd out: " + ft::itos(_fd_out) + "|" + strerror(errno));
-        //     if (errno == ENOENT)
-        //         _host->print(ERROR, "The file does not exist.");
-        //     else if (errno == EACCES)
-        //         _host->print(ERROR, "Permission denied.");
-        //     return (end_response(ret));
-        // }
-    if (ret == 0)
-    {
-        // std::string mess = "Error: Read fd out " + ft::itos(_fd_out) + " interrupted." + _request->get_full_file_name() + " " + ft::itos(_status_code) + " " + ft::itos(_content_length) + " " + ft::itos(_body_size);
-        // _host->print(ERROR, mess);
-        if (_body_size  < _content_length)
-        {
-            _host->print(SUCCESS, "Re-open file " +_request->get_full_file_name() + " for retry.");
-            if (_retry++ > RETRY)
-                return (end_response(-1));
-            
-            close(_fd_out);
-            // pthread_mutex_lock(_host->get_fd_mutex());
-            int     fd_out = open(_request->get_full_file_name().c_str(), O_RDONLY);
-            // pthread_mutex_unlock(_host->get_fd_mutex());
-            if (fd_out == -1)
-            {
-                // _status_code = 500;
-                _host->print(ERROR, "Error: fd out open error: " + ft::itos(fd_out));
-                return (false);
-            }
-            set_fd_out(fd_out);
-
-            // _fd_out = open(_request->get_full_file_name().c_st(), O_RDONLY);
-            // if (_fd_out == -1)
-            //     return (end_response(-1));
-
-            offset = lseek(_fd_out, _body_size, SEEK_SET);
-            if (offset == -1) {
-                perror("lseek");
-                close(_fd_out);
-                return (end_response(-1));
-            }
-
-            // Immediately continue sending (recursive retry is fine here)
-            return write_body();
-        } else {
-            return (end_response(0));
-        }
+    if (bytes_read == 0) {
+        if (_body_size >= _content_length)
+            return end_response(0);
+        if (_retry++ > RETRY)
+            return end_response(-1);
+        _host->print(ERROR, "Retry read: " + ft::itos(_retry) + "/" + ft::itos(RETRY));
+        return 0;
     }
-    
-    int     ret1 = send(_socket, buffer, ret, 0);
-    if (!ret1 && ret1)
-        _host->print(ERROR, "Error: Send response body interrupted.");
-    if (ret1 == -1)
-        _host->print(ERROR, "Error: Send body error.");
-    if (ret1 <= 0)
-        return (end_response(ret1));
 
+    _buffer_size = bytes_read;
 
+    // _host->print(ERROR, "Read " + ft::itos(_buffer_size) + " bytes from fd " +
+    //                      ft::itos(_fd_out) + " | " + ft::itos(_body_size) +
+    //                      "/" + ft::itos(_content_length));
+
+    // ---- Send the freshly read data ----
+    n = send(_socket, _buffer, _buffer_size, 0);
+    if (n < 0) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK)
+            return 0;
+        _host->print(ERROR, "Send error: " + std::string(strerror(errno)));
+        return end_response(-1);
+    }
+    if (n == 0)
+        return end_response(-1);
+
+    _buffer_sent = n;
+    _body_size += n;
+
+    if (_buffer_sent < _buffer_size) {
+        _host->print(WARNING, "Partial send: " + ft::itos(_buffer_sent) +
+                         "/" + ft::itos(_buffer_size) + " bytes to socket " +
+                         ft::itos(_socket));
+        if (_retry++ > RETRY)
+            return end_response(-1);
+        return 0; // remaining bytes will be sent later
+    }
+
+    // ---- 4️⃣ Update progress and finish if done ----
+    _buffer_sent = 0;
+    _buffer_size = 0;
     _worker->set_sk_timeout(_socket);
-    _body_size += ret1;
+
     if (_content_length > 1000000)
         ft::print_loading_bar(_body_size, _content_length, 50, _host->get_cout_mutex());
+
     if (_body_size >= _content_length)
-        return (end_response(ret1));
-    return (ret1);
+        return end_response(0);
+
+    return n;
 }
 
 int     Response::end_response(int ret)
@@ -349,3 +352,10 @@ void Response::set_fd_out(int f) {_fd_out = f;}
 void Response::set_content_length(size_t l) {_content_length = l;}
 void Response::set_body(std::string s) {_body = s;}
 void Response::set_content_type(std::string t) {_content_type = t;}
+
+bool Response::is_flush_done() const {
+    char tmp = 0;
+    // poll() or recv(MSG_PEEK) to see if socket still has pending writes
+    // simplest version:
+    return (send(_socket, &tmp, 0, 0) == 0); // connected and buffer empty
+}

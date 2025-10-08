@@ -76,10 +76,13 @@ void	Worker::routine(void)
             response = request->get_response();
             worked = true;
             ret = response->write();
-            if ((ret < 0 && RUPTURE != 0) || (response->get_end() && request->get_close()))
+            if ((ret < 0 && RUPTURE != 0) || (response->get_end() && request->get_close())) {
+                if (response->is_flush_done()) // <-- new method
+                close_client_sk(fd);
+            }
             //|| (ret == 0))
             //|| (ret == 0 && (response->get_content_length() != response->get_body_size())))
-                close_client_sk(fd);
+                // close_client_sk(fd);
         }
         // else
         //     pthread_mutex_unlock(&_set_mutex);
