@@ -205,47 +205,75 @@ int     Response::write_body()
 	    return write_str_body();
     if (_fd_out == -1)
     {
-	_host->print(ERROR, "Error: No file content to send, " + ft::itos(_body_size) + "b sent.");
+        _host->print(ERROR, "Error: No file content to send, " + ft::itos(_body_size) + "b sent.");
         return (end_response(-1));
     }
+
     char	buffer[RESPONSE_BUFFER * 1028 + 20];
+
     ret = read(_fd_out, buffer, RESPONSE_BUFFER * 1028);
-    if (ret <= 0)
+    if (ret < 0)
     {
-        // pthread_mutex_lock(_host->get_cout_mutex());
-        // if (ret == -1)
-        if (ret < 0)
-        {
-            _host->print(ERROR, "Error: Read fd out: " + ft::itos(_fd_out) + "|" + strerror(errno));
-            if (errno == ENOENT)
-                _host->print(ERROR, "The file does not exist.");
-            else if (errno == EACCES)
-                _host->print(ERROR, "Permission denied.");
-            return (end_response(ret));
+        if (errno == EINTR) {
+            // interrupted by signal, try again later
+            return 0;
         }
-        if (!ret)
+        _host->print(ERROR, "Error: Read fd out: " + ft::itos(_fd_out) + " | " + strerror(errno));
+        if (errno == ENOENT) _host->print(ERROR, "The file does not exist.");
+        else if (errno == EACCES) _host->print(ERROR, "Permission denied.");
+        return end_response(-1);
+    }
+        // // pthread_mutex_lock(_host->get_cout_mutex());
+        // // if (ret == -1)
+        // if (ret < 0)
+        // {
+        //     _host->print(ERROR, "Error: Read fd out: " + ft::itos(_fd_out) + "|" + strerror(errno));
+        //     if (errno == ENOENT)
+        //         _host->print(ERROR, "The file does not exist.");
+        //     else if (errno == EACCES)
+        //         _host->print(ERROR, "Permission denied.");
+        //     return (end_response(ret));
+        // }
+    if (ret == 0)
+    {
+        // std::string mess = "Error: Read fd out " + ft::itos(_fd_out) + " interrupted." + _request->get_full_file_name() + " " + ft::itos(_status_code) + " " + ft::itos(_content_length) + " " + ft::itos(_body_size);
+        // _host->print(ERROR, mess);
+        if (_body_size  < _content_length)
         {
-            std::string mess = "Error: Read fd out " + ft::itos(_fd_out) + " interrupted." + _request->get_full_file_name() + " " + ft::itos(_status_code) + " " + ft::itos(_content_length) + " " + ft::itos(_body_size);
-            _host->print(ERROR, mess);
-	    if (_body_size  < _content_length)
-	    {
-                _host->print(SUCCESS, "Re-open file " + _request->get_full_file_name() + " for retry.");
-                if (_retry++ > RETRY)
-                    return (end_response(ret));
+            _host->print(SUCCESS, "Re-open file " +_request->get_full_file_name() + " for retry.");
+            if (_retry++ > RETRY)
+                return (end_response(-1));
+            
+            close(_fd_out);
+            // pthread_mutex_lock(_host->get_fd_mutex());
+            int     fd_out = open(_request->get_full_file_name().c_str(), O_RDONLY);
+            // pthread_mutex_unlock(_host->get_fd_mutex());
+            if (fd_out == -1)
+            {
+                // _status_code = 500;
+                _host->print(ERROR, "Error: fd out open error: " + ft::itos(fd_out));
+                return (false);
+            }
+            set_fd_out(fd_out);
+
+            // _fd_out = open(_request->get_full_file_name().c_st(), O_RDONLY);
+            // if (_fd_out == -1)
+            //     return (end_response(-1));
+
+            offset = lseek(_fd_out, _body_size, SEEK_SET);
+            if (offset == -1) {
+                perror("lseek");
                 close(_fd_out);
-                _fd_out = open(_request->get_full_file_name().c_str(), O_RDONLY);
-                if (_fd_out == -1)
-                    return (end_response(ret));
-                offset = lseek(_fd_out, _body_size, SEEK_SET);
-                if (offset == -1) {
-                    perror("lseek");
-                    close(_fd_out);
-                    return (end_response(ret));
-                }
-	    }
-            return (ret);
+                return (end_response(-1));
+            }
+
+            // Immediately continue sending (recursive retry is fine here)
+            return write_body();
+        } else {
+            return (end_response(0));
         }
     }
+    
     int     ret1 = send(_socket, buffer, ret, 0);
     if (!ret1 && ret1)
         _host->print(ERROR, "Error: Send response body interrupted.");
@@ -253,6 +281,8 @@ int     Response::write_body()
         _host->print(ERROR, "Error: Send body error.");
     if (ret1 <= 0)
         return (end_response(ret1));
+
+
     _worker->set_sk_timeout(_socket);
     _body_size += ret1;
     if (_content_length > 1000000)
